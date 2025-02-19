@@ -1,15 +1,15 @@
 package com.gado.api.repositories;
 
-import com.gado.api.domain.user.User;
+import com.gado.api.domain.user.Usr;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UsrRepository extends JpaRepository<Usr, Long> {
 
-    Optional<User> findByEmail(String email);
+    Optional<Usr> findByEmail(String email);
 
     boolean existsByEmail(String email);
 

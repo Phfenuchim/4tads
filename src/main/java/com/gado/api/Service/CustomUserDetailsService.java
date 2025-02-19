@@ -1,7 +1,7 @@
-package com.gado.api.Service;
+package com.gado.api.service;
 
-import com.gado.api.domain.user.User;
-import com.gado.api.repositories.UserRepository;
+import com.gado.api.domain.user.Usr;
+import com.gado.api.repositories.UsrRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,17 +15,17 @@ import java.util.stream.Collectors;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private UsrRepository usrRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        Usr usr = usrRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                user.getRoles().stream()
+                usr.getEmail(),
+                usr.getPassword(),
+                usr.getRoles().stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                         .collect(Collectors.toList())
         );

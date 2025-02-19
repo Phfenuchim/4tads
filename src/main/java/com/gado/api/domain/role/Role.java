@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Table(name="roles")
+@Table(name="role")
 @Entity
 @Getter
 @Setter

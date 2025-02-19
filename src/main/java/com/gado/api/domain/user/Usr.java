@@ -13,13 +13,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Table(name="user")
+@Table(name="usr")
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Usr {
     @Id
     @GeneratedValue
     private UUID id;
