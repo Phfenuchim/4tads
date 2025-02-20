@@ -28,7 +28,7 @@ public class Usr {
 
     @Column(unique = true)
     private String email;
-    private String phone;
+    private String cpf;
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)

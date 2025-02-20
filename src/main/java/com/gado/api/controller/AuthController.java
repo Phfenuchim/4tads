@@ -15,4 +15,8 @@ public class AuthController {
     public String backoffice() {
         return "backoffice";
     }
+
+    @GetMapping("/home")
+    public String home() {return "home";}
+
 }
