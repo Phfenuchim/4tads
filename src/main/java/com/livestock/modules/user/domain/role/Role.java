@@ -1,4 +1,4 @@
-package com.gado.api.domain.role;
+package com.livestock.modules.user.domain.role;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Table(name="role")
+@Table(name="tb_role")
 @Entity
 @Getter
 @Setter

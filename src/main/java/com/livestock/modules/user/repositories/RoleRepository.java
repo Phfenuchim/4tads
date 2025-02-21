@@ -1,8 +1,8 @@
-package com.gado.api.repositories;
+package com.livestock.modules.user.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.gado.api.domain.role.Role;
+import com.livestock.modules.user.domain.role.Role;
 
 import java.util.Optional;
 import java.util.UUID;

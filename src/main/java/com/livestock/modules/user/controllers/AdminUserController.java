@@ -1,9 +1,11 @@
-package com.gado.api.controller;
+package com.livestock.modules.user.controllers;
 
-import com.gado.api.domain.user.Usr;
-import com.gado.api.service.UserService;
+import com.livestock.modules.user.domain.user.User;
+import com.livestock.modules.user.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,13 +24,19 @@ public class AdminUserController {
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     public String showCreateUserForm(Model model) {
-        model.addAttribute("user", new Usr());
-        return "admin/create-user";
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) principal;
+            model.addAttribute("email", userDetails.getUsername());
+            model.addAttribute("roles", userDetails.getAuthorities());
+        }
+        return "create-user";
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public String createUser(@ModelAttribute("user") Usr user, RedirectAttributes redirectAttributes) {
+    public String createUser(@ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
         try {
             userService.createUser(user);
             redirectAttributes.addFlashAttribute("message", "Usuário criado com sucesso!");

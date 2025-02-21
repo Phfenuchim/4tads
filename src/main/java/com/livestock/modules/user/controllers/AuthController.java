@@ -1,5 +1,6 @@
-package com.gado.api.controller;
+package com.livestock.modules.user.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -12,6 +13,7 @@ public class AuthController {
     }
 
     @GetMapping("/backoffice")
+    @PreAuthorize("hasAnyRole('ESTOQUISTA', 'CLIENTE')")
     public String backoffice() {
         return "backoffice";
     }

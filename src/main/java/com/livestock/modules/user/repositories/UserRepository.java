@@ -1,15 +1,15 @@
-package com.gado.api.repositories;
+package com.livestock.modules.user.repositories;
 
-import com.gado.api.domain.user.Usr;
+import com.livestock.modules.user.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UsrRepository extends JpaRepository<Usr, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<Usr> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
 

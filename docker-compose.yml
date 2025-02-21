@@ -1,0 +1,10 @@
+services:
+  postgres:
+    container_name: livestock
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=livestock_db

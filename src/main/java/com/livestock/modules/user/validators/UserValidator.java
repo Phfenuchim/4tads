@@ -1,31 +1,7 @@
-package com.gado.api.service;
+package com.livestock.modules.user.validators;
 
-import com.gado.api.domain.user.Usr;
-import com.gado.api.repositories.UsrRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-@Service
-public class UserService {
-
-    @Autowired
-    private UsrRepository usrRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public void createUser(Usr usr) {
-        if (!isValidCPF(usr.getCpf())) {
-            throw new IllegalArgumentException("CPF inválido");
-        }
-
-        usr.setPassword(passwordEncoder.encode(usr.getPassword()));
-        usrRepository.save(usr);
-    }
-
-
-    public boolean isValidCPF(String cpf) {
+public class UserValidator {
+    public static boolean isValidCPF(String cpf) {
         // Remove caracteres não numéricos
         cpf = cpf.replaceAll("[^0-9]", "");
 
@@ -67,5 +43,4 @@ public class UserService {
 
         return numbers[10] == digit2;
     }
-
 }

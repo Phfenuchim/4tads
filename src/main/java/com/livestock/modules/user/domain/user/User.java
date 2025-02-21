@@ -1,7 +1,7 @@
-package com.gado.api.domain.user;
+package com.livestock.modules.user.domain.user;
 
 
-import com.gado.api.domain.role.Role;
+import com.livestock.modules.user.domain.role.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,13 +13,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Table(name="usr")
+@Table(name="tb_users")
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Usr {
+public class User {
     @Id
     @GeneratedValue
     private UUID id;
@@ -33,7 +33,7 @@ public class Usr {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "user_roles",
+            name = "tb_user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
