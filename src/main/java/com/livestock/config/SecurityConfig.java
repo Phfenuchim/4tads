@@ -25,16 +25,11 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/home").permitAll()
-                        .requestMatchers("cavalo/create").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/admin/users/create")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/")
+                        .defaultSuccessUrl("/admin/home")
                         .permitAll()
                 );
 

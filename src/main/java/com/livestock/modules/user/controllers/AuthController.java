@@ -12,12 +12,6 @@ public class AuthController {
         return "login";
     }
 
-    @GetMapping("/backoffice")
-    @PreAuthorize("hasAnyRole('ESTOQUISTA', 'CLIENTE')")
-    public String backoffice() {
-        return "backoffice";
-    }
-
     @GetMapping("/home")
     public String home() {return "home";}
 
