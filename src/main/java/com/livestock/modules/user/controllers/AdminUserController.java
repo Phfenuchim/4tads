@@ -31,6 +31,8 @@ public class AdminUserController {
             model.addAttribute("email", userDetails.getUsername());
             model.addAttribute("roles", userDetails.getAuthorities());
         }
+
+        model.addAttribute("user", new User()); // Adiciona um novo objeto User ao modelo
         return "create-user";
     }
 
@@ -44,6 +46,6 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/admin/users/create";
         }
-        return "redirect:/admin/users";
+        return "redirect:/admin/users/create"; // Redireciona de volta para o formulário após a criação
     }
 }
