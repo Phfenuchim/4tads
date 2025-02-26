@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/admin/users")
+@RequestMapping("/admin")
 public class AdminUserController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/create")
+    @GetMapping("/home")
     @PreAuthorize("hasRole('ADMIN')")
     public String showCreateUserForm(Model model) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -32,7 +32,7 @@ public class AdminUserController {
             model.addAttribute("roles", userDetails.getAuthorities());
         }
 
-        model.addAttribute("user", new User()); // Adiciona um novo objeto User ao modelo
+        model.addAttribute("user", new User());
         return "create-user";
     }
 
@@ -46,6 +46,6 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/admin/users/create";
         }
-        return "redirect:/admin/users/create"; // Redireciona de volta para o formulário após a criação
+        return "redirect:/admin/users/create";
     }
 }

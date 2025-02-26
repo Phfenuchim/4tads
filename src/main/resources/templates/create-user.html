@@ -8,7 +8,7 @@
 <p>Email do usuário logado: <span th:text="${email}"></span></p>
 <p>Role do User logado: <span th:text="${roles}"></span></p>
 
-<form th:action="@{/admin/users/create}" th:object="${user}" method="post">
+<form th:action="@{/users/redirect}" th:object="${user}" method="post">
     <div>
         <label for="name">Nome:</label>
         <input type="text" id="name" th:field="*{name}" required>
@@ -26,11 +26,7 @@
         <input type="password" id="password" th:field="*{password}" required>
     </div>
     <div>
-        <label for="roles">Roles:</label>
-        <select id="roles" th:field="*{roles}" multiple>
-            <option value="ROLE_ADMIN">Admin</option>
-            <option value="ROLE_USER">User</option>
-        </select>
+
     </div>
     <button type="submit">Criar Usuário</button>
 </form>
