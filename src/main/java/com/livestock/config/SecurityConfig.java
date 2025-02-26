@@ -31,10 +31,6 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .defaultSuccessUrl("/admin/home")
                         .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/")
-                        .permitAll()
                 );
 
         http.authenticationProvider(authenticationProvider());
