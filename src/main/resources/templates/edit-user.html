@@ -1,18 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Registration and Login System</title>
-
+    <meta charset="UTF-8"/>
+    <title>Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
           rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-          crossorigin="anonymous">
+          crossorigin="anonymous"/>
 </head>
 <body style="background-color: #666666;">
+<!-- Cabeçalho compartilhado (fragment) -->
 <th:block th:replace="fragments/header :: header"></th:block>
+
 <br/><br/>
-Edicao de usuarios
+
+<div class="container">
+    <div class="row justify-content-center" style="margin-top: 40px;">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2>Edição de Usuário</h2>
+                </div>
+                <div class="card-body text-center">
+                    <p class="mb-4">
+                        Bem-vindo à edição de usuário! Selecione uma opção abaixo:
+                    </p>
+                    <a class="btn btn-primary me-2"
+                       th:href="@{/admin/users/{id}/update-user (id=${id})}">
+                        Alterar Usuário
+                    </a>
+
+                    <a class="btn btn-warning"
+                       th:href="@{/admin/users/{id}/update-password (id=${id})}">
+                        Alterar Senha
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

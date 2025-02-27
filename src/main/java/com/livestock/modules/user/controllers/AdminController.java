@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 
@@ -49,15 +50,21 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public String showCreateUserForm(Model model) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var roles = this.userService.getAllRoles();
 
         if (principal instanceof UserDetails userDetails) {
             model.addAttribute("email", userDetails.getUsername());
-            model.addAttribute("roles", userDetails.getAuthorities());
+            model.addAttribute("roles_user", userDetails.getAuthorities());
         }
 
-        model.addAttribute("user", new User());
+        User user = new User();
+        user.setRoles(new HashSet<>()); // Evita NullPointerException
+
+        model.addAttribute("user", user);
+        model.addAttribute("roles", roles);
         return "create-user";
     }
+
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
@@ -107,7 +114,7 @@ public class AdminController {
         return "list-users.html";
     }
 
-    @PatchMapping("/users/{id}/toggle-active")
+    @GetMapping("/users/{id}/toggle-active")
     @PreAuthorize("hasRole('ADMIN')")
     public String toggleUserActiveStatus(@PathVariable("id") String id, @RequestParam(required = true) boolean active, RedirectAttributes redirectAttributes) {
         try {
@@ -120,35 +127,33 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    @GetMapping("/users/{id}/toggle-active")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String activateOrDisableUserById(@PathVariable("id") String id, Model model) {
-        return "toggle-active";
-    }
 
     @GetMapping("/users/{id}/update-password")
     @PreAuthorize("hasRole('ADMIN')")
     public String showUpdatePasswordForm(@PathVariable("id") String id, Model model) {
-        model.addAttribute("user", new UpdateUserPasswordDTO());
+        model.addAttribute("updatePassword", new UpdateUserPasswordDTO());
         return "update-password";
     }
 
     @GetMapping("/users/{id}/update-user")
     @PreAuthorize("hasRole('ADMIN')")
     public String showUpdateUserForm(@PathVariable("id") String id, Model model) {
-        model.addAttribute("user", new UpdateUserDTO());
+        model.addAttribute("id", id);
+        model.addAttribute("updateUser", new UpdateUserDTO());
         return "update-user";
     }
 
     @GetMapping("users/{id}/edit-user")
     @PreAuthorize("hasRole('ADMIN')")
     public String editUserById(@PathVariable("id") String id, Model model) {
+        var user = userService.getUserById(UUID.fromString(id));
+        model.addAttribute("user", user);
         return "edit-user";
     }
 
-    @PatchMapping("/users/{id}/update-password")
+    @PostMapping("/users/{id}/update-password")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showUpdatePasswordForm(@PathVariable("id") String id, @ModelAttribute("user") UpdateUserPasswordDTO updateUserPasswordDTO, RedirectAttributes redirectAttributes) {
+    public String showUpdatePasswordForm(@PathVariable("id") String id, @ModelAttribute("updatePassword") UpdateUserPasswordDTO updateUserPasswordDTO, RedirectAttributes redirectAttributes) {
         try {
             userService.updateUserPassword(UUID.fromString(id), updateUserPasswordDTO.getNewPassword());
             redirectAttributes.addFlashAttribute("message", "Senha atualizada com sucesso!");
@@ -159,11 +164,15 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    @PatchMapping("/users/{id}/update-user")
+    @PostMapping("/users/{id}/update-user")
     @PreAuthorize("hasRole('ADMIN')")
-    public String showUpdateUserForm(@PathVariable("id") String id, @ModelAttribute("user") UpdateUserDTO updateUserDTO, RedirectAttributes redirectAttributes) {
+    public String updateUser(
+            @PathVariable("id") UUID id,
+            @ModelAttribute("updateUser") UpdateUserDTO updateUserDTO,
+            RedirectAttributes redirectAttributes) {
+
         try {
-            userService.updateUser(UUID.fromString(id), updateUserDTO);
+            userService.updateUser(id, updateUserDTO);
             redirectAttributes.addFlashAttribute("message", "Usuário atualizado com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -171,6 +180,7 @@ public class AdminController {
         }
         return "redirect:/admin/users";
     }
+
     @PostMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -178,7 +188,6 @@ public class AdminController {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
-        // Força o redirecionamento para "/home"
         response.sendRedirect("/home");
     }
 }

@@ -9,10 +9,12 @@
         body {
             background-color: #f8f9fa;
         }
+
         .card {
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
+
         .card-header {
             background-color: #007bff;
             color: white;
@@ -20,9 +22,11 @@
             border-radius: 10px 10px 0 0;
             padding: 20px;
         }
+
         .form-control {
             border-radius: 8px;
         }
+
         .btn-custom {
             background-color: #007bff;
             color: white;
@@ -34,23 +38,28 @@
             text-align: center;
             display: block;
         }
+
         .btn-custom:hover {
             background-color: #0056b3;
         }
+
         .table {
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
         }
+
         .table th, .table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         .table th {
             background-color: #007bff;
             color: white;
         }
+
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: #f2f2f2;
         }
@@ -78,9 +87,11 @@
                                     <th>ID</th>
                                     <th>Nome</th>
                                     <th>Email</th>
+                                    <th>CPF</th>
                                     <th>Role</th>
-                                    <th>Editar</th>
                                     <th>Status</th>
+                                    <th>Editar</th>
+                                    <th>Ativar/Desativar</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -88,12 +99,31 @@
                                     <td th:text="${user.id}"></td>
                                     <td th:text="${user.name}"></td>
                                     <td th:text="${user.email}"></td>
-                                    <td th:text="${user.roles}"></td>
-                                    <td><a class="btn btn-warning btn-sm" th:href="@{/users/{id}(id=${user.id})/edit-user}">Editar</a></td>
-                                    <td><a class="btn btn-danger btn-sm" th:href="@{/users/{id}(id=${user.id})/toggle-active}">Ativar/Desativar</a></td>
+                                    <td th:text="${user.cpf}"></td>
+                                    <td>
+                                        <span th:each="role, iterStat : ${user.roles}">
+                                            <span th:text="${role.name}"></span>
+                                            <span th:if="${!iterStat.last}">, </span>
+                                        </span>
+                                    </td>
+                                    <td th:text="${user.active} ? 'Ativo' : 'Desativado'"></td>
+
+                                    <td>
+                                        <a class="btn btn-warning btn-sm"
+                                           th:href="@{/admin/users/{id}/edit-user (id=${user.id})}">
+                                            Editar
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-danger btn-sm"
+                                           th:href="@{/admin/users/{id}/toggle-active(id=${user.id}, active=${!user.active})}">
+                                            Ativar/Desativar
+                                        </a>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                     <div class="d-grid gap-2 mt-3">

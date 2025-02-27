@@ -65,8 +65,12 @@
                 </div>
                 <div class="card-body">
                     <p><strong>Email do usuário logado:</strong> <span th:text="${email}"></span></p>
-                    <p><strong>Role do usuário logado:</strong> <span th:text="${roles}"></span></p>
-                    <form th:action="@{/users/redirect}" th:object="${user}" method="post"
+                    <p><strong>Roles do usuário logado:</strong>
+                        <span th:each="role, iterStat : ${roles_user}">
+                            <span th:text="${role}"></span><span th:if="${!iterStat.last}">, </span>
+                        </span>
+                    </p>
+                    <form th:action="@{/admin/create}" th:object="${user}" method="post"
                           onsubmit="return validateForm()" novalidate>
 
                         <div class="mb-3">
@@ -103,19 +107,29 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="role" class="form-label">Grupo:</label>
-                            <select id="role" class="form-control" th:field="*{password}" required>
-                                <option value="">Selecione um grupo...</option>
-                                <option value="ADMIN">Administrador</option>
-                                <option value="ESTOQUISTA">Estoquista</option>
+                            <label for="roles" class="form-label">Grupo:</label>
+                            <select id="roles" class="form-select" th:field="*{roles}" required>
+                                <option value="" disabled selected>Selecione um grupo...</option>
+                                <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
                             </select>
-                            <span id="role-error" class="error-message">Selecione um grupo.</span>
+                            <span id="roles-error" class="error-message">Selecione um grupo.</span>
                         </div>
 
-                        <button type="submit" class="btn btn-custom">Criar Usuário</button>
+                        <div class="mb-3">
+                            <label for="active" class="form-label">Status do Usuário:</label>
+                            <select id="active" class="form-select" th:field="*{active}" required>
+                                <option value="true">Ativo</option>
+                                <option value="false">Desativado</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-custom" id="submitButton" disabled>Criar Usuário</button>
+
                     </form>
                     <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
                     <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+                    <div th:if="${errorMessage}" class="alert alert-danger mt-3" th:text="${errorMessage}"></div>
+
                 </div>
             </div>
         </div>
@@ -140,8 +154,8 @@
     function validateForm() {
         let isValid = true;
 
-        function toggleError(input, errorSpan, isValidField) {
-            if (!isValidField) {
+        function toggleError(input, errorSpan, condition) {
+            if (!condition) {
                 input.classList.add("input-error");
                 errorSpan.style.display = "block";
                 isValid = false;
@@ -173,9 +187,12 @@
         const confirmPasswordError = document.getElementById("confirmPassword-error");
         toggleError(confirmPasswordInput, confirmPasswordError, passwordInput.value === confirmPasswordInput.value);
 
-        const roleInput = document.getElementById("role");
-        const roleError = document.getElementById("role-error");
-        toggleError(roleInput, roleError, roleInput.value !== "");
+        const roleSelect = document.getElementById("roles");
+        const roleError = document.getElementById("roles-error");
+        toggleError(roleSelect, roleError, roleSelect.value !== "");
+
+        const submitButton = document.getElementById("submitButton");
+        submitButton.disabled = !isValid;
 
         return isValid;
     }
@@ -183,7 +200,6 @@
     document.querySelectorAll('input, select').forEach(input => {
         input.addEventListener('input', validateForm);
     });
-
 </script>
 
 </body>

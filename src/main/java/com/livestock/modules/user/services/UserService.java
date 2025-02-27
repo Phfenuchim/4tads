@@ -1,9 +1,11 @@
 package com.livestock.modules.user.services;
 
+import com.livestock.modules.user.domain.role.Role;
 import com.livestock.modules.user.domain.user.User;
 import com.livestock.modules.user.dto.UpdateUserDTO;
 import com.livestock.modules.user.exceptions.UserInputException;
 import com.livestock.modules.user.exceptions.UserNotFoundException;
+import com.livestock.modules.user.repositories.RoleRepository;
 import com.livestock.modules.user.repositories.UserRepository;
 import com.livestock.modules.user.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     public User createUser(User user) {
         if (!UserValidator.isValidCPF(user.getCpf())) {
@@ -64,7 +69,7 @@ public class UserService {
 
         var lines = userRepository.updateActiveUser(id, active);
 
-        if (lines == 0 ) {
+        if (lines == 0) {
             throw new IllegalArgumentException("Não foi possivel ativar/desativar usuário!");
         }
 
@@ -98,6 +103,27 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+
+    public List<Role> getAllRoles() {
+        var roles = this.roleRepository.findAll();
+
+        if (roles.isEmpty()) {
+            throw new UserNotFoundException("Nenhuma role encontrada!");
+        }
+
+        return roles;
+    }
+
+    public User getUserById(UUID id) {
+        var user = userRepository.findById(id);
+
+        if (!user.isPresent()) {
+            throw new UserNotFoundException("Usuário não encontrado!");
+        }
+
+        return user.get();
+
     }
 
 }
