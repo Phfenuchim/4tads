@@ -24,22 +24,22 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Transactional
     @Modifying
-    @Query("""
-            UPDATE User u
-            SET u.active = :active
-            WHERE u.id = :id
-            
+    @Query(""" 
+            UPDATE User u 
+            SET u.active = :active 
+            WHERE u.id = :id 
+             
             """)
     int updateActiveUser(@Param("id") UUID id, @Param("active") boolean active);
 
 
     @Transactional
     @Modifying
-    @Query("""
-            UPDATE User u
-            SET u.password = :password
-            WHERE u.id = :id
-            
+    @Query(""" 
+            UPDATE User u 
+            SET u.password = :password 
+            WHERE u.id = :id 
+             
             """)
     int updatePasswordUser(@Param("id") UUID id, @Param("password") String password);
 

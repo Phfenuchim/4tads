@@ -37,7 +37,7 @@ public class AdminController {
         }
 
         model.addAttribute("user", new User());
-        return "admin-home";
+        return "home.html";
     }
 
     @GetMapping("/create-user")
@@ -80,7 +80,7 @@ public class AdminController {
 
             model.addAttribute("users", usersResponseDto);
 
-            return "admin/list-users";
+            return "list-users";
         }
 
         var users = userService.getAllUsersPaginated(pageNumber, pageSize);
@@ -100,10 +100,10 @@ public class AdminController {
         model.addAttribute("users", usersResponseDto);
         model.addAttribute("pagination", pagination);
 
-        return "admin/list-users";
+        return "list-users";
     }
 
-    @GetMapping("/users/{id}/toggle-active")
+    @PatchMapping("/users/{id}/toggle-active")
     @PreAuthorize("hasRole('ADMIN')")
     public String toggleUserActiveStatus(@PathVariable("id") String id, @RequestParam(required = true) boolean active, RedirectAttributes redirectAttributes) {
         try {
@@ -116,18 +116,30 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
+    @GetMapping("/users/{id}/toggle-active")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String activateOrDisableUserById(@PathVariable("id") String id, Model model) {
+        return "toggle-active";
+    }
+
     @GetMapping("/users/{id}/update-password")
     @PreAuthorize("hasRole('ADMIN')")
     public String showUpdatePasswordForm(@PathVariable("id") String id, Model model) {
         model.addAttribute("user", new UpdateUserPasswordDTO());
-        return "admin/update-password";
+        return "update-password";
     }
 
     @GetMapping("/users/{id}/update-user")
     @PreAuthorize("hasRole('ADMIN')")
     public String showUpdateUserForm(@PathVariable("id") String id, Model model) {
         model.addAttribute("user", new UpdateUserDTO());
-        return "admin/update-user";
+        return "update-user";
+    }
+
+    @GetMapping("users/{id}/edit-user")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String editUserById(@PathVariable("id") String id, Model model) {
+        return "edit-user";
     }
 
     @PatchMapping("/users/{id}/update-password")
