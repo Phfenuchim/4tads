@@ -13,7 +13,7 @@ public class AuthController {
     }
 
     @GetMapping("/backoffice")
-    @PreAuthorize("hasAnyRole('ESTOQUISTA', 'CLIENTE', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ESTOQUISTA', 'ADMIN')")
     public String backoffice() {
         return "backoffice";
     }

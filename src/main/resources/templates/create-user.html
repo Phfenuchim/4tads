@@ -39,6 +39,17 @@
         .btn-custom:hover {
             background-color: #0056b3;
         }
+
+        .input-error {
+            border: 2px solid red !important;
+            background-color: #ffe5e5;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -55,23 +66,52 @@
                 <div class="card-body">
                     <p><strong>Email do usuário logado:</strong> <span th:text="${email}"></span></p>
                     <p><strong>Role do usuário logado:</strong> <span th:text="${roles}"></span></p>
-                    <form th:action="@{/users/redirect}" th:object="${user}" method="post">
+                    <form th:action="@{/users/redirect}" th:object="${user}" method="post"
+                          onsubmit="return validateForm()" novalidate>
+
                         <div class="mb-3">
                             <label for="name" class="form-label">Nome:</label>
                             <input type="text" id="name" class="form-control" th:field="*{name}" required>
+                            <span id="name-error"
+                                  class="error-message">O nome deve conter pelo menos 3 caracteres.</span>
                         </div>
+
                         <div class="mb-3">
                             <label for="email" class="form-label">Email:</label>
                             <input type="email" id="email" class="form-control" th:field="*{email}" required>
+                            <span id="email-error" class="error-message">Digite um email válido.</span>
                         </div>
+
                         <div class="mb-3">
                             <label for="cpf" class="form-label">CPF:</label>
-                            <input type="text" id="cpf" class="form-control" th:field="*{cpf}" required>
+                            <input type="text" id="cpf" class="form-control" th:field="*{cpf}" required maxlength="14"
+                                   oninput="applyCpfMask(this)">
+                            <span id="cpf-error" class="error-message">CPF inválido.</span>
                         </div>
+
                         <div class="mb-3">
                             <label for="password" class="form-label">Senha:</label>
                             <input type="password" id="password" class="form-control" th:field="*{password}" required>
+                            <span id="password-error"
+                                  class="error-message">A senha deve ter no mínimo 8 caracteres.</span>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirme a Senha:</label>
+                            <input type="password" id="confirmPassword" class="form-control" required>
+                            <span id="confirmPassword-error" class="error-message">As senhas não coincidem.</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Grupo:</label>
+                            <select id="role" class="form-control" th:field="*{role}" required>
+                                <option value="">Selecione um grupo...</option>
+                                <option value="ADMIN">Administrador</option>
+                                <option value="ESTOQUISTA">Estoquista</option>
+                            </select>
+                            <span id="role-error" class="error-message">Selecione um grupo.</span>
+                        </div>
+
                         <button type="submit" class="btn btn-custom">Criar Usuário</button>
                     </form>
                     <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
@@ -81,5 +121,70 @@
         </div>
     </div>
 </div>
+
+<script>
+    function applyCpfMask(input) {
+        let value = input.value.replace(/\D/g, '');
+
+        if (value.length > 11) {
+            value = value.slice(0, 11);
+        }
+
+        value = value.replace(/^(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+        value = value.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+
+        input.value = value;
+    }
+
+    function validateForm() {
+        let isValid = true;
+
+        function toggleError(input, errorSpan, isValidField) {
+            if (!isValidField) {
+                input.classList.add("input-error");
+                errorSpan.style.display = "block";
+                isValid = false;
+            } else {
+                input.classList.remove("input-error");
+                errorSpan.style.display = "none";
+            }
+        }
+
+        const nameInput = document.getElementById("name");
+        const nameError = document.getElementById("name-error");
+        toggleError(nameInput, nameError, nameInput.value.trim().length >= 3);
+
+        const emailInput = document.getElementById("email");
+        const emailError = document.getElementById("email-error");
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        toggleError(emailInput, emailError, emailRegex.test(emailInput.value.trim()));
+
+        const cpfInput = document.getElementById("cpf");
+        const cpfError = document.getElementById("cpf-error");
+        const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+        toggleError(cpfInput, cpfError, cpfRegex.test(cpfInput.value.trim()));
+
+        const passwordInput = document.getElementById("password");
+        const passwordError = document.getElementById("password-error");
+        toggleError(passwordInput, passwordError, passwordInput.value.trim().length >= 8);
+
+        const confirmPasswordInput = document.getElementById("confirmPassword");
+        const confirmPasswordError = document.getElementById("confirmPassword-error");
+        toggleError(confirmPasswordInput, confirmPasswordError, passwordInput.value === confirmPasswordInput.value);
+
+        const roleInput = document.getElementById("role");
+        const roleError = document.getElementById("role-error");
+        toggleError(roleInput, roleError, roleInput.value !== "");
+
+        return isValid;
+    }
+
+    document.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', validateForm);
+    });
+
+</script>
+
 </body>
 </html>

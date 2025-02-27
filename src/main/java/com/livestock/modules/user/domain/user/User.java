@@ -28,8 +28,14 @@ public class User {
 
     @Column(unique = true)
     private String email;
+
+
+    @Column(length = 14, nullable = false)
     private String cpf;
+
     private String password;
+
+    private String role;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
