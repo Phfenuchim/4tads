@@ -81,27 +81,24 @@ public class AdminController {
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public String listUsers(@RequestParam(required = false, defaultValue = "0") int pageNumber, @RequestParam(required = false, defaultValue = "10") int pageSize, @RequestParam(required = false) String name, Model model) {
-        if (name != null) {
+    public String listUsers(@RequestParam(required = false, defaultValue = "0") int pageNumber,
+                            @RequestParam(required = false, defaultValue = "10") int pageSize,
+                            @RequestParam(required = false) String name,
+                            Model model) {
+        if (name != null && !name.trim().isEmpty()) {
             var usersFilteredByName = userService.findAllUsersByNameFilter(name);
-
             var usersResponseDto = usersFilteredByName.stream()
                     .map(UserMapper::toUserResponseDTO)
                     .toList();
-
             model.addAttribute("users", usersResponseDto);
-
             return "list-users";
         }
 
         var users = userService.getAllUsersPaginated(pageNumber, pageSize);
-
         var usersResponseDto = users.stream()
                 .map(UserMapper::toUserResponseDTO)
                 .toList();
-
-        var pagination = PaginationResponseDTO
-                .builder()
+        var pagination = PaginationResponseDTO.builder()
                 .pageNumber(users.getNumber())
                 .pageSize(users.getSize())
                 .totalPages(users.getTotalPages())
@@ -113,6 +110,7 @@ public class AdminController {
 
         return "list-users.html";
     }
+
 
     @GetMapping("/users/{id}/toggle-active")
     @PreAuthorize("hasRole('ADMIN')")
