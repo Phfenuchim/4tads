@@ -42,7 +42,7 @@ public class AdminController {
         }
 
         model.addAttribute("user", new User());
-        return "home.html";
+        return "home";
     }
 
     @GetMapping("/create-user")
@@ -104,7 +104,7 @@ public class AdminController {
         model.addAttribute("users", usersResponseDto);
         model.addAttribute("pagination", pagination);
 
-        return "list-users";
+        return "list-users.html";
     }
 
     @PatchMapping("/users/{id}/toggle-active")
