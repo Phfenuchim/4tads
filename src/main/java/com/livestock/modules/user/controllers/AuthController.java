@@ -19,6 +19,7 @@ public class AuthController {
     }
 
     @GetMapping("/home")
+    @PreAuthorize("hasAnyRole('ESTOQUISTA', 'ADMIN')")
     public String home() {return "home";}
 
 }
