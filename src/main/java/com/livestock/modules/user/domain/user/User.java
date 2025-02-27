@@ -25,6 +25,7 @@ public class User {
     private UUID id;
 
     private String name;
+    private boolean active;
 
     @Column(unique = true)
     private String email;
