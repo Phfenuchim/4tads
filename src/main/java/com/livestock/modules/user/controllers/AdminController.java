@@ -4,6 +4,7 @@ import com.livestock.common.dto.PaginationResponseDTO;
 import com.livestock.modules.user.domain.user.User;
 import com.livestock.modules.user.dto.UpdateUserDTO;
 import com.livestock.modules.user.dto.UpdateUserPasswordDTO;
+import com.livestock.modules.user.exceptions.UserNotFoundException;
 import com.livestock.modules.user.mappers.UserMapper;
 import com.livestock.modules.user.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -86,11 +87,15 @@ public class AdminController {
                             @RequestParam(required = false) String name,
                             Model model) {
         if (name != null && !name.trim().isEmpty()) {
-            var usersFilteredByName = userService.findAllUsersByNameFilter(name);
-            var usersResponseDto = usersFilteredByName.stream()
-                    .map(UserMapper::toUserResponseDTO)
-                    .toList();
-            model.addAttribute("users", usersResponseDto);
+            try{
+                var usersFilteredByName = userService.findAllUsersByNameFilter(name);
+                var usersResponseDto = usersFilteredByName.stream()
+                        .map(UserMapper::toUserResponseDTO)
+                        .toList();
+                model.addAttribute("users", usersResponseDto);
+            }catch(UserNotFoundException e){
+
+            }
             return "list-users";
         }
 
