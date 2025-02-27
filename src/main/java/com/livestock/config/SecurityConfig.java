@@ -1,6 +1,7 @@
 package com.livestock.config;
 
 import com.livestock.modules.user.services.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,13 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .defaultSuccessUrl("/admin/home")
                         .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")  // Define a URL de logout
+                        .logoutSuccessUrl("/home") // Redireciona corretamente após logout
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+
                 );
 
         http.authenticationProvider(authenticationProvider());

@@ -6,10 +6,15 @@ import com.livestock.modules.user.dto.UpdateUserDTO;
 import com.livestock.modules.user.dto.UpdateUserPasswordDTO;
 import com.livestock.modules.user.mappers.UserMapper;
 import com.livestock.modules.user.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +33,10 @@ public class AdminController {
     @GetMapping("/home")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     public String home(Model model) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal=authentication.getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) principal;
+        if (principal instanceof UserDetails userDetails) {
             model.addAttribute("email", userDetails.getUsername());
             model.addAttribute("roles", userDetails.getAuthorities());
         }
@@ -45,8 +50,7 @@ public class AdminController {
     public String showCreateUserForm(Model model) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) principal;
+        if (principal instanceof UserDetails userDetails) {
             model.addAttribute("email", userDetails.getUsername());
             model.addAttribute("roles", userDetails.getAuthorities());
         }
@@ -166,5 +170,15 @@ public class AdminController {
             return "redirect:/admin/users";
         }
         return "redirect:/admin/users";
+    }
+    @PostMapping("/logout")
+    public void logout(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+
+        // Força o redirecionamento para "/home"
+        response.sendRedirect("/home");
     }
 }
