@@ -1,6 +1,7 @@
 package com.livestock.modules.user.middlewares;
 
 import com.livestock.modules.user.exceptions.UserInputException;
+import com.livestock.modules.user.exceptions.UserNotAuthenticatedException;
 import com.livestock.modules.user.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
@@ -36,6 +37,14 @@ public class UserExceptionMiddleware {
         redirectAttributes.addFlashAttribute("timestamp", LocalDateTime.now());
 
         return "redirect:/admin/create-user";
+    }
+    @ExceptionHandler(UserNotAuthenticatedException.class)
+    public String authenticationException(UserInputException ex, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        redirectAttributes.addFlashAttribute("errorCode", "403");
+        redirectAttributes.addFlashAttribute("timestamp", LocalDateTime.now());
+
+        return "redirect:/error";
     }
 
 }
