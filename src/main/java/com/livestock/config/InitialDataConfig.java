@@ -29,6 +29,7 @@ public class InitialDataConfig {
                 User adminUser = new User();
                 adminUser.setName("admin");
                 adminUser.setEmail("admin@admin.com");
+                adminUser.setCpf("12345678901"); // Adicione um CPF válido aqui
                 adminUser.setPassword(passwordEncoder.encode("senha1234"));
                 adminUser.getRoles().add(adminRole);
 

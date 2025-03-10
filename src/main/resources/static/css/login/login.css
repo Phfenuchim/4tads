@@ -105,6 +105,10 @@ h2, p, .form-control, .btn-primary, .menu a, .brand-name {
 .image-container img {
     width: 100%;
     border-radius: 20px;
+    z-index: 1;
+    position: relative;
+    margin-bottom: -70px;
+    margin-top: 20px;
 }
 
 .form-container {
@@ -160,7 +164,8 @@ h2, p, .form-control, .btn-primary, .menu a, .brand-name {
     background-color: #3d4a30;
     color: white;
     padding: 40px 0;
-    margin-top: 50px;
+    z-index: 2;
+    position: relative;
 }
 
 .footer h5 {

@@ -113,7 +113,7 @@ public class AdminController {
         model.addAttribute("users", usersResponseDto);
         model.addAttribute("pagination", pagination);
 
-        return "list-users.html";
+        return "list-users";
     }
 
 
