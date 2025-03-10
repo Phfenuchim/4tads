@@ -26,6 +26,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/home").permitAll()
+                        .requestMatchers("/static/**", "css/**", "js/**", "images/**").permitAll()
                         .requestMatchers("/admin/*").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
