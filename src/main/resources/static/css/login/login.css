@@ -1,4 +1,39 @@
-/* Reset básico */
+@font-face {
+    font-family: 'Quicksand';
+    src: url('/fonts/Quicksand-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Quicksand';
+    src: url('/fonts/Quicksand-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Quicksand';
+    src: url('/fonts/Quicksand-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Quicksand';
+    src: url('/fonts/Quicksand-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Quicksand';
+    src: url('/fonts/Quicksand-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -6,14 +41,22 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    font-family: 'Quicksand', Arial, sans-serif;
 }
 
-/* Cabeçalho */
+h2, p, .form-control, .btn-primary, .menu a, .brand-name {
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+
 .header {
     background-color: #3d4a30;
     padding: 15px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.brand-name {
+    color: white;
 }
 
 .header .container {
@@ -21,14 +64,13 @@ body {
     margin: auto;
 }
 
-.header-content {
+.logo-container {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
 .logo {
-    height: 40px;
+    height: 50px;
 }
 
 .menu a {
@@ -53,7 +95,6 @@ body {
     border: none;
 }
 
-/* Login */
 .login-container {
     display: flex;
     justify-content: center;
@@ -115,7 +156,6 @@ body {
     text-decoration: underline;
 }
 
-/* Rodapé */
 .footer {
     background-color: #3d4a30;
     color: white;

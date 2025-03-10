@@ -9,41 +9,40 @@
 </head>
 <body>
 
-<!-- Cabeçalho -->
 <div class="header">
-    <div class="container">
-        <div class="header-content">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="logo-container d-flex align-items-center">
             <img th:src="@{/images/logo.png}" alt="GADUS" class="logo">
-            <div class="menu">
-                <a href="#">Início</a>
-                <a href="#">Sobre</a>
-                <a href="#">Lotes</a>
-                <a href="#">Contato</a>
-                <a href="#" class="active">Entrar</a>
-                <input type="text" placeholder="O que você está procurando?" class="search-bar">
-            </div>
+            <span class="brand-name">GADUS</span>
+        </div>
+        <div class="menu d-flex align-items-center">
+            <a href="#">Início</a>
+            <a href="#">Sobre</a>
+            <a href="#">Lotes</a>
+            <a href="#">Contato</a>
+            <a href="#" class="active">Entrar</a>
         </div>
     </div>
 </div>
 
-<!-- Conteúdo principal -->
+
 <div class="container login-container">
     <div class="row align-items-center">
-        <!-- Imagem -->
         <div class="col-md-6 image-container">
             <img th:src="@{/images/cow.png}" alt="Cow with hat">
         </div>
 
-        <!-- Formulário -->
         <div class="col-md-6 form-container">
             <h2>Faça o seu Login</h2>
             <p>Enter your details below</p>
             <form method="post" role="form" th:action="@{/login}" class="form-horizontal">
                 <div class="mb-3">
-                    <input type="email" id="username" name="username" class="form-control" placeholder="Insira seu e-mail" required>
+                    <input type="email" id="username" name="username" class="form-control"
+                           placeholder="Insira seu e-mail" required>
                 </div>
                 <div class="mb-3">
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Insira a senha" required>
+                    <input type="password" id="password" name="password" class="form-control"
+                           placeholder="Insira a senha" required>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Log In</button>
                 <a href="#" class="forgot-password">Esqueceu a senha?</a>
@@ -52,7 +51,6 @@
     </div>
 </div>
 
-<!-- Rodapé -->
 <footer class="footer">
     <div class="container">
         <div class="row">
