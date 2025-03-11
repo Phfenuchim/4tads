@@ -27,6 +27,10 @@ public class UserController {
             if (userDetails.getAuthorities().contains("ROLE_ADMIN")) {
                 return "redirect:admin/home";
             }
+
+            if (userDetails.getAuthorities().contains("ROLE_ESTOQUISTA")) {
+                return "redirect:estoquista/home";
+            }
         } return "";
     }
 

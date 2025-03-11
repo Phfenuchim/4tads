@@ -10,7 +10,6 @@ import com.livestock.modules.user.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,7 +43,7 @@ public class AdminController {
         }
 
         model.addAttribute("user", new User());
-        return "home";
+        return "admin/home";
     }
 
     @GetMapping("/create-user")
@@ -63,7 +62,7 @@ public class AdminController {
 
         model.addAttribute("user", user);
         model.addAttribute("roles", roles);
-        return "create-user";
+        return "admin/create-user";
     }
 
 
@@ -96,7 +95,7 @@ public class AdminController {
             }catch(UserNotFoundException e){
 
             }
-            return "list-users";
+            return "admin/list-users";
         }
 
         var users = userService.getAllUsersPaginated(pageNumber, pageSize);
@@ -113,7 +112,7 @@ public class AdminController {
         model.addAttribute("users", usersResponseDto);
         model.addAttribute("pagination", pagination);
 
-        return "list-users";
+        return "admin/list-users";
     }
 
 
@@ -135,7 +134,7 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public String showUpdatePasswordForm(@PathVariable("id") String id, Model model) {
         model.addAttribute("updatePassword", new UpdateUserPasswordDTO());
-        return "update-password";
+        return "admin/update-password";
     }
 
     @GetMapping("/users/{id}/update-user")
@@ -143,7 +142,7 @@ public class AdminController {
     public String showUpdateUserForm(@PathVariable("id") String id, Model model) {
         model.addAttribute("id", id);
         model.addAttribute("updateUser", new UpdateUserDTO());
-        return "update-user";
+        return "admin/update-user";
     }
 
     @GetMapping("users/{id}/edit-user")
@@ -151,7 +150,7 @@ public class AdminController {
     public String editUserById(@PathVariable("id") String id, Model model) {
         var user = userService.getUserById(UUID.fromString(id));
         model.addAttribute("user", user);
-        return "edit-user";
+        return "admin/edit-user";
     }
 
     @PostMapping("/users/{id}/update-password")

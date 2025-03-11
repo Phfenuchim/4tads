@@ -1,7 +1,6 @@
 package com.livestock.modules.product.controllers;
 
 import com.livestock.common.dto.PaginationResponseDTO;
-import com.livestock.modules.product.domain.product.Product;
 import com.livestock.modules.product.dto.CreateProductDTO;
 import com.livestock.modules.product.dto.UpdateProductDTO;
 import com.livestock.modules.product.exceptions.ProductNotFoundException;
