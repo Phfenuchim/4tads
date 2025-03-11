@@ -72,15 +72,9 @@
                             <span id="roles-error" class="error-message">Selecione um grupo.</span>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="active" class="form-label">Status do Usuário:</label>
-                            <select id="active" class="form-select" th:field="*{active}" required>
-                                <option value="true">Ativo</option>
-                                <option value="false">Desativado</option>
-                            </select>
-                        </div>
+                        <input type="hidden" th:field="*{active}" value="true">
 
-                        <button type="submit" class="btn btn-custom" id="submitButton" disabled>Criar Usuário</button>
+                        <button type="submit" class="btn btn-custom" id="submitButton">Criar Usuário</button>
 
                     </form>
                     <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
