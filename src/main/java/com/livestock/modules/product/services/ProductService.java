@@ -51,23 +51,11 @@ public class ProductService {
     }
 
     public Page<Product> getAllProductsPaginated(int pageNumber, int pageSize) {
-        var products = this.productRepository.findAll(PageRequest.of(pageNumber, pageSize));
-
-        if (products.isEmpty()) {
-            throw new ProductNotFoundException("Nenhum produto encontrado!");
-        }
-
-        return products;
+        return this.productRepository.findAll(PageRequest.of(pageNumber, pageSize));
     }
 
     public List<Product> findAllProductsByNameFilter(String name) {
-        var products = this.productRepository.findAllByProductNameContaining(name);
-
-        if (products.isEmpty()) {
-            throw new ProductNotFoundException("Nenhum produto encontrado com este nome!");
-        }
-
-        return products;
+        return this.productRepository.findAllByProductNameContaining(name);
     }
 
     public boolean updateProductActiveStatus(UUID id, boolean active) {
