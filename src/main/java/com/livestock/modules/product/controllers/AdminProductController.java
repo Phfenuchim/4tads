@@ -1,12 +1,14 @@
 package com.livestock.modules.product.controllers;
 
 import com.livestock.common.dto.PaginationResponseDTO;
+import com.livestock.modules.product.domain.product.Product;
 import com.livestock.modules.product.dto.CreateProductDTO;
 import com.livestock.modules.product.dto.UpdateProductDTO;
 import com.livestock.modules.product.exceptions.ProductNotFoundException;
 import com.livestock.modules.product.mappers.ProductMapper;
 import com.livestock.modules.product.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,20 +27,6 @@ public class AdminProductController {
 
     @Autowired
     private ProductService productService;
-
-    @GetMapping("/create-product")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String showCreateProductForm(Model model) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-/*Corrigir, a IA que fez*/
-        if (principal instanceof UserDetails userDetails) {
-            model.addAttribute("email", userDetails.getUsername());
-            model.addAttribute("roles_user", userDetails.getAuthorities());
-        }
-
-        model.addAttribute("product", new CreateProductDTO());
-        return "create-product";
-    }
 
     @PostMapping("/create-product")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
@@ -166,7 +154,7 @@ public class AdminProductController {
             } catch (ProductNotFoundException e) {
                 model.addAttribute("error", e.getMessage());
             }
-            return "list-products";
+            return "admin/list-products";
         }
 
         var products = productService.getAllProductsPaginated(pageNumber, pageSize);
@@ -183,7 +171,7 @@ public class AdminProductController {
         model.addAttribute("products", productsResponseDto);
         model.addAttribute("pagination", pagination);
 
-        return "list-products";
+        return "admin/list-products";
     }
 
     @GetMapping("/products/{id}/delete")

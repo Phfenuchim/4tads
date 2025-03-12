@@ -38,6 +38,7 @@ public class UserService {
             throw new UserInputException("Este email já está em uso!");
         }
 
+        user.setActive(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }

@@ -31,9 +31,20 @@ public class ProductService {
         if (createProductDTO.getProductName() == null || createProductDTO.getProductName().isEmpty()) {
             throw new ProductInputException("Nome do produto não pode ser vazio!");
         }
+        if (createProductDTO.getProductName().length() > 200) {
+            throw new ProductInputException("Nome do produto não pode exceder 200 caracteres.");
+        }
+        if (createProductDTO.getDescription().length() > 2000) {
+            throw new ProductInputException("Descrição não pode exceder 2000 caracteres.");
+        }
 
         if (createProductDTO.getPrice() == null || createProductDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ProductInputException("Preço do produto deve ser maior que zero!");
+        }
+        if (createProductDTO.getRating() != null &&
+                (createProductDTO.getRating().compareTo(new BigDecimal("1")) < 0 ||
+                        createProductDTO.getRating().compareTo(new BigDecimal("5")) > 0)) {
+            throw new IllegalArgumentException("Avaliação deve estar entre 1 e 5.");
         }
 
         if (productRepository.existsByProductName(createProductDTO.getProductName())) {
@@ -45,17 +56,30 @@ public class ProductService {
         product.setDescription(createProductDTO.getDescription());
         product.setPrice(createProductDTO.getPrice());
         product.setQuantity(createProductDTO.getQuantity());
+        product.setRating(createProductDTO.getRating());
         product.setActive(true);
 
         return productRepository.save(product);
     }
 
     public Page<Product> getAllProductsPaginated(int pageNumber, int pageSize) {
-        return this.productRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        var products = this.productRepository.findAll(PageRequest.of(pageNumber, pageSize));
+
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException("Nenhum produto encontrado!");
+        }
+
+        return products;
     }
 
     public List<Product> findAllProductsByNameFilter(String name) {
-        return this.productRepository.findAllByProductNameContaining(name);
+        var products = this.productRepository.findAllByProductNameContaining(name);
+
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException("Nenhum produto encontrado com este nome!");
+        }
+
+        return products;
     }
 
     public boolean updateProductActiveStatus(UUID id, boolean active) {
@@ -149,12 +173,12 @@ public class ProductService {
             productImageRepository.resetDefaultImagesForProduct(productId);
         }
 
-        Product_image productImage = new Product_image();
-        productImage.setProduct(product);
-        productImage.setPathUrl(pathUrl);
-        productImage.setDefaultImage(isDefault);
+        Product_image product_image = new Product_image();
+        product_image.setProduct(product);
+        product_image.setPathUrl(pathUrl);
+        product_image.setDefaultImage(isDefault);
 
-        return productImageRepository.save(productImage);
+        return productImageRepository.save(product_image);
     }
 
     @Transactional

@@ -21,8 +21,9 @@
 
                     <!-- Apenas para usuários AUTENTICADOS -->
                     <div sec:authorize="isAuthenticated()" class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <a class="nav-link active" th:href="@{/admin/create-user}" sec:authorize="hasRole('ADMIN')">Cadastrar</a>
                         <a class="nav-link active" th:href="@{/admin/users}" sec:authorize="hasRole('ADMIN')">Usuários</a>
+                        <a class="nav-link active" th:href="@{/admin/products}" sec:authorize="hasRole('ADMIN')">Produtos</a>
+
 
                         <!-- Dropdown com nome do usuário -->
                         <li class="nav-item dropdown">

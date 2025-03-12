@@ -30,21 +30,7 @@ public class AdminController {
 
     @Autowired
     private UserService userService;
-
-    @GetMapping("/home")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String home(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal=authentication.getPrincipal();
-
-        if (principal instanceof UserDetails userDetails) {
-            model.addAttribute("email", userDetails.getUsername());
-            model.addAttribute("roles", userDetails.getAuthorities());
-        }
-
-        model.addAttribute("user", new User());
-        return "admin/home";
-    }
+    
 
     @GetMapping("/create-user")
     @PreAuthorize("hasRole('ADMIN')")

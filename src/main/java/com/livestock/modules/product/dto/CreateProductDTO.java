@@ -16,4 +16,5 @@ public class CreateProductDTO {
     private Integer quantity;
     private String description;
     private BigDecimal price;
+    private BigDecimal rating;
 }
