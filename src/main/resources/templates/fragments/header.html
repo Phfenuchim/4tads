@@ -22,7 +22,7 @@
                     <!-- Apenas para usuários AUTENTICADOS -->
                     <div sec:authorize="isAuthenticated()" class="navbar-nav me-auto mb-2 mb-lg-0">
                         <a class="nav-link active" th:href="@{/admin/users}" sec:authorize="hasRole('ADMIN')">Usuários</a>
-                        <a class="nav-link active" th:href="@{/admin/products}" sec:authorize="hasRole('ADMIN')">Produtos</a>
+                        <a class="nav-link active" th:href="@{/admin/products}" sec:authorize="hasAnyRole('ADMIN','ESTOQUISTA')">Produtos</a>
 
 
                         <!-- Dropdown com nome do usuário -->
