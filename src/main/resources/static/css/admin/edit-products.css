@@ -1,0 +1,84 @@
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../../fonts/Quicksand-Regular.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-align: center; /* Centraliza textos e elementos inline */
+}
+
+body {
+    font-family: 'Quicksand', Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Estilização da card */
+.card {
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+}
+
+.card-header {
+    background-color: #28a745;
+    color: white;
+    border-radius: 10px 10px 0 0;
+    padding: 20px;
+}
+
+/* Botão customizado */
+.btn-custom {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    font-weight: bold;
+    text-decoration: none;
+    display: block;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.btn-custom:hover {
+    background-color: #218838;
+}
+
+/* Estilo para a imagem atual */
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+/* Centraliza os campos dos formulários */
+.form-control {
+    text-align: center;
+}
+
+/* Caso utilize tabelas em outras partes */
+.table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #28a745;
+    color: white;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f2f2f2;
+}

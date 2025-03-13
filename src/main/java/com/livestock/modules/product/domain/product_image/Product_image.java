@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name="tb_product_image")
+@Table(name="tb_product_images")
 @Entity
 @Getter
 @Setter

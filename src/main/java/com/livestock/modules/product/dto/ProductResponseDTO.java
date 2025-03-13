@@ -24,5 +24,5 @@ public class ProductResponseDTO {
     private BigDecimal price;
     private BigDecimal rating;
     private LocalDateTime createdAt;
-    private Set<ProductImageResponseDTO> images = new HashSet<>();
+    private ProductImageResponseDTO image;
 }

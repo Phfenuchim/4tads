@@ -19,6 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Controller
@@ -27,6 +30,7 @@ public class AdminProductController {
 
     @Autowired
     private ProductService productService;
+    private static String caminhoImagens = "src/main/resources/static/images/produtos/";
 
     @GetMapping("/create-product")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
@@ -44,11 +48,15 @@ public class AdminProductController {
 
     @PostMapping("/create-product")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String createProduct(@ModelAttribute("product") CreateProductDTO createProductDTO, RedirectAttributes redirectAttributes) {
+    public String createProduct(@ModelAttribute("product") CreateProductDTO createProductDTO, RedirectAttributes redirectAttributes, @RequestParam(value = "file", required = true) MultipartFile arquivo) {
         try {
-            productService.createProduct(createProductDTO);
+            var product = productService.createProduct(createProductDTO);
+            byte[] bytes = arquivo.getBytes();
+            Path caminho = Paths.get(caminhoImagens+arquivo.getOriginalFilename());
+            Files.write(caminho, bytes);
+            productService.addImageToProduct(product.getId(), arquivo.getOriginalFilename(), true);
             redirectAttributes.addFlashAttribute("message", "Produto criado com sucesso!");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IOException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/admin/create-product";
         }
@@ -75,7 +83,7 @@ public class AdminProductController {
             var product = productService.getProductById(UUID.fromString(id));
             model.addAttribute("product", product);
             model.addAttribute("productImages", productService.getProductImages(UUID.fromString(id)));
-            return "edit-product";
+            return "admin/edit-product";
         } catch (ProductNotFoundException e) {
             model.addAttribute("error", e.getMessage());
             return "redirect:/admin/products";

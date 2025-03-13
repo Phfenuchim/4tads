@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" th:href="@{/css/admin/create-product.css}">
 </head>
 <body>
@@ -21,87 +20,96 @@
                     <h2>Criar Novo Produto</h2>
                 </div>
                 <div class="card-body">
-                    <p><strong>Email do usuário logado:</strong> <span th:text="${email}"></span></p>
-                    <p><strong>Roles do usuário logado:</strong>
+                    <p>
+                        <strong>Email do usuário logado:</strong>
+                        <span th:text="${email}"></span>
+                    </p>
+                    <p>
+                        <strong>Roles do usuário logado:</strong>
                         <span th:each="role, iterStat : ${roles_user}">
                             <span th:text="${role}"></span><span th:if="${!iterStat.last}">, </span>
                         </span>
                     </p>
 
                     <!-- Formulário de criação de produto -->
-                    <form th:action="@{/admin/create-product}" th:object="${product}" method="post" novalidate>
-
+                    <form id="createForm" th:action="@{/admin/create-product}" th:object="${product}" method="post" enctype="multipart/form-data" novalidate>
                         <!-- Nome do Produto -->
                         <div class="mb-3">
                             <label for="productName" class="form-label">Nome do Produto:</label>
                             <input type="text" id="productName" class="form-control" th:field="*{productName}" required>
-                            <span id="productName-error" class="error-message">O nome do produto é obrigatório.</span>
+                            <span id="productName-error" class="error-message" style="display: none;">O nome do produto é obrigatório.</span>
                         </div>
 
                         <!-- Descrição -->
                         <div class="mb-3">
                             <label for="description" class="form-label">Descrição:</label>
-                            <textarea id="description" class="form-control" th:field="*{description}" rows="3"
-                                      required></textarea>
-                            <span id="description-error" class="error-message">A descrição é obrigatória.</span>
+                            <textarea id="description" class="form-control" th:field="*{description}" rows="3" required></textarea>
+                            <span id="description-error" class="error-message" style="display: none;">A descrição é obrigatória.</span>
                         </div>
 
                         <!-- Preço -->
                         <div class="mb-3">
                             <label for="price" class="form-label">Preço:</label>
-                            <input type="number" id="price" step=".01" min=".01" class="form-control"
-                                   th:field="*{price}" required>
-                            <span id="price-error" class="error-message">O preço deve ser maior que zero.</span>
+                            <input type="number" id="price" step=".01" min=".01" class="form-control" th:field="*{price}" required>
+                            <span id="price-error" class="error-message" style="display: none;">O preço deve ser maior que zero.</span>
                         </div>
 
                         <!-- Quantidade -->
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Quantidade:</label>
-                            <input type="number" id="quantity" min="0" class="form-control"
-                                   th:field="*{quantity}" required>
-                            <span id="quantity-error" class="error-message">A quantidade não pode ser negativa.</span>
+                            <input type="number" id="quantity" min="0" class="form-control" th:field="*{quantity}" required>
+                            <span id="quantity-error" class="error-message" style="display: none;">A quantidade não pode ser negativa.</span>
                         </div>
 
-                        <!-- Campo para upload de imagens -->
+                        <!-- Upload de Imagem (Obrigatório) -->
                         <div class="mb-3">
-                            <label for="images" class="form-label">Imagens do Produto:</label>
-                            <input type="file" id="images" name="images" class="form-control" multiple accept="image/png, image/jpeg">
+                            <label for="file" class="form-label">Imagem do Produto:</label>
+                            <input type="file" id="file" name="file" class="form-control" accept="image/png, image/jpeg" required>
+                            <span id="file-error" class="error-message" style="display: none;">Você deve selecionar uma imagem.</span>
                         </div>
 
-                        <!-- Campo para selecionar imagem padrão -->
+                        <!-- Campo para selecionar imagem padrão (opcional) -->
                         <div class="mb-3">
                             <label for="defaultImageIndex" class="form-label">Imagem Padrão (número):</label>
                             <input type="number" id="defaultImageIndex" name="defaultImageIndex" class="form-control" min="0" value="0">
                             <small class="text-muted">Índice da imagem que será definida como padrão (começando em 0)</small>
                         </div>
 
-                        <!-- Botão de envio -->
-                        <button type="submit" class="btn btn-custom" id="submitButton">Criar Produto</button>
-
+                        <!-- Botão de envio, inicialmente desabilitado -->
+                        <button type="submit" class="btn btn-custom" id="submitButton" disabled>Criar Produto</button>
                     </form>
 
                     <!-- Mensagens de sucesso ou erro -->
                     <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
                     <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Validação JavaScript -->
 <script>
+    // Registra quando um campo é tocado (blur) para que os erros passem a ser exibidos
+    document.querySelectorAll('input, textarea').forEach(function(input) {
+        input.addEventListener('blur', function() {
+            input.dataset.touched = "true";
+            checkFormValidity();
+        });
+    });
+
     function validateForm() {
         let isValid = true;
 
         function toggleError(input, errorSpan, condition) {
-            if (!condition) {
-                input.classList.add("input-error");
+            // Se o campo já foi tocado (blur) e a condição não for satisfeita, mostra o erro
+            if (!condition && input.dataset.touched === "true") {
                 errorSpan.style.display = "block";
-                isValid = false;
             } else {
-                input.classList.remove("input-error");
                 errorSpan.style.display = "none";
+            }
+            if (!condition) {
+                isValid = false;
             }
         }
 
@@ -121,13 +129,32 @@
         const quantityError = document.getElementById("quantity-error");
         toggleError(quantityInput, quantityError, parseInt(quantityInput.value) >= 0);
 
+        // Validação do campo de imagem: deve haver pelo menos 1 arquivo selecionado
+        const fileInput = document.getElementById("file");
+        const fileError = document.getElementById("file-error");
+        toggleError(fileInput, fileError, fileInput.files && fileInput.files.length > 0);
+
         return isValid;
     }
 
+    // Função que verifica a validade do formulário e habilita/desabilita o botão
+    function checkFormValidity() {
+        const submitButton = document.getElementById("submitButton");
+        // Chama a validação e, se tudo estiver ok, habilita o botão
+        const valid = validateForm();
+        submitButton.disabled = !valid;
+    }
+
+    // Adiciona evento 'input' para verificar em tempo real, sem exibir erro se não estiver tocado
     document.querySelectorAll('input, textarea').forEach(input => {
-        input.addEventListener('input', validateForm);
+        input.addEventListener('input', checkFormValidity);
     });
+
+    // Verifica a validade inicial (caso algum campo já esteja preenchido)
+    checkFormValidity();
 </script>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

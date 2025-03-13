@@ -68,7 +68,7 @@ public class ProductService {
 
 
     public List<Product> findAllProductsByNameFilter(String name) {
-        return this.productRepository.findAllByProductNameContaining(name);
+        return this.productRepository.findAllByProductNameContainingIgnoreCase(name);
     }
 
     public boolean updateProductActiveStatus(UUID id, boolean active) {

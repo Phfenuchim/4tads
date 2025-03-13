@@ -16,7 +16,7 @@ import java.util.UUID;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    List<Product> findAllByProductNameContaining(String productName);
+    List<Product> findAllByProductNameContainingIgnoreCase(String productName);
 
     List<Product> findByActive(boolean active);
 

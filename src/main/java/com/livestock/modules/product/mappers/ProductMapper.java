@@ -19,11 +19,15 @@ public class ProductMapper {
                 .price(product.getPrice())
                 .rating(product.getRating())
                 .createdAt(product.getCreatedAt())
-                .images(product.getImages().stream()
-                        .map(ProductMapper::toProductImageResponseDTO)
-                        .collect(Collectors.toSet()))
+                .image(toProductImageResponseDTO(
+                        product.getImages().stream()
+                                .filter(Product_image::getDefaultImage) // Filtra apenas a imagem padrão
+                                .findFirst() // Pega a primeira encontrada
+                                .orElse(null) // Se não encontrar nenhuma, retorna null
+                ))
                 .build();
     }
+
 
     public static ProductImageResponseDTO toProductImageResponseDTO(Product_image image) {
         return ProductImageResponseDTO.builder()

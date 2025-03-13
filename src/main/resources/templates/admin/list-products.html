@@ -41,7 +41,7 @@
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Imagem</th>
                                 <th>Nome</th>
                                 <th>Preço</th>
                                 <th>Quantidade</th>
@@ -52,7 +52,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="product : ${products}">
-                                <td th:text="${product.id}"></td>
+                                <td><img class="thumbnail" th:src="@{'/images/produtos/' + ${product.image.pathUrl}}" th:alt="${product.image.pathUrl}"></td>
                                 <td th:text="${product.productName}"></td>
                                 <td th:text="'R$ ' + ${product.price}"></td>
                                 <td th:text="${product.quantity}"></td>
@@ -81,7 +81,7 @@
 
                     <!-- Botão para criar novo produto -->
                     <div class="d-grid gap-2 mt-3">
-                        <a href="/admin/create-product" class="btn btn-custom">Criar Produto</a>
+                        <a href="/admin/create-product" class="btn btn-custom">Criar Produto +</a>
                     </div>
 
 

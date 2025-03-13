@@ -7,6 +7,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    text-align: center; /* Centraliza textos e elementos inline */
 }
 
 body {
@@ -14,19 +15,21 @@ body {
     background-color: #f8f9fa;
 }
 
+/* Garante que os elementos de texto usem a mesma fonte */
 h2, p, .form-control, .btn-primary, .menu a, .brand-name {
     font-family: 'Quicksand', Arial, sans-serif;
 }
 
+/* Centraliza a card e adiciona margem automática para centralizar o container */
 .card {
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto; /* Centraliza a card na página */
 }
 
 .card-header {
     background-color: #28a745;
     color: white;
-    text-align: center;
     border-radius: 10px 10px 0 0;
     padding: 20px;
 }
@@ -39,7 +42,6 @@ h2, p, .form-control, .btn-primary, .menu a, .brand-name {
     width: 100%;
     font-weight: bold;
     text-decoration: none;
-    text-align: center;
     display: block;
 }
 
@@ -47,15 +49,25 @@ h2, p, .form-control, .btn-primary, .menu a, .brand-name {
     background-color: #218838;
 }
 
+/* Ajusta a imagem para o tamanho desejado */
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+/* Estilização da tabela */
 .table {
     width: 100%;
     margin-top: 20px;
     border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .table th, .table td {
     padding: 12px;
-    text-align: left;
+    text-align: center; /* Centraliza o conteúdo das células */
     border-bottom: 1px solid #ddd;
 }
 
@@ -67,3 +79,4 @@ h2, p, .form-control, .btn-primary, .menu a, .brand-name {
 .table-striped tbody tr:nth-of-type(odd) {
     background-color: #f2f2f2;
 }
+
