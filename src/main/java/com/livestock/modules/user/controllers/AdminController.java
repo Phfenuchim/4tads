@@ -123,18 +123,36 @@ public class AdminController {
     @GetMapping("/users/{id}/update-user")
     @PreAuthorize("hasRole('ADMIN')")
     public String showUpdateUserForm(@PathVariable("id") String id, Model model) {
+        var user = userService.getUserById(UUID.fromString(id)); // Buscar usuário
+
+        // Preencher DTO com dados do usuário existente
+        UpdateUserDTO updateUserDTO = new UpdateUserDTO();
+        updateUserDTO.setName(user.getName());
+        updateUserDTO.setCpf(user.getCpf());
+
         model.addAttribute("id", id);
-        model.addAttribute("updateUser", new UpdateUserDTO());
+        model.addAttribute("updateUser", updateUserDTO);
         return "admin/update-user";
     }
 
-    @GetMapping("users/{id}/edit-user")
+
+    @GetMapping("/users/{id}/edit-user")
     @PreAuthorize("hasRole('ADMIN')")
     public String editUserById(@PathVariable("id") String id, Model model) {
         var user = userService.getUserById(UUID.fromString(id));
+
+        // Criando um DTO preenchido com os dados do usuário
+        UpdateUserDTO updateUserDTO = new UpdateUserDTO();
+        updateUserDTO.setName(user.getName());
+        updateUserDTO.setCpf(user.getCpf());
+
+        model.addAttribute("id", id);
         model.addAttribute("user", user);
+        model.addAttribute("updateUser", updateUserDTO); // Certifica-se de que o atributo está no modelo
+
         return "admin/edit-user";
     }
+
 
     @PostMapping("/users/{id}/update-password")
     @PreAuthorize("hasRole('ADMIN')")
