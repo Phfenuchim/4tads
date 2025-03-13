@@ -38,51 +38,52 @@
                         <h3 class="text-center">Nenhum produto cadastrado ainda!</h3>
                     </div>
                     <div th:unless="${products == null || products.isEmpty()}">
-                            <table class="table table-striped">
-                                <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nome</th>
-                                    <th>Preço</th>
-                                    <th>Quantidade</th>
-                                    <th>Status</th>
-                                    <th>Editar</th>
-                                    <th>Ativar/Desativar</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="product : ${products}">
-                                    <td th:text="${product.id}"></td>
-                                    <td th:text="${product.productName}"></td>
-                                    <td th:text="'R$ ' + ${product.price}"></td>
-                                    <td th:text="${product.quantity}"></td>
-                                    <td th:text="${product.active} ? 'Ativo' : 'Desativado'"></td>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Preço</th>
+                                <th>Quantidade</th>
+                                <th>Status</th>
+                                <th>Editar</th>
+                                <th>Ativar/Desativar</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="product : ${products}">
+                                <td th:text="${product.id}"></td>
+                                <td th:text="${product.productName}"></td>
+                                <td th:text="'R$ ' + ${product.price}"></td>
+                                <td th:text="${product.quantity}"></td>
+                                <td th:text="${product.active} ? 'Ativo' : 'Desativado'"></td>
 
-                                    <!-- Botão Editar -->
-                                    <td>
-                                        <a class="btn btn-warning btn-sm"
-                                           th:href="@{/admin/products/{id}/edit (id=${product.id})}">
-                                            Editar
-                                        </a>
-                                    </td>
+                                <!-- Botão Editar -->
+                                <td>
+                                    <a class="btn btn-warning btn-sm"
+                                       th:href="@{/admin/products/{id}/edit (id=${product.id})}">
+                                        Editar
+                                    </a>
+                                </td>
 
-                                    <td>
-                                        <a class="btn btn-danger btn-sm"
-                                              th:text="${product.active} ? 'Desativar' : 'Ativar'"
-                                           th:href="@{/admin/products/{id}/toggle-active(id=${product.id}, active=${!product.active})}">
-                                        </a>
-                                    </td>
+                                <!-- Botão Ativar/Desativar -->
+                                <td>
+                                    <a class="btn btn-danger btn-sm"
+                                       th:text="${product.active} ? 'Desativar' : 'Ativar'"
+                                       th:href="@{/admin/products/{id}/toggle-active(id=${product.id}, active=${!product.active})}">
+                                    </a>
+                                </td>
 
-                                </tr>
-                                </tbody>
-                            </table>
-
-                        </div>
-                    <!-- Botão para criar novo produto -->
-                        <div class="d-grid gap-2 mt-3">
-                        <a href="/admin/create-product" class="btn btn-custom">Criar Produto</a>
-                        </div>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
+
+                    <!-- Botão para criar novo produto -->
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="/admin/create-product" class="btn btn-custom">Criar Produto</a>
+                    </div>
+
 
 
                 </div> <!-- fim card-body -->

@@ -30,7 +30,7 @@ public class AdminController {
 
     @Autowired
     private UserService userService;
-    
+
 
     @GetMapping("/create-user")
     @PreAuthorize("hasRole('ADMIN')")
@@ -52,7 +52,7 @@ public class AdminController {
     }
 
 
-    @PostMapping("/create")
+    @PostMapping("/create-user")
     @PreAuthorize("hasRole('ADMIN')")
     public String createUser(@ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
         try {
@@ -60,9 +60,9 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("message", "Usuário criado com sucesso!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/home";
+            return "redirect:admin/users";
         }
-        return "redirect:/admin/home";
+        return "redirect:/admin/users";
     }
 
     @GetMapping("/users")
@@ -72,34 +72,31 @@ public class AdminController {
                             @RequestParam(required = false) String name,
                             Model model) {
         if (name != null && !name.trim().isEmpty()) {
-            try{
-                var usersFilteredByName = userService.findAllUsersByNameFilter(name);
-                var usersResponseDto = usersFilteredByName.stream()
-                        .map(UserMapper::toUserResponseDTO)
-                        .toList();
-                model.addAttribute("users", usersResponseDto);
-            }catch(UserNotFoundException e){
+            var usersFilteredByName = userService.findAllUsersByNameFilter(name);
+            var usersResponseDto = usersFilteredByName.stream()
+                    .map(UserMapper::toUserResponseDTO)
+                    .toList();
+            model.addAttribute("users", usersResponseDto);
+        } else {
+            var usersPage = userService.getAllUsersPaginated(pageNumber, pageSize);
+            var usersResponseDto = usersPage.getContent().stream()
+                    .map(UserMapper::toUserResponseDTO)
+                    .toList();
 
-            }
-            return "admin/list-users";
+            var pagination = PaginationResponseDTO.builder()
+                    .pageNumber(usersPage.getNumber())
+                    .pageSize(usersPage.getSize())
+                    .totalPages(usersPage.getTotalPages())
+                    .totalItems((int) usersPage.getTotalElements())
+                    .build();
+
+            model.addAttribute("users", usersResponseDto);
+            model.addAttribute("pagination", pagination);
         }
-
-        var users = userService.getAllUsersPaginated(pageNumber, pageSize);
-        var usersResponseDto = users.stream()
-                .map(UserMapper::toUserResponseDTO)
-                .toList();
-        var pagination = PaginationResponseDTO.builder()
-                .pageNumber(users.getNumber())
-                .pageSize(users.getSize())
-                .totalPages(users.getTotalPages())
-                .totalItems((int) users.getTotalElements())
-                .build();
-
-        model.addAttribute("users", usersResponseDto);
-        model.addAttribute("pagination", pagination);
 
         return "admin/list-users";
     }
+
 
 
     @GetMapping("/users/{id}/toggle-active")

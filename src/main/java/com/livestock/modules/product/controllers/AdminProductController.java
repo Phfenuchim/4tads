@@ -28,6 +28,20 @@ public class AdminProductController {
     @Autowired
     private ProductService productService;
 
+    @GetMapping("/create-product")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
+    public String showCreateProductForm(Model model) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails userDetails) {
+            model.addAttribute("email", userDetails.getUsername());
+            model.addAttribute("roles_user", userDetails.getAuthorities());
+        }
+
+        model.addAttribute("product", new CreateProductDTO());
+        return "admin/create-product";
+    }
+
     @PostMapping("/create-product")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     public String createProduct(@ModelAttribute("product") CreateProductDTO createProductDTO, RedirectAttributes redirectAttributes) {
@@ -145,34 +159,31 @@ public class AdminProductController {
                                @RequestParam(required = false) String name,
                                Model model) {
         if (name != null && !name.trim().isEmpty()) {
-            try {
-                var productsFilteredByName = productService.findAllProductsByNameFilter(name);
-                var productsResponseDto = productsFilteredByName.stream()
-                        .map(ProductMapper::toProductResponseDTO)
-                        .toList();
-                model.addAttribute("products", productsResponseDto);
-            } catch (ProductNotFoundException e) {
-                model.addAttribute("error", e.getMessage());
-            }
-            return "admin/list-products";
+            var productsFilteredByName = productService.findAllProductsByNameFilter(name);
+            var productsResponseDto = productsFilteredByName.stream()
+                    .map(ProductMapper::toProductResponseDTO)
+                    .toList();
+            model.addAttribute("products", productsResponseDto);
+        } else {
+            var productsPage = productService.getAllProductsPaginated(pageNumber, pageSize);
+            var productsResponseDto = productsPage.getContent().stream()
+                    .map(ProductMapper::toProductResponseDTO)
+                    .toList();
+
+            var pagination = PaginationResponseDTO.builder()
+                    .pageNumber(productsPage.getNumber())
+                    .pageSize(productsPage.getSize())
+                    .totalPages(productsPage.getTotalPages())
+                    .totalItems((int) productsPage.getTotalElements())
+                    .build();
+
+            model.addAttribute("products", productsResponseDto);
+            model.addAttribute("pagination", pagination);
         }
-
-        var products = productService.getAllProductsPaginated(pageNumber, pageSize);
-        var productsResponseDto = products.stream()
-                .map(ProductMapper::toProductResponseDTO)
-                .toList();
-        var pagination = PaginationResponseDTO.builder()
-                .pageNumber(products.getNumber())
-                .pageSize(products.getSize())
-                .totalPages(products.getTotalPages())
-                .totalItems((int) products.getTotalElements())
-                .build();
-
-        model.addAttribute("products", productsResponseDto);
-        model.addAttribute("pagination", pagination);
 
         return "admin/list-products";
     }
+
 
     @GetMapping("/products/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")

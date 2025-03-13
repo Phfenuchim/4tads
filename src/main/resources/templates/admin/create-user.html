@@ -27,22 +27,22 @@
                             <span th:text="${role}"></span><span th:if="${!iterStat.last}">, </span>
                         </span>
                     </p>
-                    <form th:action="@{/admin/create}" th:object="${user}" method="post"
-                          onsubmit="return validateForm()" novalidate>
+                    <form th:action="@{/admin/create-user}" th:object="${user}" method="post" onsubmit="return validateForm()" novalidate>
 
+                        <!-- Campo Nome (sem validação JS) -->
                         <div class="mb-3">
                             <label for="name" class="form-label">Nome:</label>
-                            <input type="text" id="name" class="form-control" th:field="*{name}" required>
-                            <span id="name-error"
-                                  class="error-message">O nome deve conter pelo menos 3 caracteres.</span>
+                            <input type="text" id="name" class="form-control" th:field="*{name}">
                         </div>
 
+                        <!-- Campo Email -->
                         <div class="mb-3">
                             <label for="email" class="form-label">Email:</label>
                             <input type="email" id="email" class="form-control" th:field="*{email}" required>
                             <span id="email-error" class="error-message">Digite um email válido.</span>
                         </div>
 
+                        <!-- Campo CPF -->
                         <div class="mb-3">
                             <label for="cpf" class="form-label">CPF:</label>
                             <input type="text" id="cpf" class="form-control" th:field="*{cpf}" required maxlength="14"
@@ -50,19 +50,20 @@
                             <span id="cpf-error" class="error-message">CPF inválido.</span>
                         </div>
 
+                        <!-- Campo Senha (sem validação JS) -->
                         <div class="mb-3">
                             <label for="password" class="form-label">Senha:</label>
-                            <input type="password" id="password" class="form-control" th:field="*{password}" required>
-                            <span id="password-error"
-                                  class="error-message">A senha deve ter no mínimo 8 caracteres.</span>
+                            <input type="password" id="password" class="form-control" th:field="*{password}">
                         </div>
 
+                        <!-- Campo Confirmar Senha -->
                         <div class="mb-3">
                             <label for="confirmPassword" class="form-label">Confirme a Senha:</label>
-                            <input type="password" id="confirmPassword" class="form-control" required>
+                            <input type="password" id="confirmPassword" class="form-control">
                             <span id="confirmPassword-error" class="error-message">As senhas não coincidem.</span>
                         </div>
 
+                        <!-- Campo Grupo -->
                         <div class="mb-3">
                             <label for="roles" class="form-label">Grupo:</label>
                             <select id="roles" class="form-select" th:field="*{roles}" required>
@@ -72,9 +73,12 @@
                             <span id="roles-error" class="error-message">Selecione um grupo.</span>
                         </div>
 
+                        <!-- Botão de envio -->
                         <button type="submit" class="btn btn-custom" id="submitButton">Criar Usuário</button>
 
                     </form>
+
+                    <!-- Mensagens de sucesso ou erro -->
                     <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
                     <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
                     <div th:if="${errorMessage}" class="alert alert-danger mt-3" th:text="${errorMessage}"></div>
@@ -114,34 +118,28 @@
             }
         }
 
-        const nameInput = document.getElementById("name");
-        const nameError = document.getElementById("name-error");
-        toggleError(nameInput, nameError, nameInput.value.trim().length >= 3);
-
+        // Validação de email
         const emailInput = document.getElementById("email");
         const emailError = document.getElementById("email-error");
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         toggleError(emailInput, emailError, emailRegex.test(emailInput.value.trim()));
 
+        // Validação de CPF
         const cpfInput = document.getElementById("cpf");
         const cpfError = document.getElementById("cpf-error");
         const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
         toggleError(cpfInput, cpfError, cpfRegex.test(cpfInput.value.trim()));
 
+        // Validação de confirmação de senha
         const passwordInput = document.getElementById("password");
-        const passwordError = document.getElementById("password-error");
-        toggleError(passwordInput, passwordError, passwordInput.value.trim().length >= 8);
-
         const confirmPasswordInput = document.getElementById("confirmPassword");
         const confirmPasswordError = document.getElementById("confirmPassword-error");
         toggleError(confirmPasswordInput, confirmPasswordError, passwordInput.value === confirmPasswordInput.value);
 
+        // Validação de grupo
         const roleSelect = document.getElementById("roles");
         const roleError = document.getElementById("roles-error");
         toggleError(roleSelect, roleError, roleSelect.value !== "");
-
-        const submitButton = document.getElementById("submitButton");
-        submitButton.disabled = !isValid;
 
         return isValid;
     }

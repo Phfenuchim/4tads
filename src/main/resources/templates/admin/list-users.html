@@ -27,56 +27,62 @@
                             <button class="btn btn-outline-primary" type="submit">Filtrar</button>
                         </div>
                     </form>
-                    <div th:switch="${users}">
-                        <h2 th:case="null" class="text-center">Nenhum usuário encontrado!</h2>
-                        <div th:case="*">
-                            <h2 class="text-center">Usuários</h2>
-                            <table class="table table-striped">
-                                <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nome</th>
-                                    <th>Email</th>
-                                    <th>CPF</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                    <th>Editar</th>
-                                    <th>Ativar/Desativar</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="user : ${users}">
-                                    <td th:text="${user.id}"></td>
-                                    <td th:text="${user.name}"></td>
-                                    <td th:text="${user.email}"></td>
-                                    <td th:text="${user.cpf}"></td>
-                                    <td>
-                        <span th:each="role, iterStat : ${user.roles}">
-                          <span th:text="${role.name}"></span>
-                          <span th:if="${!iterStat.last}">, </span>
-                        </span>
-                                    </td>
-                                    <td th:text="${user.active} ? 'Ativo' : 'Desativado'"></td>
-                                    <td>
-                                        <a class="btn btn-warning btn-sm"
-                                           th:href="@{/admin/users/{id}/edit-user (id=${user.id})}">
-                                            Editar
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a class="btn btn-danger btn-sm"
-                                           th:href="@{/admin/users/{id}/toggle-active(id=${user.id}, active=${!user.active})}">
-                                            Ativar/Desativar
-                                        </a>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div th:if="${users == null || users.isEmpty()}">
+                        <h3 class="text-center">Nenhum usuário cadastrado ainda!</h3>
                     </div>
+                    <div th:unless="${users == null || users.isEmpty()}">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>CPF</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Editar</th>
+                                <th>Ativar/Desativar</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="user : ${users}">
+                                <td th:text="${user.id}"></td>
+                                <td th:text="${user.name}"></td>
+                                <td th:text="${user.email}"></td>
+                                <td th:text="${user.cpf}"></td>
+                                <td>
+                    <span th:each="role, iterStat : ${user.roles}">
+                        <span th:text="${role.name}"></span><span th:if="${!iterStat.last}">, </span>
+                    </span>
+                                </td>
+                                <td th:text="${user.active} ? 'Ativo' : 'Desativado'"></td>
+
+                                <!-- Botão Editar -->
+                                <td>
+                                    <a class="btn btn-warning btn-sm"
+                                       th:href="@{/admin/users/{id}/edit-user (id=${user.id})}">
+                                        Editar
+                                    </a>
+                                </td>
+
+                                <!-- Botão Ativar/Desativar -->
+                                <td>
+                                    <a class="btn btn-danger btn-sm"
+                                       th:href="@{/admin/users/{id}/toggle-active(id=${user.id}, active=${!user.active})}">
+                                        Ativar/Desativar
+                                    </a>
+                                </td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Botão para criar novo usuário -->
                     <div class="d-grid gap-2 mt-3">
                         <a href="/admin/create-user" class="btn btn-custom">Criar Usuário</a>
                     </div>
+
                 </div>
             </div>
         </div>

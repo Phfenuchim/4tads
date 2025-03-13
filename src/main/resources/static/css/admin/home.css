@@ -47,6 +47,10 @@ h2, p, .form-control, .btn-primary, .menu a, .brand-name {
     display: inline-block;
 }
 
+.button-container {
+    margin-bottom: 15px; /* Espaçamento entre as divs */
+}
+
 .btn-custom:hover {
     background-color: #0056b3;
     color: white;

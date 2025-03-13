@@ -44,24 +44,14 @@ public class UserService {
     }
 
     public Page<User> getAllUsersPaginated(int pageNumber, int pageSize) {
-        var users = this.userRepository.findAll(PageRequest.of(pageNumber, pageSize));
-
-        if (users.isEmpty() || users == null) {
-            throw new UserNotFoundException("Nenhum usuário encontrado!");
-        }
-
-        return users;
+        return this.userRepository.findAll(PageRequest.of(pageNumber, pageSize));
     }
+
 
     public List<User> findAllUsersByNameFilter(String name) {
-        var users = this.userRepository.findAllByNameContaining(name);
-
-        if (users.isEmpty() || users == null) {
-            throw new UserNotFoundException("Nenhum usuário encontrado!");
-        }
-
-        return users;
+        return this.userRepository.findAllByNameContaining(name);
     }
+
 
     public boolean updateUserActiveStatus(UUID id, boolean active) {
         if (id == null) {
