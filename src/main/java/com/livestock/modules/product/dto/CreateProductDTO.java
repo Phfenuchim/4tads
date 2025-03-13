@@ -17,4 +17,5 @@ public class CreateProductDTO {
     private String description;
     private BigDecimal price;
     private BigDecimal rating;
+    private Boolean active; // Certifique-se de que o tipo é Boolean
 }

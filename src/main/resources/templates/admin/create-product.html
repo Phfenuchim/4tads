@@ -62,8 +62,18 @@
                             <span id="quantity-error" class="error-message">A quantidade não pode ser negativa.</span>
                         </div>
 
-                        <!-- Campo oculto para definir ativo como true -->
-                        <input type="hidden" th:field="*{active}" value="true">
+                        <!-- Campo para upload de imagens -->
+                        <div class="mb-3">
+                            <label for="images" class="form-label">Imagens do Produto:</label>
+                            <input type="file" id="images" name="images" class="form-control" multiple accept="image/png, image/jpeg">
+                        </div>
+
+                        <!-- Campo para selecionar imagem padrão -->
+                        <div class="mb-3">
+                            <label for="defaultImageIndex" class="form-label">Imagem Padrão (número):</label>
+                            <input type="number" id="defaultImageIndex" name="defaultImageIndex" class="form-control" min="0" value="0">
+                            <small class="text-muted">Índice da imagem que será definida como padrão (começando em 0)</small>
+                        </div>
 
                         <!-- Botão de envio -->
                         <button type="submit" class="btn btn-custom" id="submitButton">Criar Produto</button>
