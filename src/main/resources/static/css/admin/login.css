@@ -2,6 +2,10 @@
     font-family: 'Quicksand';
     src: url('../../fonts/Quicksand-Regular.ttf') format('truetype');
 }
+@font-face {
+    font-family: 'Quicksand-Bold';
+    src: url('../../fonts/Quicksand-Bold.ttf') format('truetype');
+}
 
 * {
     margin: 0;
@@ -10,160 +14,137 @@
 }
 
 body {
-    font-family: 'Quicksand', Arial, sans-serif;
-}
-
-h2, p, .form-control, .btn-primary, .menu a, .brand-name {
-    font-family: 'Quicksand', Arial, sans-serif;
-}
-
-
-.header {
-    background-color: #3d4a30;
-    padding: 15px 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.brand-name {
-    color: white;
-}
-
-.header .container {
-    max-width: 1200px;
-    margin: auto;
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-}
-
-.logo {
-    height: 50px;
-}
-
-.menu a {
-    color: white;
-    text-decoration: none;
-    margin-left: 20px;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.menu a.active {
-    text-decoration: underline;
-}
-
-.menu a:hover {
-    opacity: 0.8;
-}
-
-.search-bar {
-    padding: 5px;
-    border-radius: 5px;
-    border: none;
-}
-
-.login-container {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 80vh;
+    overscroll-behavior: none;
+    font-family: 'Quicksand', Arial, sans-serif;
+    background-color: #fff;
 }
 
-.image-container img {
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    background-image: url("/images/cow-field.png");
+    background-size: cover;
+    background-position: center;
+    filter: blur(2px);
+    z-index: -1;
+}
+
+
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+.login-box {
+    background-color: #FAFFFA;
+    padding: 30px;
     border-radius: 20px;
-    z-index: 1;
-    position: relative;
-    margin-bottom: -70px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 450px;
+    text-align: center;
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 32px;
+    font-family: 'Quicksand-Bold', Arial, sans-serif;
+}
+
+p {
+    font-size: 14px;
+    margin-top: 20px;
+    text-align: center;
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+p a {
+    color: #5157FF;
+    text-decoration: none;
+    font-family: 'Quicksand', Arial, sans-serif;
+
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    font-family: 'Quicksand', Arial, sans-serif;
+
+}
+
+.input-container label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.input-container input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-family: 'Quicksand';
+}
+
+.input-container input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+
+button {
+    font-family: 'Quicksand';
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #228B22;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     margin-top: 20px;
 }
 
-.form-container {
-    background: white;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+button:hover {
+    background-color: #006400;
 }
 
-.form-container h2 {
-    margin-bottom: 10px;
-    font-size: 26px;
-}
-
-.form-container p {
+.sign-up {
+    font-family: 'Quicksand', Arial, sans-serif;
     font-size: 14px;
-    color: gray;
+    text-align: left;
 }
 
-.form-control {
-    border-radius: 8px;
-    padding: 10px;
-    font-size: 16px;
-}
-
-.btn-primary {
-    background-color: #8b1e1e;
-    border: none;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 8px;
+.sign-up a {
     font-weight: bold;
-}
-
-.btn-primary:hover {
-    background-color: #660f0f;
-}
-
-.forgot-password {
-    display: block;
-    text-align: right;
-    margin-top: 10px;
-    font-size: 14px;
-    color: #c00;
+    color: #228B22;
     text-decoration: none;
 }
 
-.forgot-password:hover {
-    text-decoration: underline;
-}
-
-.footer {
-    background-color: #3d4a30;
-    color: white;
-    padding: 40px 0;
-    z-index: 2;
-    position: relative;
-}
-
-.footer h5 {
-    color: white;
-    font-size: 18px;
-}
-
-.footer p {
-    font-size: 14px;
-}
-
-.footer ul {
-    list-style: none;
-    padding: 0;
-}
-
-.footer ul li {
-    margin-bottom: 10px;
-}
-
-.footer ul li a {
-    color: white;
+.sign-up a:hover {
     text-decoration: none;
 }
 
-.footer ul li a:hover {
-    text-decoration: underline;
-}
 
-.footer img {
-    width: 100px;
-}

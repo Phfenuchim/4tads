@@ -4,88 +4,30 @@
     <title>Faça o seu Login - GADUS</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/admin/login.css}">
 </head>
 <body>
+<div class="container">
+    <div class="login-box">
+        <h2>Faça o seu Login</h2>
+        <p>Entre com seus dados abaixo</p>
+        <form method="post" role="form" th:action="@{/login}">
+            <div class="input-container">
+                <label for="username">E-mail</label>
+                <input type="email" id="username" name="username" placeholder="Insira seu e-mail" required>
+            </div>
+            <div class="input-container">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" placeholder="Insira a senha" required>
+            </div>
+            <button type="submit">Log In</button>
+            <p class="sign-up">Não possui uma conta? <a href="#">Cadastre-se</a></p>
 
-<div class="header">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="logo-container d-flex align-items-center">
-            <img th:src="@{/images/logo.png}" alt="GADUS" class="logo">
-            <span class="brand-name">GADUS</span>
-        </div>
-        <div class="menu d-flex align-items-center">
-            <a href="">Início</a>
-            <a href="">Sobre</a>
-            <a href="">Lotes</a>
-            <a href="">Contato</a>
-            <a href="" class="active">Entrar</a>
-        </div>
+        </form>
     </div>
 </div>
-
-
-<div class="container login-container">
-    <div class="row align-items-center">
-        <div class="col-md-6 image-container">
-            <img th:src="@{/images/cow.png}" alt="Cow with hat">
-        </div>
-
-        <div class="col-md-6 form-container">
-            <h2>Faça o seu Login</h2>
-            <p>Enter your details below</p>
-            <form method="post" role="form" th:action="@{/login}" class="form-horizontal">
-                <div class="mb-3">
-                    <input type="email" id="username" name="username" class="form-control"
-                           placeholder="Insira seu e-mail" required>
-                </div>
-                <div class="mb-3">
-                    <input type="password" id="password" name="password" class="form-control"
-                           placeholder="Insira a senha" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Log In</button>
-                <a href="#" class="forgot-password">Esqueceu a senha?</a>
-            </form>
-        </div>
-    </div>
-</div>
-
-<footer class="footer">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                <h5>Exclusivo</h5>
-                <p>Ganhe 10% OFF na primeira compra.</p>
-                <input type="email" class="form-control" placeholder="Insira seu e-mail">
-            </div>
-            <div class="col-md-3">
-                <h5>Suporte</h5>
-                <p>Av. Eng. Eusébio Stevaux, 823.</p>
-                <p>Email: senac@senacsp.org</p>
-                <p>Phone: +55 (11) 3666-0139</p>
-            </div>
-            <div class="col-md-3">
-                <h5>Links Rápidos</h5>
-                <ul>
-                    <li><a href="">Políticas de privacidade</a></li>
-                    <li><a href="">Termos de Uso</a></li>
-                    <li><a href="">FAQ</a></li>
-                    <li><a href="">Contato</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h5>Faça download do nosso app</h5>
-                <p>Poupe R$25 com nosso app exclusivo.</p>
-                <img th:src="@{/images/qrcode.png}" alt="QR Code">
-                <div>
-                    <a href="#"><img th:src="@{/images/playstore.png}" alt="Google Play"></a>
-                    <a href="#"><img th:src="@{/images/appstore.png}" alt="App Store"></a>
-                </div>
-            </div>
-        </div>
-    </div>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
