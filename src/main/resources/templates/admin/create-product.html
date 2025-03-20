@@ -61,11 +61,11 @@
                             <span id="quantity-error" class="error-message" style="display: none;">A quantidade não pode ser negativa.</span>
                         </div>
 
-                        <!-- Upload de Imagem (Obrigatório) -->
+                        <!-- Upload de múltiplas imagens -->
                         <div class="mb-3">
-                            <label for="file" class="form-label">Imagem do Produto:</label>
-                            <input type="file" id="file" name="file" class="form-control" accept="image/png, image/jpeg" required>
-                            <span id="file-error" class="error-message" style="display: none;">Você deve selecionar uma imagem.</span>
+                            <label for="files" class="form-label">Imagens do Produto:</label>
+                            <input type="file" id="files" name="files" class="form-control" accept="image/png, image/jpeg" multiple required>
+                            <span id="file-error" class="error-message" style="display: none;">Você deve selecionar pelo menos uma imagem.</span>
                         </div>
 
                         <!-- Campo para selecionar imagem padrão (opcional) -->
@@ -75,8 +75,8 @@
                             <small class="text-muted">Índice da imagem que será definida como padrão (começando em 0)</small>
                         </div>
 
-                        <!-- Botão de envio, inicialmente desabilitado -->
-                        <button type="submit" class="btn btn-custom" id="submitButton" disabled>Criar Produto</button>
+                        <button type="submit" class="btn btn-primary">Salvar Produto</button>
+                        <a href="/admin/products" class="btn btn-secondary">Cancelar</a>
                     </form>
 
                     <!-- Mensagens de sucesso ou erro -->

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -48,13 +49,27 @@ public class AdminProductController {
 
     @PostMapping("/create-product")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String createProduct(@ModelAttribute("product") CreateProductDTO createProductDTO, RedirectAttributes redirectAttributes, @RequestParam(value = "file", required = true) MultipartFile arquivo) {
+    public String createProduct(
+            @ModelAttribute("product") CreateProductDTO createProductDTO,
+            RedirectAttributes redirectAttributes,
+            @RequestParam(value = "files") List<MultipartFile> arquivos) {
+
         try {
             var product = productService.createProduct(createProductDTO);
-            byte[] bytes = arquivo.getBytes();
-            Path caminho = Paths.get(caminhoImagens+arquivo.getOriginalFilename());
-            Files.write(caminho, bytes);
-            productService.addImageToProduct(product.getId(), arquivo.getOriginalFilename(), true);
+
+            int index = 0;
+            for (MultipartFile arquivo : arquivos) {
+                byte[] bytes = arquivo.getBytes();
+                String novoNomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
+                Path caminho = Paths.get(caminhoImagens + novoNomeArquivo);
+                Files.write(caminho, bytes);
+
+                // Define a primeira imagem como padrão (index == 0)
+                boolean isDefault = (index == 0);
+                productService.addImageToProduct(product.getId(), novoNomeArquivo, isDefault);
+                index++;
+            }
+
             redirectAttributes.addFlashAttribute("message", "Produto criado com sucesso!");
         } catch (IllegalArgumentException | IOException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -62,6 +77,7 @@ public class AdminProductController {
         }
         return "redirect:/admin/products";
     }
+
 
     @GetMapping("/products/{id}/toggle-active")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
@@ -106,6 +122,23 @@ public class AdminProductController {
         }
         return "redirect:/admin/products";
     }
+
+    @PostMapping("/products/{id}/update-default-image")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
+    public String updateDefaultImage(
+            @PathVariable("id") UUID productId,
+            @RequestParam("defaultImageId") Long defaultImageId,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            productService.setDefaultImage(defaultImageId, productId);
+            redirectAttributes.addFlashAttribute("message", "Imagem padrão atualizada com sucesso!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/products/" + productId + "/edit";
+    }
+
 
     @PostMapping("/products/{id}/add-image")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")

@@ -172,12 +172,17 @@ public class ProductService {
 
     @Transactional
     public void setDefaultImage(Long imageId, UUID productId) {
-        // Reset existing default images
+        // Redefine todas as imagens como não-padrão
         productImageRepository.resetDefaultImagesForProduct(productId);
 
-        // Set the new default image
-        productImageRepository.setDefaultImage(imageId);
+        // Define a nova imagem como padrão
+        int updatedRows = productImageRepository.setDefaultImage(imageId);
+
+        if (updatedRows == 0) {
+            throw new IllegalArgumentException("Não foi possível definir a imagem padrão.");
+        }
     }
+
 
     public List<Product_image> getProductImages(UUID productId) {
         return productImageRepository.findByProductId(productId);

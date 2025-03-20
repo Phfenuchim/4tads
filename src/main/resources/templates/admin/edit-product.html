@@ -58,9 +58,14 @@
                         <div class="mb-3">
                             <label class="form-label">Imagens Atuais</label>
                             <div th:each="image : ${productImages}">
-                                <img class="thumbnail" th:src="@{'/images/produtos/' + ${image.pathUrl}}" th:alt="${image.pathUrl}">
+                                <img class="thumbnail" th:src="@{'/images/produtos/' + ${image.pathUrl}}" th:alt="${image.pathUrl}" style="width: 100px; height: auto;">
+                                <div>
+                                    <input type="radio" name="defaultImageId" th:value="${image.id}" th:checked="${image.defaultImage}" required>
+                                    <label>Definir como padrão</label>
+                                </div>
                             </div>
                         </div>
+
 
                         <!-- Alterar Imagem -->
                         <div class="mb-3">

@@ -32,6 +32,9 @@
                         <a th:href="@{admin/create-user}" class="btn-custom">Criar usuários</a>
                     </div>
                     <div class="button-container" sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{admin/create-product}" class="btn-custom">Criar produtos</a>
+                    </div>
+                    <div class="button-container" sec:authorize="hasRole('ADMIN')">
                         <a th:href="@{/admin/users}" class="btn-custom">Listar Usuários</a>
                     </div>
                     <div class="button-container" sec:authorize="hasAnyRole('ADMIN','ESTOQUISTA')">
