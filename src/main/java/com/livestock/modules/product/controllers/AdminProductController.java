@@ -79,19 +79,6 @@ public class AdminProductController {
     }
 
 
-    @GetMapping("/products/{id}/toggle-active")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String toggleProductActiveStatus(@PathVariable("id") String id, @RequestParam(required = true) boolean active, RedirectAttributes redirectAttributes) {
-        try {
-            productService.updateProductActiveStatus(UUID.fromString(id), active);
-            redirectAttributes.addFlashAttribute("message", active ? "Produto ativado com sucesso!" : "Produto desativado com sucesso!");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/products";
-        }
-        return "redirect:/admin/products";
-    }
-
     @GetMapping("/products/{id}/edit")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
     public String editProductById(@PathVariable("id") String id, Model model) {
@@ -108,90 +95,52 @@ public class AdminProductController {
 
     @PostMapping("/products/{id}/update")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String updateProduct(
+    public String updateProductAndDefaultImage(
             @PathVariable("id") UUID id,
             @ModelAttribute("product") UpdateProductDTO updateProductDTO,
+            @RequestParam(value = "imageFile", required = false) List<MultipartFile> imageFiles,
+            @RequestParam(value = "defaultImageId", required = false) Long defaultImageId,
             RedirectAttributes redirectAttributes) {
 
         try {
+            // Atualiza os dados do produto
             productService.updateProduct(id, updateProductDTO);
-            redirectAttributes.addFlashAttribute("message", "Produto atualizado com sucesso!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/products";
-        }
-        return "redirect:/admin/products";
-    }
 
-    @PostMapping("/products/{id}/update-default-image")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String updateDefaultImage(
-            @PathVariable("id") UUID productId,
-            @RequestParam("defaultImageId") Long defaultImageId,
-            RedirectAttributes redirectAttributes) {
+            // Processa o upload de novas imagens, se houver
+            if (imageFiles != null && !imageFiles.isEmpty()) {
+                int index = 0;
+                for (MultipartFile file : imageFiles) {
+                    if (!file.isEmpty()) {
+                        byte[] bytes = file.getBytes();
+                        String novoNomeArquivo = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                        Path caminho = Paths.get(caminhoImagens + novoNomeArquivo);
+                        Files.write(caminho, bytes);
 
-        try {
-            productService.setDefaultImage(defaultImageId, productId);
-            redirectAttributes.addFlashAttribute("message", "Imagem padrão atualizada com sucesso!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/admin/products/" + productId + "/edit";
-    }
+                        boolean isDefault = (index == 0); // Primeira imagem como padrão
+                        productService.addImageToProduct(id, novoNomeArquivo, isDefault);
+                        index++;
+                    }
+                }
+            }
 
+            // Define a imagem padrão, se o parâmetro defaultImageId for enviado
+            if (defaultImageId != null) {
+                productService.setDefaultImage(defaultImageId, id);
+                redirectAttributes.addFlashAttribute("message", "Imagem padrão atualizada com sucesso!");
+            } else {
+                redirectAttributes.addFlashAttribute("message", "Produto atualizado com sucesso!");
+            }
 
-    @PostMapping("/products/{id}/add-image")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String addProductImage(
-            @PathVariable("id") UUID id,
-            @RequestParam("image") MultipartFile file,
-            @RequestParam(value = "isDefault", required = false, defaultValue = "false") boolean isDefault,
-            RedirectAttributes redirectAttributes) {
-
-        try {
-            // Aqui você precisaria implementar a lógica para salvar o arquivo
-            // e obter a URL do caminho onde ele foi salvo
-            String pathUrl = saveImageAndGetPath(file);
-
-            productService.addImageToProduct(id, pathUrl, isDefault);
-            redirectAttributes.addFlashAttribute("message", "Imagem adicionada com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
+
         return "redirect:/admin/products/" + id + "/edit";
     }
 
-    @GetMapping("/products/{productId}/images/{imageId}/set-default")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String setDefaultImage(
-            @PathVariable("productId") UUID productId,
-            @PathVariable("imageId") Long imageId,
-            RedirectAttributes redirectAttributes) {
 
-        try {
-            productService.setDefaultImage(imageId, productId);
-            redirectAttributes.addFlashAttribute("message", "Imagem padrão definida com sucesso!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/admin/products/" + productId + "/edit";
-    }
 
-    @GetMapping("/products/{productId}/images/{imageId}/delete")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
-    public String deleteProductImage(
-            @PathVariable("productId") UUID productId,
-            @PathVariable("imageId") Long imageId,
-            RedirectAttributes redirectAttributes) {
 
-        try {
-            productService.deleteProductImage(imageId);
-            redirectAttributes.addFlashAttribute("message", "Imagem removida com sucesso!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/admin/products/" + productId + "/edit";
-    }
 
     @GetMapping("/products")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
@@ -226,35 +175,4 @@ public class AdminProductController {
     }
 
 
-    @GetMapping("/products/{id}/delete")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String deleteProduct(@PathVariable("id") UUID id, RedirectAttributes redirectAttributes) {
-        try {
-            productService.deleteProduct(id);
-            redirectAttributes.addFlashAttribute("message", "Produto excluído com sucesso!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/admin/products";
-    }
-
-    // Método auxiliar para salvar a imagem e retornar o caminho
-    private String saveImageAndGetPath(MultipartFile file) throws IOException {
-        // Implementação para salvar o arquivo e retornar o caminho
-        // Esta é uma implementação de exemplo, você precisará adaptá-la ao seu sistema de armazenamento
-
-        // Exemplo simples (não use em produção sem adaptações):
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-        String uploadDir = "uploads/products/";
-        java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
-
-        if (!java.nio.file.Files.exists(uploadPath)) {
-            java.nio.file.Files.createDirectories(uploadPath);
-        }
-
-        java.nio.file.Path filePath = uploadPath.resolve(fileName);
-        file.transferTo(filePath.toFile());
-
-        return "/uploads/products/" + fileName;
-    }
 }
