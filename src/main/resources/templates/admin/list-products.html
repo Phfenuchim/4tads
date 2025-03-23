@@ -49,7 +49,7 @@
                                 <th>Quantidade</th>
                                 <th>Status</th>
                                 <th>Editar</th>
-                                <th>Ativar/Desativar</th>
+                                <th sec:authorize="hasRole('ADMIN')">Ativar/Desativar</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -72,7 +72,7 @@
                                 <td>
                                     <a class="btn btn-danger btn-sm"
                                        th:text="${product.active} ? 'Desativar' : 'Ativar'"
-                                       th:href="@{/admin/products/{id}/toggle-active(id=${product.id}, active=${!product.active})}">
+                                       th:href="@{/admin/products/{id}/toggle-active(id=${product.id}, active=${!product.active})}" sec:authorize="hasRole('ADMIN')">
                                     </a>
                                 </td>
 
