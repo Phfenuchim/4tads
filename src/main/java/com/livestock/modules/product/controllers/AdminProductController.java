@@ -135,7 +135,7 @@ public class AdminProductController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        return "redirect:/admin/products/" + id + "/edit";
+        return "redirect:/admin/products";
     }
 
 
