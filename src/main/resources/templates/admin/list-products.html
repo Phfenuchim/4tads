@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+
 <head>
     <meta charset="UTF-8">
     <title>Listagem de Produtos</title>
@@ -80,7 +82,7 @@
                     </div>
 
                     <!-- Botão para criar novo produto -->
-                    <div class="d-grid gap-2 mt-3">
+                    <div class="d-grid gap-2 mt-3" sec:authorize="hasRole('ADMIN')">
                         <a href="/admin/create-product" class="btn btn-custom">Criar Produto +</a>
                     </div>
 
