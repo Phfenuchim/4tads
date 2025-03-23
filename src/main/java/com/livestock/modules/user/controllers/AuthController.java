@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AuthController {
 
     @GetMapping("/login")
-    public String loginPage() {
+    public String login() {
         return "login";
     }
 
@@ -32,7 +32,7 @@ public class AuthController {
     }
 
     @GetMapping("/")
-    public String redirectToHome() {
-        return "redirect:/home";
+    public String home() {
+        return "redirect:/home"; // Isso retorna a view "home.html"
     }
 }

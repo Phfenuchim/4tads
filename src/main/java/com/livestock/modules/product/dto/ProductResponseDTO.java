@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,4 +26,5 @@ public class ProductResponseDTO {
     private BigDecimal rating;
     private LocalDateTime createdAt;
     private ProductImageResponseDTO image;
+    private List<ProductImageResponseDTO> images; // Lista de todas as imagens
 }
