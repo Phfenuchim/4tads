@@ -46,7 +46,7 @@ public class ProductController {
             model.addAttribute("pagination", pagination);
         }
 
-        return "view-products";  // Alterado para apontar para o template correto
+        return "home";  // Alterado para apontar para o template correto
     }
 
     @GetMapping("/{id}")

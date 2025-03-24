@@ -9,32 +9,64 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+    background-color: #f8f9fa;
+}
+
 body {
     font-family: 'Quicksand', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+.admin-body {
     background-color: #666666;
 }
 
-h2, p, .form-control, .btn-primary, .menu a, .brand-name {
+h1, h2, h3, p, .form-control, .btn-primary, .menu a, .brand-name {
     font-family: 'Quicksand', Arial, sans-serif;
 }
 
+/* ==== ADMIN HOME CARD ==== */
 .card {
     border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding-bottom: 15px;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
 .card-header {
     background-color: #007bff;
     color: white;
     text-align: center;
-    border-radius: 10px 10px 0 0;
+    border-radius: 12px 12px 0 0;
     padding: 20px;
 }
 
 .card-body {
-    text-align: center;
-    padding: 30px;
+    padding: 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.button-container {
+    margin-bottom: 15px;
 }
 
 .btn-custom {
@@ -45,13 +77,192 @@ h2, p, .form-control, .btn-primary, .menu a, .brand-name {
     font-weight: bold;
     text-decoration: none;
     display: inline-block;
-}
-
-.button-container {
-    margin-bottom: 15px; /* Espaçamento entre as divs */
+    transition: background-color 0.3s ease;
 }
 
 .btn-custom:hover {
     background-color: #0056b3;
     color: white;
 }
+
+/* ==== PRODUTO - FRONT ==== */
+.card-img-top {
+    height: 230px;
+    object-fit: cover;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.image-gallery {
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.thumbnail-container img {
+    border-radius: 6px;
+    transition: border 0.2s ease;
+}
+
+.thumbnail-container img:hover {
+    border: 2px solid #007bff;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.card-text {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.card-text span {
+    font-weight: bold;
+    color: #666;
+}
+
+.price {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+/* ==== Quantity + Cart Button Area ==== */
+form .quantity-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.quantity-wrapper input[type="number"] {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 5px;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.quantity-wrapper input::-webkit-inner-spin-button,
+.quantity-wrapper input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-wrapper button {
+    background-color: transparent;
+    border: none;
+    font-size: 1.2rem;
+    width: 32px;
+    height: 32px;
+    color: #444;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.quantity-wrapper button:hover {
+    background-color: #e9ecef;
+}
+
+/* ==== Botão de adicionar ao carrinho ==== */
+.btn-cart {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px 16px;
+    background-color: #228B22;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-cart:hover {
+    background-color: #1e7a1e;
+}
+
+.hero-banner {
+    background-image: url('/images/cows-farm.png');
+    background-size: cover;
+    background-position: center;
+    height: 300px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    position: relative;
+    padding-left: 40px;
+}
+
+.hero-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35); /* escurece a imagem levemente */
+    border-radius: 12px;
+}
+
+.hero-banner .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+}
+
+#success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    font-size: 0.95rem;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+
+
+/* ==== Botão de ver detalhes ==== */
+.btn-outline-secondary {
+    border-radius: 20px;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* ==== PAGINAÇÃO ==== */
+.pagination .page-link {
+    border-radius: 50px !important;
+    margin: 0 3px;
+}
+
+/* ==== FOOTER ==== */
+footer {
+    background-color: #343a40;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+}
+
+

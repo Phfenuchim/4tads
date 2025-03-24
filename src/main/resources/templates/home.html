@@ -13,40 +13,201 @@
     <link rel="stylesheet" th:href="@{/css/admin/home.css}">
 </head>
 
-<body>
+<body th:classappend="${#authorization.expression('hasAnyRole(''ADMIN'',''ESTOQUISTA'')')} ? 'admin-body' : ''">
 
 <th:block th:replace="~{fragments/header :: header}"></th:block>
 
-<br/><br/>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-
-            <div class="card">
-                <div class="card-header">
-                    <h2>Bem-vindo!</h2>
-                </div>
-                <div class="card-body">
-                    <p>Acesse as funcionalidades disponíveis:</p>
-                    <div class="button-container" sec:authorize="hasRole('ADMIN')">
-                        <a th:href="@{admin/create-user}" class="btn-custom">Criar usuários</a>
-                    </div>
-                    <div class="button-container" sec:authorize="hasRole('ADMIN')">
-                        <a th:href="@{admin/create-product}" class="btn-custom">Criar produtos</a>
-                    </div>
-                    <div class="button-container" sec:authorize="hasRole('ADMIN')">
-                        <a th:href="@{/admin/users}" class="btn-custom">Listar Usuários</a>
-                    </div>
-                    <div class="button-container" sec:authorize="hasAnyRole('ADMIN','ESTOQUISTA')">
-                        <a th:href="@{/admin/products}" class="btn-custom">Listar Produtos</a>
+<main>
+    <br/><br/>
+    <div sec:authorize="hasAnyRole('ADMIN', 'ESTOQUISTA')">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Bem-vindo!</h2>
+                        </div>
+                        <div class="card-body">
+                            <p>Acesse as funcionalidades disponíveis:</p>
+                            <div class="button-container" sec:authorize="hasRole('ADMIN')">
+                                <a th:href="@{admin/create-user}" class="btn-custom">Criar usuários</a>
+                            </div>
+                            <div class="button-container" sec:authorize="hasRole('ADMIN')">
+                                <a th:href="@{admin/create-product}" class="btn-custom">Criar produtos</a>
+                            </div>
+                            <div class="button-container" sec:authorize="hasRole('ADMIN')">
+                                <a th:href="@{/admin/users}" class="btn-custom">Listar Usuários</a>
+                            </div>
+                            <div class="button-container" sec:authorize="hasAnyRole('ADMIN','ESTOQUISTA')">
+                                <a th:href="@{/admin/products}" class="btn-custom">Listar Produtos</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-</div>
 
+    <div sec:authorize="!hasAnyRole('ADMIN', 'ESTOQUISTA')">
+        <div class="container mt-4">
+            <!-- Banner/carrossel -->
+
+            <!-- Flash Sales / Produtos -->
+
+            <!-- Hero com imagem de fundo -->
+            <div class="hero-banner text-white d-flex align-items-center">
+                <div class="container">
+                    <h2 class="hero-title">Bem-vindo ao Gadus</h2>
+                    <p class="hero-subtitle">Cuidando do seu rebanho com qualidade e tradição.</p>
+                </div>
+            </div>
+
+
+            <div class="container mt-5">
+                <h1>Produtos</h1>
+
+                <!-- Mensagem de sucesso -->
+                <div th:if="${message}" id="success-message" class="alert alert-success" th:text="${message}"></div>
+
+
+                <!-- Filtro de busca -->
+                <form method="get" th:action="@{/products}">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="name" placeholder="Digite o nome do produto"
+                               th:value="${param.name}">
+                        <button class="btn btn-outline-primary" type="submit">Filtrar</button>
+                    </div>
+                </form>
+
+                <!-- Listagem de produtos -->
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="product : ${products}">
+                        <div class="card h-100">
+                            <!-- Imagem principal do produto -->
+                            <img th:if="${product.image != null}"
+                                 th:src="@{'/images/produtos/' + ${product.image.pathUrl}}"
+                                 class="card-img-top main-image" alt="Imagem do produto">
+                            <img th:unless="${product.image != null}" th:src="@{/images/no-image.jpg}"
+                                 class="card-img-top" alt="Sem imagem">
+
+                            <!--                            &lt;!&ndash; Galeria de miniaturas (todas as imagens) &ndash;&gt;-->
+                            <!--                            <div class="image-gallery d-flex flex-wrap p-2" th:if="${product.images != null && !product.images.isEmpty()}">-->
+                            <!--                                <div th:each="img : ${product.images}" class="thumbnail-container m-1">-->
+                            <!--                                    <img th:src="@{'/images/produtos/' + ${img.pathUrl}}"-->
+                            <!--                                         class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;"-->
+                            <!--                                         th:alt="${product.productName}">-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title" th:text="${product.productName}"></h5>
+                                <p class="card-text" th:text="${#strings.abbreviate(product.description, 100)}"></p>
+                                <p class="card-text">R$ <span
+                                        th:text="${#numbers.formatDecimal(product.price, 1, 2)}"></span></p>
+
+                                <!-- Formulário para adicionar ao carrinho -->
+                                <form th:action="@{/cart/add}" method="post" class="mt-auto">
+                                    <input type="hidden" name="productId" th:value="${product.id}">
+                                    <div class="quantity-wrapper">
+                                        <button type="button" onclick="this.nextElementSibling.stepDown()">-</button>
+                                        <input type="number" name="quantity" value="1" min="1" max="99">
+                                        <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
+                                    </div>
+                                    <button type="submit" class="btn-cart">Adicionar ao Carrinho</button>
+                                </form>
+
+                                <!-- Link para detalhes -->
+                                <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-secondary mt-2">Ver
+                                    Detalhes</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paginação -->
+                <div th:if="${pagination != null}" class="d-flex justify-content-center mt-4">
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item" th:classappend="${pagination.pageNumber == 0 ? 'disabled' : ''}">
+                                <a class="page-link"
+                                   th:href="@{/products(pageNumber=${pagination.pageNumber - 1}, pageSize=${pagination.pageSize})}">&laquo;</a>
+                            </li>
+
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, pagination.totalPages - 1)}"
+                                th:classappend="${pagination.pageNumber == i ? 'active' : ''}">
+                                <a class="page-link"
+                                   th:href="@{/products(pageNumber=${i}, pageSize=${pagination.pageSize})}"
+                                   th:text="${i + 1}"></a>
+                            </li>
+
+                            <li class="page-item"
+                                th:classappend="${pagination.pageNumber + 1 >= pagination.totalPages ? 'disabled' : ''}">
+                                <a class="page-link"
+                                   th:href="@{/products(pageNumber=${pagination.pageNumber + 1}, pageSize=${pagination.pageSize})}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- Link para o carrinho -->
+                <div class="d-flex justify-content-end mt-3">
+                    <a href="/cart" class="btn btn-success">Ver Carrinho</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fade-out na mensagem de sucesso
+        const successMsg = document.getElementById('success-message');
+        if (successMsg) {
+            setTimeout(() => {
+                successMsg.style.opacity = '0';
+                successMsg.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 600);
+            }, 3000); // Tempo de exibição
+        }
+
+        // Galeria de imagens (troca imagem principal ao clicar nas miniaturas)
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            const mainImage = card.querySelector('.main-image');
+            const thumbnails = card.querySelectorAll('.img-thumbnail');
+
+            thumbnails.forEach(thumb => {
+                thumb.addEventListener('click', function () {
+                    mainImage.src = this.src;
+                });
+            });
+        });
+
+        // Restaura a rolagem após adicionar ao carrinho
+        const savedScrollY = sessionStorage.getItem('scrollY');
+        if (savedScrollY !== null) {
+            window.scrollTo(0, parseInt(savedScrollY));
+            sessionStorage.removeItem('scrollY');
+        }
+
+        // Captura rolagem antes do submit (para formularios de adicionar ao carrinho)
+        const cartForms = document.querySelectorAll('form[action="/cart/add"]');
+        cartForms.forEach(form => {
+            form.addEventListener('submit', () => {
+                sessionStorage.setItem('scrollY', window.scrollY);
+            });
+        });
+    });
+</script>
+
+
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
 
 </body>
 </html>
