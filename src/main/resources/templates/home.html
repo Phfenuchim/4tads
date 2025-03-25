@@ -11,6 +11,7 @@
           crossorigin="anonymous">
 
     <link rel="stylesheet" th:href="@{/css/admin/home.css}">
+
 </head>
 
 <body th:classappend="${#authorization.expression('hasAnyRole(''ADMIN'',''ESTOQUISTA'')')} ? 'admin-body' : ''">
@@ -20,33 +21,45 @@
 <main>
     <br/><br/>
     <div sec:authorize="hasAnyRole('ADMIN', 'ESTOQUISTA')">
-        <div class="container">
+        <div class="container my-4">
             <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Bem-vindo!</h2>
+                <div class="col-lg-8 col-md-10">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h3 class="mb-0">Bem-vindo!</h3>
                         </div>
                         <div class="card-body">
-                            <p>Acesse as funcionalidades disponíveis:</p>
-                            <div class="button-container" sec:authorize="hasRole('ADMIN')">
-                                <a th:href="@{admin/create-user}" class="btn-custom">Criar usuários</a>
+                            <p class="text-center">Acesse as funcionalidades disponíveis:</p>
+
+                            <div class="row g-4">
+                                <div class="col-12 col-md-6" sec:authorize="hasRole('ADMIN')">
+                                    <a th:href="@{/admin/create-user}" class="btn btn-outline-primary w-100">Criar
+                                        Usuários</a>
+                                </div>
+                                <div class="col-12 col-md-6" sec:authorize="hasRole('ADMIN')">
+                                    <a th:href="@{/admin/users}" class="btn btn-outline-primary w-100">Listar
+                                        Usuários</a>
+                                </div>
                             </div>
-                            <div class="button-container" sec:authorize="hasRole('ADMIN')">
-                                <a th:href="@{admin/create-product}" class="btn-custom">Criar produtos</a>
+                            <div class="row g-3">
+
+                                <div class="col-12 col-md-6" sec:authorize="hasRole('ADMIN')">
+                                    <a th:href="@{/admin/create-product}" class="btn btn-outline-success w-100">Criar
+                                        Produtos</a>
+                                </div>
+                                <div class="col-12 col-md-6" sec:authorize="hasAnyRole('ADMIN','ESTOQUISTA')">
+                                    <a th:href="@{/admin/products}" class="btn btn-outline-success w-100">Listar
+                                        Produtos</a>
+                                </div>
                             </div>
-                            <div class="button-container" sec:authorize="hasRole('ADMIN')">
-                                <a th:href="@{/admin/users}" class="btn-custom">Listar Usuários</a>
-                            </div>
-                            <div class="button-container" sec:authorize="hasAnyRole('ADMIN','ESTOQUISTA')">
-                                <a th:href="@{/admin/products}" class="btn-custom">Listar Produtos</a>
-                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div sec:authorize="!hasAnyRole('ADMIN', 'ESTOQUISTA')">
         <div class="container mt-4">
