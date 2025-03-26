@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
 
+
                 );
 
         http.authenticationProvider(authenticationProvider());

@@ -175,4 +175,17 @@ public class AdminProductController {
     }
 
 
+    @GetMapping("/products/{id}/toggle-active")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String toggleProductActiveStatus(@PathVariable("id") UUID id, @RequestParam("active") boolean active, RedirectAttributes redirectAttributes) {
+        try {
+            productService.updateProductActiveStatus(id, active);
+            redirectAttributes.addFlashAttribute("message", "Status do produto atualizado com sucesso!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erro ao atualizar status do produto: " + e.getMessage());
+        }
+        return "redirect:/admin/products";
+    }
+
+
 }

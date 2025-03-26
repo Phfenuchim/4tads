@@ -44,7 +44,11 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#">Meus Pedidos</a></li>
-                            <li><a th:href="@{/logout}" class="dropdown-item text-danger" >Sair</a></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post">
+                                    <button type="submit" class="dropdown-item">Sair</button>
+                                </form>
+                            </li>
                         </ul>
                     </div>
                 </form>
