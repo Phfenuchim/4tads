@@ -30,16 +30,6 @@ public class AuthController {
         return "login";
     }
 
-    @PostMapping("/logout")
-    public void logout(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-
-        response.sendRedirect("/home");
-    }
-
     @GetMapping("/home")
     public String home(Model model,
                        @RequestParam(required = false, defaultValue = "0") int pageNumber,

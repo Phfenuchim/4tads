@@ -37,13 +37,13 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")  // Define a URL de logout
-                        .logoutSuccessUrl("/home") // Redireciona corretamente após logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/home")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-
-
-                );
+                        .permitAll()
+                )
+;
 
         http.authenticationProvider(authenticationProvider());
 
