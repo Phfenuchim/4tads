@@ -23,14 +23,15 @@
                 <div class="card-body">
                     <form method="get" th:action="@{/admin/users}">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" name="name" placeholder="Digite o nome do cliente" th:value="${param.name}">
+                            <input type="text" class="form-control" name="name" placeholder="Digite o nome do cliente"
+                                   th:value="${param.name}">
                             <button class="btn btn-outline-primary" type="submit">Filtrar</button>
                         </div>
                     </form>
                     <div th:if="${users == null || users.isEmpty()}">
                         <h3 class="text-center">Nenhum usuário cadastrado ainda!</h3>
                     </div>
-                    <div th:unless="${users == null || users.isEmpty()}">
+                    <div style="overflow: auto" th:unless="${users == null || users.isEmpty()}">
                         <table class="table table-striped">
                             <thead>
                             <tr>
@@ -51,9 +52,9 @@
                                 <td th:text="${user.email}"></td>
                                 <td th:text="${user.cpf}"></td>
                                 <td>
-                    <span th:each="role, iterStat : ${user.roles}">
-                        <span th:text="${role.name}"></span><span th:if="${!iterStat.last}">, </span>
-                    </span>
+                                    <span th:each="role, iterStat : ${user.roles}">
+                                        <span th:text="${role.name}"></span><span th:if="${!iterStat.last}">, </span>
+                                    </span>
                                 </td>
                                 <td th:text="${user.active} ? 'Ativo' : 'Desativado'"></td>
 

@@ -39,7 +39,7 @@
                     <div th:if="${products == null || products.isEmpty()}">
                         <h3 class="text-center">Nenhum produto cadastrado ainda!</h3>
                     </div>
-                    <div th:unless="${products == null || products.isEmpty()}">
+                    <div style="overflow: auto" th:unless="${products == null || products.isEmpty()}">
                         <table class="table table-striped">
                             <thead>
                             <tr>
