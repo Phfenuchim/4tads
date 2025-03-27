@@ -31,55 +31,64 @@
                         </span>
                     </p>
 
-                    <!-- Formulário de criação de produto -->
-                    <form id="createForm" th:action="@{/admin/create-product}" th:object="${product}" method="post" enctype="multipart/form-data" novalidate>
-                        <!-- Nome do Produto -->
+                    <form id="createForm" th:action="@{/admin/create-product}" th:object="${product}" method="post"
+                          enctype="multipart/form-data" novalidate>
+                        <!-- Nome -->
                         <div class="mb-3">
                             <label for="productName" class="form-label">Nome do Produto:</label>
                             <input type="text" id="productName" class="form-control" th:field="*{productName}" required>
-                            <span id="productName-error" class="error-message" style="display: none;">O nome do produto é obrigatório.</span>
+                            <span id="productName-error"
+                                  class="error-message text-danger d-none">O nome é obrigatório.</span>
                         </div>
 
                         <!-- Descrição -->
                         <div class="mb-3">
                             <label for="description" class="form-label">Descrição:</label>
-                            <textarea id="description" class="form-control" th:field="*{description}" rows="3" required></textarea>
-                            <span id="description-error" class="error-message" style="display: none;">A descrição é obrigatória.</span>
+                            <textarea id="description" class="form-control" th:field="*{description}" rows="3"
+                                      required></textarea>
+                            <span id="description-error" class="error-message text-danger d-none">A descrição é obrigatória.</span>
                         </div>
 
                         <!-- Preço -->
                         <div class="mb-3">
                             <label for="price" class="form-label">Preço:</label>
-                            <input type="number" id="price" step=".01" min=".01" class="form-control" th:field="*{price}" required>
-                            <span id="price-error" class="error-message" style="display: none;">O preço deve ser maior que zero.</span>
+                            <input type="number" id="price" step=".01" min=".01" class="form-control"
+                                   th:field="*{price}" required>
+                            <span id="price-error" class="error-message text-danger d-none">Preço inválido.</span>
                         </div>
 
                         <!-- Quantidade -->
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Quantidade:</label>
-                            <input type="number" id="quantity" min="0" class="form-control" th:field="*{quantity}" required>
-                            <span id="quantity-error" class="error-message" style="display: none;">A quantidade não pode ser negativa.</span>
+                            <input type="number" id="quantity" min="0" class="form-control" th:field="*{quantity}"
+                                   required>
+                            <span id="quantity-error"
+                                  class="error-message text-danger d-none">Quantidade inválida.</span>
                         </div>
 
-                        <!-- Upload de múltiplas imagens -->
+                        <!-- Imagens -->
                         <div class="mb-3">
                             <label for="files" class="form-label">Imagens do Produto:</label>
-                            <input type="file" id="files" name="files" class="form-control" accept="image/png, image/jpeg" multiple required>
-                            <span id="file-error" class="error-message" style="display: none;">Você deve selecionar pelo menos uma imagem.</span>
+                            <input type="file" id="files" name="files" class="form-control" multiple onchange="previewImages(this)" required>
+                            <small class="form-text text-muted">
+                                Segure <strong>Ctrl</strong> (ou <strong>Shift</strong>) para selecionar várias imagens.
+                            </small>
+                            <span id="file-error" class="error-message text-danger d-none">Adicione pelo menos uma imagem.</span>
                         </div>
 
-                        <!-- Campo para selecionar imagem padrão (opcional) -->
+                        <!-- Preview -->
                         <div class="mb-3">
-                            <label for="defaultImageIndex" class="form-label">Imagem Padrão (número):</label>
-                            <input type="number" id="defaultImageIndex" name="defaultImageIndex" class="form-control" min="0" value="0">
-                            <small class="text-muted">Índice da imagem que será definida como padrão (começando em 0)</small>
+                            <label class="form-label">Prévia das Imagens (clique para definir como padrão):</label>
+                            <div id="preview-container" class="d-flex flex-wrap gap-2"></div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Salvar Produto</button>
+                        <!-- Campo oculto -->
+                        <input type="hidden" id="defaultImageIndex" name="defaultImageIndex" value="0">
+
+                        <button type="submit" class="btn btn-primary" id="submitButton">Salvar Produto</button>
                         <a href="/admin/products" class="btn btn-secondary">Cancelar</a>
                     </form>
 
-                    <!-- Mensagens de sucesso ou erro -->
                     <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
                     <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
                 </div>
@@ -88,11 +97,16 @@
     </div>
 </div>
 
-<!-- Validação JavaScript -->
+<!-- Toast personalizado -->
+<div id="custom-toast" class="custom-toast d-none">
+    <span id="toast-message"></span>
+    <button onclick="fecharToast()" class="btn-close-toast">&times;</button>
+</div>
+
+<!-- Scripts -->
 <script>
-    // Registra quando um campo é tocado (blur) para que os erros passem a ser exibidos
-    document.querySelectorAll('input, textarea').forEach(function(input) {
-        input.addEventListener('blur', function() {
+    document.querySelectorAll('input, textarea').forEach(function (input) {
+        input.addEventListener('blur', function () {
             input.dataset.touched = "true";
             checkFormValidity();
         });
@@ -102,59 +116,93 @@
         let isValid = true;
 
         function toggleError(input, errorSpan, condition) {
-            // Se o campo já foi tocado (blur) e a condição não for satisfeita, mostra o erro
             if (!condition && input.dataset.touched === "true") {
-                errorSpan.style.display = "block";
+                errorSpan.classList.remove("d-none");
             } else {
-                errorSpan.style.display = "none";
+                errorSpan.classList.add("d-none");
             }
-            if (!condition) {
-                isValid = false;
-            }
+            if (!condition) isValid = false;
         }
 
-        const productNameInput = document.getElementById("productName");
-        const productNameError = document.getElementById("productName-error");
-        toggleError(productNameInput, productNameError, productNameInput.value.trim().length > 0);
-
-        const descriptionInput = document.getElementById("description");
-        const descriptionError = document.getElementById("description-error");
-        toggleError(descriptionInput, descriptionError, descriptionInput.value.trim().length > 0);
-
-        const priceInput = document.getElementById("price");
-        const priceError = document.getElementById("price-error");
-        toggleError(priceInput, priceError, parseFloat(priceInput.value) > 0);
-
-        const quantityInput = document.getElementById("quantity");
-        const quantityError = document.getElementById("quantity-error");
-        toggleError(quantityInput, quantityError, parseInt(quantityInput.value) >= 0);
-
-        // Validação do campo de imagem: deve haver pelo menos 1 arquivo selecionado
-        const fileInput = document.getElementById("file");
-        const fileError = document.getElementById("file-error");
-        toggleError(fileInput, fileError, fileInput.files && fileInput.files.length > 0);
+        toggleError(document.getElementById("productName"), document.getElementById("productName-error"),
+            document.getElementById("productName").value.trim().length > 0);
+        toggleError(document.getElementById("description"), document.getElementById("description-error"),
+            document.getElementById("description").value.trim().length > 0);
+        toggleError(document.getElementById("price"), document.getElementById("price-error"),
+            parseFloat(document.getElementById("price").value) > 0);
+        toggleError(document.getElementById("quantity"), document.getElementById("quantity-error"),
+            parseInt(document.getElementById("quantity").value) >= 0);
+        toggleError(document.getElementById("files"), document.getElementById("file-error"),
+            document.getElementById("files").files.length > 0);
 
         return isValid;
     }
 
-    // Função que verifica a validade do formulário e habilita/desabilita o botão
     function checkFormValidity() {
         const submitButton = document.getElementById("submitButton");
-        // Chama a validação e, se tudo estiver ok, habilita o botão
         const valid = validateForm();
-        submitButton.disabled = !valid;
+        if (submitButton) submitButton.disabled = !valid;
     }
 
-    // Adiciona evento 'input' para verificar em tempo real, sem exibir erro se não estiver tocado
     document.querySelectorAll('input, textarea').forEach(input => {
         input.addEventListener('input', checkFormValidity);
     });
 
-    // Verifica a validade inicial (caso algum campo já esteja preenchido)
+    function previewImages(input) {
+        const files = input.files;
+        const previewContainer = document.getElementById("preview-container");
+        const defaultInput = document.getElementById("defaultImageIndex");
+        previewContainer.innerHTML = "";
+
+        if (files.length === 1) {
+            showToast("Você selecionou apenas 1 imagem. Use Ctrl ou Shift para múltiplas imagens.");
+        }
+
+        Array.from(files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.classList.add("img-thumbnail", "p-1");
+                img.style.width = "100px";
+                img.style.cursor = "pointer";
+                img.onclick = () => {
+                    document.querySelectorAll("#preview-container img").forEach(img => {
+                        img.classList.remove("border-primary");
+                    });
+                    img.classList.add("border-primary");
+                    defaultInput.value = index;
+                };
+
+                if (index === 0) {
+                    img.classList.add("border-primary");
+                    defaultInput.value = 0;
+                }
+
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("custom-toast");
+        const messageSpan = document.getElementById("toast-message");
+
+        messageSpan.textContent = message;
+        toast.classList.remove("d-none");
+
+        setTimeout(() => {
+            toast.classList.add("d-none");
+        }, 4000);
+    }
+
+    function fecharToast() {
+        document.getElementById("custom-toast").classList.add("d-none");
+    }
+
     checkFormValidity();
 </script>
-
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

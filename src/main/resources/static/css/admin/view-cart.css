@@ -24,6 +24,11 @@ h1, h2, h3, h4, h5, h6,
     font-family: 'Quicksand', Arial, sans-serif;
 }
 
+/* Container da página */
+main.container {
+    max-width: 1200px;
+}
+
 /* Estilo das imagens dos produtos */
 .cart-product-img {
     width: 64px;
@@ -31,11 +36,6 @@ h1, h2, h3, h4, h5, h6,
     object-fit: cover;
     border-radius: 8px;
     border: 1px solid #ddd;
-}
-
-/* Container da página */
-main.container {
-    max-width: 1200px;
 }
 
 /* Estilo dos itens do carrinho */
@@ -70,12 +70,52 @@ main.container {
     background-color: #000;
     color: #fff;
     border: none;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
 }
 
 .btn-dark:hover {
     background-color: #333;
 }
+
+/* Frete info visível com fade */
+#frete-info {
+    transition: all 0.3s ease;
+    opacity: 1;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.03);
+    min-height: 100px;
+}
+
+/* Garante que cada bloco extra (quantidade, subtotal, remover) fique alinhado */
+.cart-controls,
+.cart-subtotal,
+.cart-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+}
+
+.cart-subtotal {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.cart-remove {
+    min-width: 40px;
+}
+
+
 
 /* Responsivo */
 @media (max-width: 768px) {

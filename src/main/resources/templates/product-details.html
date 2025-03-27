@@ -20,10 +20,45 @@
 
 <main class="container my-5 flex-grow-1">
     <div class="row g-5 align-items-center">
-        <!-- Imagem -->
-        <div class="col-md-6 text-center">
-            <img th:src="@{'/images/produtos/' + ${product.images[0].pathUrl}}" alt="Produto" class="img-fluid rounded shadow-sm product-image">
+        <!-- Carrossel de Imagens -->
+        <!-- Carrossel de Imagens -->
+        <div class="col-md-6">
+            <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                <!-- Indicadores (bolinhas) -->
+                <div class="carousel-indicators">
+                    <button type="button"
+                            th:each="image, iter : ${product.images}"
+                            th:data-bs-target="'#productCarousel'"
+                            th:data-bs-slide-to="${iter.index}"
+                            th:classappend="${iter.index == 0} ? 'active' : ''"
+                            aria-current="true"
+                            th:aria-label="'Imagem ' + ${iter.index + 1}">
+                    </button>
+
+                </div>
+
+                <!-- Slides -->
+                <div class="carousel-inner">
+                    <div th:each="image, iter : ${product.images}"
+                         th:class="${iter.index == 0} ? 'carousel-item active' : 'carousel-item'">
+                        <img th:src="@{'/images/produtos/' + ${image.pathUrl}}"
+                             class="d-block w-100 rounded shadow-sm product-image"
+                             alt="Imagem do Produto">
+                    </div>
+                </div>
+
+                <!-- Controles -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Próxima</span>
+                </button>
+            </div>
         </div>
+
 
         <!-- Detalhes -->
         <div class="col-md-6">

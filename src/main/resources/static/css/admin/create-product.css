@@ -57,3 +57,56 @@ h2, p, .form-control, .btn-primary, .menu a, .brand-name {
     font-size: 0.875rem;
     display: none;
 }
+
+#imagePreviewContainer img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Toast personalizado */
+.custom-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    animation: slide-in 0.3s ease;
+}
+
+.btn-close-toast {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: #856404;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+

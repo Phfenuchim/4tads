@@ -52,31 +52,34 @@ public class AdminProductController {
     public String createProduct(
             @ModelAttribute("product") CreateProductDTO createProductDTO,
             RedirectAttributes redirectAttributes,
-            @RequestParam(value = "files") List<MultipartFile> arquivos) {
+            @RequestParam("files") List<MultipartFile> arquivos,
+            @RequestParam(value = "defaultImageIndex", defaultValue = "0") int defaultImageIndex) {
 
         try {
             var product = productService.createProduct(createProductDTO);
 
-            int index = 0;
-            for (MultipartFile arquivo : arquivos) {
-                byte[] bytes = arquivo.getBytes();
-                String novoNomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
-                Path caminho = Paths.get(caminhoImagens + novoNomeArquivo);
-                Files.write(caminho, bytes);
+            for (int i = 0; i < arquivos.size(); i++) {
+                MultipartFile arquivo = arquivos.get(i);
+                if (!arquivo.isEmpty()) {
+                    byte[] bytes = arquivo.getBytes();
+                    String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
+                    Path caminho = Paths.get(caminhoImagens + nomeArquivo);
+                    Files.write(caminho, bytes);
 
-                // Define a primeira imagem como padrão (index == 0)
-                boolean isDefault = (index == 0);
-                productService.addImageToProduct(product.getId(), novoNomeArquivo, isDefault);
-                index++;
+                    boolean isDefault = (i == defaultImageIndex); // usa o índice escolhido
+                    productService.addImageToProduct(product.getId(), nomeArquivo, isDefault);
+                }
             }
 
             redirectAttributes.addFlashAttribute("message", "Produto criado com sucesso!");
-        } catch (IllegalArgumentException | IOException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erro ao criar produto: " + e.getMessage());
             return "redirect:/admin/create-product";
         }
+
         return "redirect:/admin/products";
     }
+
 
 
     @GetMapping("/products/{id}/edit")
