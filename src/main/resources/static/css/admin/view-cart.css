@@ -1,0 +1,101 @@
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../../fonts/Quicksand-Regular.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Quicksand', Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* Títulos, textos, botões */
+h1, h2, h3, h4, h5, h6,
+.form-control,
+.btn,
+.menu a,
+.brand-name {
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+/* Estilo das imagens dos produtos */
+.cart-product-img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Container da página */
+main.container {
+    max-width: 1200px;
+}
+
+/* Estilo dos itens do carrinho */
+.cart-item {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.03);
+    padding: 15px 20px;
+    margin-bottom: 20px;
+}
+
+/* Estilo do resumo */
+.cart-summary {
+    background-color: #f5f5f5;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.cart-summary h5 {
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.cart-summary select,
+.cart-summary input {
+    font-size: 14px;
+}
+
+/* Botão final */
+.btn-dark {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-dark:hover {
+    background-color: #333;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .cart-summary {
+        margin-top: 30px;
+    }
+
+    .cart-product-img {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+/* Footer fixo */
+footer {
+    margin-top: auto;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #6c757d;
+}

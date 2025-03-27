@@ -1,0 +1,91 @@
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../../fonts/Quicksand-Regular.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+}
+
+/* Fontes padrão */
+h1, h2, h3, h4, h5, h6,
+.form-control,
+.btn,
+.menu a,
+.brand-name {
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+/* Imagem do produto */
+.product-image {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Campo de quantidade com botões */
+.quantity-selector input {
+    width: 60px;
+    text-align: center;
+    border-radius: 6px;
+}
+
+/* Botões de quantidade */
+.btn-outline-secondary {
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+}
+
+/* Botão de ação principal */
+.btn-dark {
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 10px;
+    transition: 0.2s ease;
+}
+
+.btn-dark:hover {
+    background-color: #333;
+}
+
+/* Estrelas de avaliação */
+.rating .bi {
+    color: #f1c40f;
+    font-size: 1.4rem;
+}
+
+/* Rodapé */
+footer {
+    margin-top: auto;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Ajustes tipográficos */
+h2 {
+    font-size: 2rem;
+}
+
+p {
+    font-size: 1.05rem;
+}

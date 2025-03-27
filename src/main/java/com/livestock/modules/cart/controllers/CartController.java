@@ -105,4 +105,35 @@ public class CartController {
         }
         return cart;
     }
+
+    @PostMapping("/increase")
+    public String increaseQuantity(@RequestParam UUID productId, HttpSession session) {
+        List<CartItem> cart = getCartFromSession(session);
+
+        cart.stream()
+                .filter(item -> item.getProductId().equals(productId))
+                .findFirst()
+                .ifPresent(item -> item.setQuantity(item.getQuantity() + 1));
+
+        session.setAttribute("cart", cart);
+        return "redirect:/cart";
+    }
+
+    @PostMapping("/decrease")
+    public String decreaseQuantity(@RequestParam UUID productId, HttpSession session) {
+        List<CartItem> cart = getCartFromSession(session);
+
+        cart.stream()
+                .filter(item -> item.getProductId().equals(productId))
+                .findFirst()
+                .ifPresent(item -> {
+                    if (item.getQuantity() > 1) {
+                        item.setQuantity(item.getQuantity() - 1);
+                    }
+                });
+
+        session.setAttribute("cart", cart);
+        return "redirect:/cart";
+    }
+
 }
