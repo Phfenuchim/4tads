@@ -53,6 +53,6 @@ public class ProductController {
     public String productDetails(@PathVariable("id") UUID id, Model model) {
         Product product = productService.getProductById(id);
         model.addAttribute("product", product);
-        return "product-details";
+        return "fragments/product-details";
     }
 }
