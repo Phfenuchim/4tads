@@ -23,8 +23,8 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @ManyToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
-    private Client client_id;
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
     private String street;
     private String number;
     private String complement;
