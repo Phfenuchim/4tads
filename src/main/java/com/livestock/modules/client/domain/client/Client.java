@@ -1,8 +1,11 @@
 package com.livestock.modules.client.domain.client;
 
-
 import com.livestock.modules.client.domain.address.Address;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,8 +15,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+@Table(name="client")
 @Entity
-@Table("client")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,7 +28,9 @@ public class Client {
     private String firstName;
     private String lastName;
     private String fullName;
+    @Column(length = 14, nullable = false)
     private String cpf;
+    @Column(unique = true)
     private String email;
     private String phone;
     private Date date_birth;
