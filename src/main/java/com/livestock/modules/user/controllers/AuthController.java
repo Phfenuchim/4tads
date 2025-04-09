@@ -30,6 +30,11 @@ public class AuthController {
         return "login";
     }
 
+    @GetMapping("/register")
+    public String register() {
+        return "register";
+    }
+
     @GetMapping("/home")
     public String home(Model model,
                        @RequestParam(required = false, defaultValue = "0") int pageNumber,

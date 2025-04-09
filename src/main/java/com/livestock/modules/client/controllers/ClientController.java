@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/Client")
+@RequestMapping("/client")
 public class ClientController {
 
     @Autowired
@@ -28,7 +28,7 @@ public class ClientController {
         if (!model.containsAttribute("client")) {
             model.addAttribute("client", new CreateClientDTO());
         }
-        return "/client/login";
+        return "client/login";
     }
 
     @PostMapping("/register")

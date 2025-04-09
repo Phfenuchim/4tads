@@ -23,8 +23,7 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     private ClientDetailsService clientDetailsService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
 
     @Bean
     @Order(1)
@@ -32,24 +31,22 @@ public class SecurityConfig {
         http
                 .securityMatcher("/client/**", "/client/login", "/client/register/**") // caminhos de cliente
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/client/login", "/client/register/**", "/client/cep/**").permitAll()
+                        .requestMatchers("/login", "/register", "/home", "/products", "/cart", "/fragments" ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/client/login")
-                        .loginProcessingUrl("/client/login")
-                        .defaultSuccessUrl("/client/dashboard", true)
-                        .failureUrl("/client/login?error=true")
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/client/logout")
-                        .logoutSuccessUrl("/client/login?logout=true")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
                         .permitAll()
                 )
-                .userDetailsService(clientDetailsService)
-                .csrf(csrf -> csrf.disable()); // desabilite se necessário
-
+                .userDetailsService(clientDetailsService);
         return http.build();
     }
 
