@@ -1,10 +1,11 @@
 package com.livestock.config;
 
+import com.livestock.modules.client.services.ClientDetailsService;
 import com.livestock.modules.user.services.CustomUserDetailsService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,12 +21,44 @@ public class SecurityConfig {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
+    @Autowired
+    private ClientDetailsService clientDetailsService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Bean
+    @Order(1)
+    public SecurityFilterChain clientFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/client/**", "/client/login", "/client/register/**") // caminhos de cliente
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/client/login", "/client/register/**", "/client/cep/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/client/login")
+                        .loginProcessingUrl("/client/login")
+                        .defaultSuccessUrl("/client/dashboard", true)
+                        .failureUrl("/client/login?error=true")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/client/logout")
+                        .logoutSuccessUrl("/client/login?logout=true")
+                        .permitAll()
+                )
+                .userDetailsService(clientDetailsService)
+                .csrf(csrf -> csrf.disable()); // desabilite se necessário
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/","/home", "/products/**", "/cart/**","/fragments/**").permitAll()
+                        .requestMatchers("/","/home", "/products/**", "/cart/**","/fragments/**","/Client").permitAll()
                         .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
                         .requestMatchers("/frete/calcular").permitAll()
                         .requestMatchers("/admin/products/**").hasAnyRole("ADMIN", "ESTOQUISTA")
@@ -50,6 +83,9 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

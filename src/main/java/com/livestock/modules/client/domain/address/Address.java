@@ -12,7 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table(name="address")
+@Table(name="tb_address")
 @Entity
 @Getter
 @Setter

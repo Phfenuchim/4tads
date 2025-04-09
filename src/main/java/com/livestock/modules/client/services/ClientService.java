@@ -55,6 +55,8 @@ public class ClientService {
         client.setPhone(createClientDTO.getPhone());
         client.setDate_birth(createClientDTO.getDateBirth());
         client.setStatus(true);
+        String encodedPassword = passwordEncoder.encode(createClientDTO.getPassword());
+        client.setPassword(encodedPassword);
 
         // Criar endereço de faturamento
         Address billingAddress = createAddress(createClientDTO.getBillingAddress(), client, "faturamento", true);

@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/register")
-public class RegisterController {
+@RequestMapping("/Client")
+public class ClientController {
 
     @Autowired
     private ClientService clientService;
@@ -25,26 +25,31 @@ public class RegisterController {
 
     @GetMapping
     public String showRegistrationForm(Model model) {
-        model.addAttribute("client", new CreateClientDTO());
-        return "register";
+        if (!model.containsAttribute("client")) {
+            model.addAttribute("client", new CreateClientDTO());
+        }
+        return "/client/login";
     }
 
-    @PostMapping
-    public String registerClient(@Valid @ModelAttribute("client") CreateClientDTO createClientDTO,
-                                 BindingResult result,
-                                 RedirectAttributes redirectAttributes) {
-
+    @PostMapping("/register")
+    public String registerClient(
+            @Valid @ModelAttribute("client") CreateClientDTO createClientDTO,
+            BindingResult result,
+            RedirectAttributes redirectAttributes
+    ) {
         if (result.hasErrors()) {
-            return "register";
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.client", result);
+            redirectAttributes.addFlashAttribute("client",createClientDTO);
+            return "redirect:/client/register";
         }
-
         try {
             clientService.createClient(createClientDTO);
             redirectAttributes.addFlashAttribute("success", "Cadastro realizado com sucesso! Faça login para continuar.");
-            return "redirect:/login";
+            return "redirect:/client/login";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/register";
+            redirectAttributes.addFlashAttribute("client",createClientDTO);
+            return "redirect:/client/register";
         }
     }
 

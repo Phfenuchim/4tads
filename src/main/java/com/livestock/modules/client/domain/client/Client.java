@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-@Table(name="client")
+@Table(name="tb_client")
 @Entity
 @Getter
 @Setter
@@ -33,6 +33,8 @@ public class Client {
     @Column(unique = true)
     private String email;
     private String phone;
+
+    private String password;
     private Date date_birth;
     private Boolean status;
     @CreationTimestamp

@@ -1,5 +1,5 @@
 -- Tabela CLIENTES
-CREATE TABLE client (
+CREATE TABLE tb_client (
     id              UUID            PRIMARY KEY,
     firstName       VARCHAR(127)    NOT NULL,
     lastName        VARCHAR(127)    NOT NULL,
@@ -7,6 +7,7 @@ CREATE TABLE client (
     cpf             VARCHAR(14)     UNIQUE NOT NULL,
     email           VARCHAR(255)    UNIQUE NOT NULL,
     phone           VARCHAR(20),
+    Password VARCHAR(20) NOT NULL,
     date_birth      DATE,
     status          BOOLEAN         DEFAULT TRUE,
     created_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
@@ -14,7 +15,7 @@ CREATE TABLE client (
 );
 
 -- Tabela ENDERECOS
-CREATE TABLE address (
+CREATE TABLE tb_address (
     id          UUID            PRIMARY KEY,
     client_id  UUID            NOT NULL,
     tipo        VARCHAR(20)     CHECK (tipo IN ('faturamento', 'entrega')),
@@ -29,5 +30,5 @@ CREATE TABLE address (
     is_default  BOOLEAN         DEFAULT FALSE,
     created_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (client_id)    REFERENCES client(id)
+    FOREIGN KEY (client_id)    REFERENCES tb_client(id)
 );
