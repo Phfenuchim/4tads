@@ -1,0 +1,90 @@
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../../fonts/Quicksand-Regular.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Quicksand', Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* Títulos, textos, botões */
+h1, h2, h3, h4, h5, h6,
+.form-control,
+.btn,
+.menu a,
+.brand-name {
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+h2 {
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: center;
+}
+
+form {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+label {
+    font-weight: 500;
+    color: #34495e;
+}
+
+input.form-control {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 10px 12px;
+}
+
+input.form-control:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+}
+
+button.btn-success {
+    width: 100%;
+    padding: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    background-color: #4CAF50;
+    border: none;
+}
+
+button.btn-success:hover {
+    background-color: #43a047;
+}
+
+button.btn-outline-primary {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+button.btn-outline-primary:hover {
+    background-color: #3498db;
+    color: #fff;
+    border-color: #3498db;
+}
+
+h5 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-check-label {
+    color: #555;
+}

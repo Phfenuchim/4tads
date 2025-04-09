@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/client")
 public class ClientController {
 
     @Autowired
@@ -23,12 +22,12 @@ public class ClientController {
     @Autowired
     private ConsultaCepAPI consultaCepAPI;
 
-    @GetMapping
+    @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         if (!model.containsAttribute("client")) {
             model.addAttribute("client", new CreateClientDTO());
         }
-        return "client/login";
+        return "client/register";
     }
 
     @PostMapping("/register")
@@ -39,17 +38,18 @@ public class ClientController {
     ) {
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.client", result);
-            redirectAttributes.addFlashAttribute("client",createClientDTO);
-            return "redirect:/client/register";
+            redirectAttributes.addFlashAttribute("client", createClientDTO);
+            return "redirect:/register";
         }
+
         try {
             clientService.createClient(createClientDTO);
             redirectAttributes.addFlashAttribute("success", "Cadastro realizado com sucesso! Faça login para continuar.");
-            return "redirect:/client/login";
+            return "redirect:/login";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            redirectAttributes.addFlashAttribute("client",createClientDTO);
-            return "redirect:/client/register";
+            redirectAttributes.addFlashAttribute("client", createClientDTO);
+            return "redirect:/register";
         }
     }
 

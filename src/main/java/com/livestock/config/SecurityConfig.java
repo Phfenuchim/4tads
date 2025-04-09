@@ -26,36 +26,12 @@ public class SecurityConfig {
 
 
     @Bean
-    @Order(1)
-    public SecurityFilterChain clientFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/client/**", "/client/login", "/client/register/**") // caminhos de cliente
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/home", "/products", "/cart", "/fragments" ).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/home", true)
-                        .failureUrl("/login?error=true")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout=true")
-                        .permitAll()
-                )
-                .userDetailsService(clientDetailsService);
-        return http.build();
-    }
-
-    @Bean
     @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/","/home", "/products/**", "/cart/**","/fragments/**","/Client").permitAll()
+                        .requestMatchers("/", "/home", "/login", "/register", "/cep/**").permitAll()
+                        .requestMatchers("/products/**", "/cart/**", "/fragments/**").permitAll()
                         .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
                         .requestMatchers("/frete/calcular").permitAll()
                         .requestMatchers("/admin/products/**").hasAnyRole("ADMIN", "ESTOQUISTA")
@@ -73,16 +49,12 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
-                )
-;
+                );
 
         http.authenticationProvider(authenticationProvider());
 
         return http.build();
     }
-
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
