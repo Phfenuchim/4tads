@@ -1,6 +1,8 @@
 package com.livestock.modules.client.dto;
 
+import com.livestock.modules.client.domain.address.AddressType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,5 +39,7 @@ public class AddressDTO {
 
     private boolean isDefault;
 
-    private String type; // "faturamento" ou "entrega"
+    @NotNull(message = "O tipo de endereço é obrigatório")
+    private AddressType type;
+
 }

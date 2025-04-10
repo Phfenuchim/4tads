@@ -1,6 +1,7 @@
 package com.livestock.modules.client.services;
 
 import com.livestock.modules.client.domain.address.Address;
+import com.livestock.modules.client.domain.address.AddressType;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.dto.AddressDTO;
 import com.livestock.modules.client.dto.ChangePasswordDTO;
@@ -64,7 +65,7 @@ public class ClientService {
         client.setPassword(encodedPassword);
 
         // Criar endereço de faturamento
-        Address billingAddress = createAddress(createClientDTO.getBillingAddress(), client, "faturamento", true);
+        Address billingAddress = createAddress(createClientDTO.getBillingAddress(), client, AddressType.FATURAMENTO, true);
 
         List<Address> addresses = new ArrayList<>();
         addresses.add(billingAddress);
@@ -72,7 +73,7 @@ public class ClientService {
         // Adicionar endereços de entrega, se houver
         if (createClientDTO.getShippingAddresses() != null && !createClientDTO.getShippingAddresses().isEmpty()) {
             for (AddressDTO addressDTO : createClientDTO.getShippingAddresses()) {
-                Address shippingAddress = createAddress(addressDTO, client, "entrega", false);
+                Address shippingAddress = createAddress(addressDTO, client, AddressType.ENTREGA, false);
                 addresses.add(shippingAddress);
             }
         }
@@ -82,8 +83,7 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    private Address createAddress(AddressDTO addressDTO, Client client, String type, boolean isDefault) {
-        // Validar CEP via API
+    private Address createAddress(AddressDTO addressDTO, Client client, AddressType type, boolean isDefault){
         CepResultDTO cepResult = consultaCepAPI.consultaCep(addressDTO.getCep());
         if (cepResult == null || cepResult.getCep() == null) {
             throw new IllegalArgumentException("CEP inválido");
@@ -100,9 +100,11 @@ public class ClientService {
         address.setState(addressDTO.getState());
         address.setCountry(addressDTO.getCountry());
         address.setDefaultAddress(isDefault);
+        address.setType(addressDTO.getType()); // ✅ ESSENCIAL
 
         return address;
     }
+
 
     @Transactional
     public void changePassword(String email, ChangePasswordDTO dto) {
@@ -147,6 +149,7 @@ public class ClientService {
         address.setState(dto.getState());
         address.setCountry(dto.getCountry());
         address.setDefaultAddress(dto.isDefault());
+        address.setType(dto.getType());
 
         client.getAddress().add(address);
         clientRepository.save(client);

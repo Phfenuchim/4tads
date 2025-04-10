@@ -68,8 +68,15 @@
                     <label for="isDefault" class="form-check-label">Usar como endereço padrão</label>
                 </div>
 
-                <input type="hidden" th:field="*{type}" value="entrega"/>
+            <div class="col-md-6">
+                <label class="form-label">Tipo de Endereço</label>
+                <select th:field="*{type}" class="form-select">
+                    <option value="ENTREGA">Entrega</option>
+                    <option value="FATURAMENTO">Faturamento</option>
+                </select>
             </div>
+
+        </div>
 
             <div class="d-flex justify-content-end mt-4">
                 <button type="submit" class="btn btn-success">Adicionar Endereço</button>

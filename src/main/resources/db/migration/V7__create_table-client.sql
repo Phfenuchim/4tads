@@ -20,19 +20,19 @@ CREATE TABLE tb_client
 -- Tabela ENDERECOS
 CREATE TABLE tb_address
 (
-    id         UUID PRIMARY KEY,
-    client_id  UUID         NOT NULL,
-    tipo       VARCHAR(20) CHECK (tipo IN ('faturamento', 'entrega')),
-    cep        VARCHAR(9)   NOT NULL,
-    street     VARCHAR(255) NOT NULL,
-    number     VARCHAR(10)  NOT NULL,
-    complement VARCHAR(255),
-    district   VARCHAR(100) NOT NULL,
-    city       VARCHAR(100) NOT NULL,
-    state      VARCHAR(100) NOT NULL,
-    country    VARCHAR(100) NOT NULL,
-    is_default BOOLEAN   DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id           UUID PRIMARY KEY,
+    client_id    UUID         NOT NULL,
+    type         VARCHAR(20)  NOT NULL CHECK (type IN ('ENTREGA', 'FATURAMENTO')),
+    cep          VARCHAR(9)   NOT NULL,
+    street       VARCHAR(255) NOT NULL,
+    number       VARCHAR(10)  NOT NULL,
+    complement   VARCHAR(255),
+    district     VARCHAR(100) NOT NULL,
+    city         VARCHAR(100) NOT NULL,
+    state        VARCHAR(100) NOT NULL,
+    country      VARCHAR(100) NOT NULL,
+    is_default   BOOLEAN       DEFAULT FALSE,
+    created_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (client_id) REFERENCES tb_client (id)
 );
