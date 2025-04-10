@@ -33,7 +33,7 @@ public class Client {
     @Column(unique = true)
     private String email;
     private String phone;
-
+    private String gender;
     private String password;
     private Date date_birth;
     private Boolean status;

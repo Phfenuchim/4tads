@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Perfil</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/client/edit-profile.css}">
+</head>
+<body>
+
+<!-- HEADER -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- CONTEÚDO -->
+<main class="container mt-5 mb-5">
+    <div th:if="${success}" id="success-message" class="alert alert-success">
+        <span th:text="${success}">Perfil atualizado com sucesso!</span>
+    </div>
+    <div class="card shadow-lg p-4 rounded-4">
+        <h2 class="mb-4 text-center fw-bold text-primary">Editar Perfil</h2>
+
+        <form th:action="@{/client/profile}" method="post" th:object="${editProfileDTO}">
+            <div class="mb-3">
+                <label class="form-label">Nome Completo</label>
+                <input type="text" th:field="*{fullName}" class="form-control" placeholder="Ex: João da Silva">
+                <div class="text-danger" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="dateBirthDisplay" class="form-label">Data de Nascimento</label>
+
+                <input type="text" id="dateBirthDisplay" class="form-control"
+                       placeholder="dd/mm/aaaa" pattern="^\d{2}/\d{2}/\d{4}$"
+                       th:value="${displayDateBirth}" oninput="applyDateMask(this); convertToIsoDate()" required>
+
+                <input type="hidden" id="dateBirth" th:field="*{dateBirth}">
+
+                <div class="text-danger" th:if="${#fields.hasErrors('dateBirth')}" th:errors="*{dateBirth}"></div>
+            </div>
+
+
+            <div class="mb-3">
+                <label class="form-label">Gênero</label>
+                <select class="form-select" th:field="*{gender}">
+                    <option value="">Selecione</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                </select>
+                <div class="text-danger" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a th:href="@{/home}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function applyDateMask(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 8) value = value.slice(0, 8);
+        value = value.replace(/^(\d{2})(\d)/, '$1/$2');
+        value = value.replace(/^(\d{2})\/(\d{2})(\d)/, '$1/$2/$3');
+        input.value = value;
+    }
+
+    function convertToIsoDate() {
+        const input = document.getElementById("dateBirthDisplay").value;
+        const parts = input.split("/");
+        if (parts.length === 3) {
+            const [day, month, year] = parts;
+            if (day.length === 2 && month.length === 2 && year.length === 4) {
+                const isoDate = `${year}-${month}-${day}`;
+                document.getElementById("dateBirth").value = isoDate;
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const successMsg = document.getElementById('success-message');
+        if (successMsg) {
+            setTimeout(() => {
+                successMsg.style.opacity = '0';
+                successMsg.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 600);
+            }, 3000);
+        }
+    });
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!-- templates/client/addresses.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meus Endereços</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/client/addresses.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container mt-5 mb-5">
+    <div th:if="${success}" id="success-message" class="alert alert-success">
+        <span th:text="${success}">Endereço adicionado com sucesso!</span>
+    </div>
+
+    <div class="card shadow-lg p-4 rounded-4">
+        <h2 class="mb-4 text-center fw-bold text-success">Meus Endereços de Entrega</h2>
+
+        <form th:action="@{/client/address/new}" method="post" th:object="${newAddressDTO}">
+
+
+        <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">CEP</label>
+                    <input type="text" th:field="*{cep}" class="form-control" placeholder="00000-000"
+                           oninput="applyCepMask(this)">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-green w-100" onclick="buscarCep()">Buscar</button>
+
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Rua</label>
+                    <input type="text" th:field="*{street}" class="form-control">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Número</label>
+                    <input type="text" th:field="*{number}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Complemento</label>
+                    <input type="text" th:field="*{complement}" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Bairro</label>
+                    <input type="text" th:field="*{district}" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Cidade</label>
+                    <input type="text" th:field="*{city}" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <input type="text" th:field="*{state}" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">País</label>
+                    <input type="text" th:field="*{country}" class="form-control">
+                </div>
+
+                <div class="col-12 form-check">
+                    <input type="checkbox" th:field="*{default}" class="form-check-input" id="isDefault">
+                    <label for="isDefault" class="form-check-label">Usar como endereço padrão</label>
+                </div>
+
+                <input type="hidden" th:field="*{type}" value="entrega"/>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-success">Adicionar Endereço</button>
+            </div>
+        </form>
+
+        <hr class="my-4">
+
+        <h5 class="mb-3">Endereços Cadastrados</h5>
+        <div th:if="${addresses.isEmpty()}" class="text-muted">Nenhum endereço cadastrado ainda.</div>
+
+        <ul class="list-group" th:each="addr : ${addresses}">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span th:text="${addr.street + ', ' + addr.number + ' - ' + addr.city + '/' + addr.state}"></span>
+
+                <div>
+                    <span class="badge bg-success me-2" th:if="${addr.defaultAddress}">Padrão</span>
+
+                    <form th:action="@{'/client/address/' + ${addr.id} + '/set-default'}" method="post" th:if="${!addr.defaultAddress}">
+                        <button type="submit" class="btn btn-sm btn-outline-success">Tornar Padrão</button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function applyCepMask(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 8) value = value.slice(0, 8);
+        if (value.length > 5) value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+        input.value = value;
+    }
+
+    async function buscarCep() {
+        const cep = document.querySelector('[name="cep"]').value.replace(/\D/g, '');
+        if (cep.length !== 8) return alert("CEP inválido");
+
+        const res = await fetch(`/cep/${cep}`);
+        const data = await res.json();
+
+        document.querySelector('[name="street"]').value = data.street || "";
+        document.querySelector('[name="district"]').value = data.district || "";
+        document.querySelector('[name="city"]').value = data.city || "";
+        document.querySelector('[name="state"]').value = data.state || "";
+        document.querySelector('[name="country"]').value = data.country || "Brasil";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const toast = document.getElementById('success-message');
+        if (toast) {
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                setTimeout(() => toast.style.display = 'none', 600);
+            }, 3000);
+        }
+    });
+</script>
+
+</body>
+</html>

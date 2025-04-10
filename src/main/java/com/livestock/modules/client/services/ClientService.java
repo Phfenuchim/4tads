@@ -3,17 +3,22 @@ package com.livestock.modules.client.services;
 import com.livestock.modules.client.domain.address.Address;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.dto.AddressDTO;
+import com.livestock.modules.client.dto.ChangePasswordDTO;
 import com.livestock.modules.client.dto.CreateClientDTO;
+import com.livestock.modules.client.dto.NewAddressDTO;
 import com.livestock.modules.client.repositories.ClientRepository;
 import com.livestock.modules.order.infra.apis.CepResultDTO;
 import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ClientService {
@@ -86,6 +91,7 @@ public class ClientService {
 
         Address address = new Address();
         address.setClient(client);
+        address.setCep(addressDTO.getCep());
         address.setStreet(addressDTO.getStreet());
         address.setNumber(addressDTO.getNumber());
         address.setComplement(addressDTO.getComplement());
@@ -93,8 +99,78 @@ public class ClientService {
         address.setCity(addressDTO.getCity());
         address.setState(addressDTO.getState());
         address.setCountry(addressDTO.getCountry());
-        address.set_default(isDefault);
+        address.setDefaultAddress(isDefault);
 
         return address;
     }
+
+    @Transactional
+    public void changePassword(String email, ChangePasswordDTO dto) {
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado."));
+
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), client.getPassword())) {
+            throw new IllegalArgumentException("A senha atual está incorreta.");
+        }
+
+        if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
+            throw new IllegalArgumentException("A nova senha e a confirmação não coincidem.");
+        }
+
+        client.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        clientRepository.save(client);
+    }
+
+    @Transactional
+    public void addNewAddress(String email, @Valid NewAddressDTO dto) {
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+
+        // Validação do CEP via API
+        CepResultDTO cepResult = consultaCepAPI.consultaCep(dto.getCep());
+        if (cepResult == null || cepResult.getCep() == null) {
+            throw new IllegalArgumentException("CEP inválido");
+        }
+
+        if (dto.isDefault()) {
+            client.getAddress().forEach(addr -> addr.setDefaultAddress(false));
+        }
+
+        Address address = new Address();
+        address.setClient(client);
+        address.setCep(dto.getCep());
+        address.setStreet(dto.getStreet());
+        address.setNumber(dto.getNumber());
+        address.setComplement(dto.getComplement());
+        address.setDistrict(dto.getDistrict());
+        address.setCity(dto.getCity());
+        address.setState(dto.getState());
+        address.setCountry(dto.getCountry());
+        address.setDefaultAddress(dto.isDefault());
+
+        client.getAddress().add(address);
+        clientRepository.save(client);
+    }
+
+    @Transactional
+    public void setDefaultAddress(String email, UUID addressId) {
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
+
+        Address selectedAddress = client.getAddress().stream()
+                .filter(addr -> addr.getId().equals(addressId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Endereço não encontrado"));
+
+        // Desmarcar todos os outros
+        client.getAddress().forEach(addr -> addr.setDefaultAddress(false));
+
+        // Marcar o selecionado
+        selectedAddress.setDefaultAddress(true);
+
+        clientRepository.save(client);
+    }
+
+
+
 }

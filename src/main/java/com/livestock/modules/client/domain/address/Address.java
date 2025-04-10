@@ -25,6 +25,8 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
+    @Column(nullable = false, length = 8)
+    private String cep;
     private String street;
     private String number;
     private String complement;
@@ -32,7 +34,9 @@ public class Address {
     private String city;
     private String state;
     private String country;
-    private boolean is_default;
+
+    @Column(name = "is_default")
+    private boolean defaultAddress;
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
