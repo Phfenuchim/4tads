@@ -100,19 +100,54 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
-    function buscarCep() {
-        const cep = document.getElementById("cep").value;
-        fetch(`/client/cep/${cep}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("street").value = data.street;
-                document.getElementById("neighborhood").value = data.neighborhood;
-                document.getElementById("city").value = data.city;
-                document.getElementById("state").value = data.state;
-            })
-            .catch(err => alert("Erro ao buscar CEP"));
+    async function buscarCep() {
+        const cep = document.getElementById("cep").value.trim().replace(/\D/g, '');
+
+        if (!cep || cep.length !== 8) {
+            alert("Digite um CEP válido.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/cep/${cep}`); // Lembrar de trocar para /client depois
+            if (!res.ok) throw new Error();
+
+            const data = await res.json();
+
+            const campos = {
+                street: 'street',
+                district: 'district',
+                city: 'city',
+                state: 'state',
+                country: 'country'
+            };
+
+            let primeiroCampoVazio = null;
+
+            for (const prop in campos) {
+                const inputId = campos[prop];
+                const inputEl = document.getElementById(inputId);
+                const valor = data[prop] || '';
+
+                inputEl.value = valor;
+
+                // Guardar o primeiro campo que veio vazio
+                if (!primeiroCampoVazio && valor === '') {
+                    primeiroCampoVazio = inputEl;
+                }
+            }
+
+            // Se todos foram preenchidos, foca no número
+            (primeiroCampoVazio || document.getElementById("number")).focus();
+
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao buscar o CEP. Verifique se o CEP está correto.");
+        }
     }
 </script>
+
+
 
 </body>
 </html>

@@ -1,5 +1,6 @@
 package com.livestock.modules.client.controllers;
 
+import com.livestock.modules.client.dto.AddressResponseDTO;
 import com.livestock.modules.client.dto.CreateClientDTO;
 import com.livestock.modules.client.services.ClientService;
 import com.livestock.modules.order.infra.apis.CepResultDTO;
@@ -55,8 +56,17 @@ public class ClientController {
 
     @GetMapping("/cep/{cep}")
     @ResponseBody
-    public ResponseEntity<CepResultDTO> consultaCep(@PathVariable String cep) {
+    public ResponseEntity<AddressResponseDTO> consultaCep(@PathVariable String cep) {
         CepResultDTO result = consultaCepAPI.consultaCep(cep);
-        return ResponseEntity.ok(result);
+
+        AddressResponseDTO response = new AddressResponseDTO();
+        response.setStreet(result.getLogradouro());
+        response.setDistrict(result.getBairro());         // Bairro
+        response.setCity(result.getLocalidade());         // Cidade
+        response.setState(result.getUf());                // Estado (UF)
+        response.setCountry("Brasil");                    // País padrão
+
+        return ResponseEntity.ok(response);
     }
+
 }
