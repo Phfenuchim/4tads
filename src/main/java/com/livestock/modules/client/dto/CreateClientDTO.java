@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
@@ -29,9 +30,11 @@ public class CreateClientDTO {
     @NotBlank(message = "O telefone é obrigatório")
     private String phone;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "A data de nascimento é obrigatória")
-    @Past(message = "A data de nascimento deve ser no passado")
+    @Past(message = "A data de nascimento deve estar no passado")
     private Date dateBirth;
+
 
     @NotBlank(message = "O gênero é obrigatório")
     private String gender;

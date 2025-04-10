@@ -14,25 +14,78 @@
 <div class="container py-5">
     <div class="col-md-8 mx-auto">
         <h2 class="mb-4">Crie sua Conta</h2>
+
+        <!-- Mensagens de erro/sucesso fora do contexto do formulário -->
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
         <form method="post" th:action="@{/register}" th:object="${client}">
+            <!-- Mensagens de erro globais DENTRO do contexto do formulário -->
+            <div th:if="${#fields.hasErrors('global')}" class="alert alert-danger">
+                <ul>
+                    <li th:each="err : ${#fields.errors('global')}" th:text="${err}"></li>
+                </ul>
+            </div>
+
             <div class="mb-3">
                 <label for="name" class="form-label">Nome Completo</label>
-                <input type="text" id="name" th:field="*{fullName}" class="form-control" placeholder="Seu nome completo" required>
+                <input type="text" id="name" th:field="*{fullName}" class="form-control"
+                       th:classappend="${#fields.hasErrors('fullName')} ? 'field-error'"
+                       placeholder="Seu nome completo" required>
+                <div class="error-message" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">E-mail</label>
-                <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="seu@email.com" required>
+                <input type="email" id="email" th:field="*{email}" class="form-control"
+                       th:classappend="${#fields.hasErrors('email')} ? 'field-error'"
+                       placeholder="seu@email.com" required>
+                <div class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="cpf" class="form-label">CPF</label>
-                <input type="text" id="cpf" th:field="*{cpf}" class="form-control" placeholder="000.000.000-00" required>
+                <input type="text" id="cpf" th:field="*{cpf}" class="form-control"
+                       th:classappend="${#fields.hasErrors('cpf')} ? 'field-error'"
+                       placeholder="000.000.000-00" required>
+                <div class="error-message" th:if="${#fields.hasErrors('cpf')}" th:errors="*{cpf}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="phone" class="form-label">Telefone</label>
+                <input type="text" id="phone" th:field="*{phone}" class="form-control"
+                       th:classappend="${#fields.hasErrors('phone')} ? 'field-error'"
+                       placeholder="(00) 00000-0000" required>
+                <div class="error-message" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="dateBirth" class="form-label">Data de Nascimento</label>
+                <input type="date" id="dateBirth" th:field="*{dateBirth}" class="form-control"
+                       th:classappend="${#fields.hasErrors('dateBirth')} ? 'field-error'" required>
+                <div class="error-message" th:if="${#fields.hasErrors('dateBirth')}" th:errors="*{dateBirth}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="gender" class="form-label">Gênero</label>
+                <select id="gender" th:field="*{gender}" class="form-control"
+                        th:classappend="${#fields.hasErrors('gender')} ? 'field-error'" required>
+                    <option value="">Selecione</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                    <option value="Prefiro não informar">Prefiro não informar</option>
+                </select>
+                <div class="error-message" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Senha</label>
-                <input type="password" id="password" th:field="*{password}" class="form-control" placeholder="Crie uma senha" required>
+                <input type="password" id="password" th:field="*{password}" class="form-control"
+                       th:classappend="${#fields.hasErrors('password')} ? 'field-error'"
+                       placeholder="Crie uma senha" required>
+                <div class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                <small class="text-muted">A senha deve ter no mínimo 6 caracteres</small>
             </div>
 
             <!-- Endereço principal -->
@@ -41,7 +94,11 @@
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label for="cep" class="form-label">CEP</label>
-                    <input type="text" id="cep" th:field="*{billingAddress.cep}" class="form-control" placeholder="Digite o CEP" required>
+                    <input type="text" id="cep" th:field="*{billingAddress.cep}" class="form-control"
+                           th:classappend="${#fields.hasErrors('billingAddress.cep')} ? 'field-error'"
+                           placeholder="Digite o CEP" required>
+                    <div class="error-message" th:if="${#fields.hasErrors('billingAddress.cep')}"
+                         th:errors="*{billingAddress.cep}"></div>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="button" class="btn btn-outline-primary w-100" onclick="buscarCep()">Buscar</button>
@@ -50,37 +107,58 @@
 
             <div class="mb-3">
                 <label for="street" class="form-label">Rua</label>
-                <input type="text" id="street" th:field="*{billingAddress.street}" class="form-control" required>
+                <input type="text" id="street" th:field="*{billingAddress.street}" class="form-control"
+                       th:classappend="${#fields.hasErrors('billingAddress.street')} ? 'field-error'" required>
+                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.street')}"
+                     th:errors="*{billingAddress.street}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="number" class="form-label">Número</label>
-                <input type="text" id="number" th:field="*{billingAddress.number}" class="form-control" required>
+                <input type="text" id="number" th:field="*{billingAddress.number}" class="form-control"
+                       th:classappend="${#fields.hasErrors('billingAddress.number')} ? 'field-error'" required>
+                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.number')}"
+                     th:errors="*{billingAddress.number}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="complement" class="form-label">Complemento</label>
-                <input type="text" id="complement" th:field="*{billingAddress.complement}" class="form-control">
+                <input type="text" id="complement" th:field="*{billingAddress.complement}" class="form-control"
+                       th:classappend="${#fields.hasErrors('billingAddress.complement')} ? 'field-error'">
+                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.complement')}"
+                     th:errors="*{billingAddress.complement}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="district" class="form-label">Bairro</label>
-                <input type="text" id="district" th:field="*{billingAddress.district}" class="form-control" required>
+                <input type="text" id="district" th:field="*{billingAddress.district}" class="form-control"
+                       th:classappend="${#fields.hasErrors('billingAddress.district')} ? 'field-error'" required>
+                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.district')}"
+                     th:errors="*{billingAddress.district}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="city" class="form-label">Cidade</label>
-                <input type="text" id="city" th:field="*{billingAddress.city}" class="form-control" required>
+                <input type="text" id="city" th:field="*{billingAddress.city}" class="form-control"
+                       th:classappend="${#fields.hasErrors('billingAddress.city')} ? 'field-error'" required>
+                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.city')}"
+                     th:errors="*{billingAddress.city}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="state" class="form-label">Estado</label>
-                <input type="text" id="state" th:field="*{billingAddress.state}" class="form-control" required>
+                <input type="text" id="state" th:field="*{billingAddress.state}" class="form-control"
+                       th:classappend="${#fields.hasErrors('billingAddress.state')} ? 'field-error'" required>
+                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.state')}"
+                     th:errors="*{billingAddress.state}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="country" class="form-label">País</label>
-                <input type="text" id="country" th:field="*{billingAddress.country}" class="form-control" required>
+                <input type="text" id="country" th:field="*{billingAddress.country}" class="form-control"
+                       th:classappend="${#fields.hasErrors('billingAddress.country')} ? 'field-error'" required>
+                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.country')}"
+                     th:errors="*{billingAddress.country}"></div>
             </div>
 
             <input type="hidden" th:field="*{billingAddress.type}" value="faturamento" />
@@ -146,8 +224,5 @@
         }
     }
 </script>
-
-
-
 </body>
 </html>
