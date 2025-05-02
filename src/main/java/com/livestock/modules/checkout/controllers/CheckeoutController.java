@@ -45,8 +45,6 @@ public class CheckeoutController {
             return "redirect:/client/addresses";
         }
 
-        Address address = addresses.get(0);
-
         List<CartItem> items = cartController.getCartFromSession(session);
 
         BigDecimal total = items.stream()
@@ -54,10 +52,9 @@ public class CheckeoutController {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         model.addAttribute("user", client.get().getFirstName());
-        model.addAttribute("address", address);
+        model.addAttribute("addresses", addresses);
         model.addAttribute("items", items);
         model.addAttribute("total",total);
-
 
         return "checkout";
     }

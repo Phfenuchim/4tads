@@ -17,9 +17,14 @@
 
         <h4 class="mb-3">Olá, <span th:text="${user}"></span>! Revise seu pedido:</h4>
 
-        <div class="mb-4">
-            <h5 class="fw-semibold">escolha seu endereço de entrega</h5>
-            <p th:text="${address.street} + ', ' + ${address.number} + ' - ' + ${address.state} + ' - ' + ${address.cep}"></p>
+        <div class="mb-3">
+            <label for="addressSelect" class="form-label">Escolha o endereço de entrega:</label>
+            <select class="form-select" id="addressSelect" name="addressId">
+                <option th:each="addr : ${addresses}"
+                        th:value="${addr.id}"
+                        th:text="${addr.street} + ', ' + ${addr.number} + ' - ' + ${addr.state} + ' - ' + ${addr.cep}">
+                </option>
+            </select>
         </div>
 
         <div class="mb-4">
