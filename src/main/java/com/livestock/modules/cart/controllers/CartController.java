@@ -97,7 +97,7 @@ public class CartController {
         return "redirect:/cart";
     }
 
-    private List<CartItem> getCartFromSession(HttpSession session) {
+    public List<CartItem> getCartFromSession(HttpSession session) {
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
         if (cart == null) {
             cart = new ArrayList<>();
