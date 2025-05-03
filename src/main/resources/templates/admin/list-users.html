@@ -79,6 +79,32 @@
                         </table>
                     </div>
 
+                    <!-- Paginação -->
+                    <div th:if="${pagination != null && pagination.totalPages > 0}" class="d-flex justify-content-center mt-4">
+                        <nav>
+                            <ul class="pagination">
+                                <li class="page-item" th:classappend="${pagination.pageNumber == 0 ? 'disabled' : ''}">
+                                    <a class="page-link"
+                                       th:href="@{/admin/users(pageNumber=${pagination.pageNumber - 1}, pageSize=${pagination.pageSize}, name=${param.name})}">&laquo;</a>
+                                </li>
+
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, pagination.totalPages - 1)}"
+                                    th:classappend="${pagination.pageNumber == i ? 'active' : ''}">
+                                    <a class="page-link"
+                                       th:href="@{/admin/users(pageNumber=${i}, pageSize=${pagination.pageSize}, name=${param.name})}"
+                                       th:text="${i + 1}"></a>
+                                </li>
+
+                                <li class="page-item"
+                                    th:classappend="${pagination.pageNumber + 1 >= pagination.totalPages ? 'disabled' : ''}">
+                                    <a class="page-link"
+                                       th:href="@{/admin/users(pageNumber=${pagination.pageNumber + 1}, pageSize=${pagination.pageSize}, name=${param.name})}">&raquo;</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+
                     <!-- Botão para criar novo usuário -->
                     <div class="d-grid gap-2 mt-3">
                         <a href="/admin/create-user" class="btn btn-custom">Criar Usuário</a>
