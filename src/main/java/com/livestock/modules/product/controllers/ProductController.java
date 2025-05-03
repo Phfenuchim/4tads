@@ -23,14 +23,17 @@ public class ProductController {
                                @RequestParam(required = false, defaultValue = "10") int pageSize,
                                @RequestParam(required = false) String name,
                                Model model) {
+
+        pageNumber = Math.max(0, pageNumber);
+
         if (name != null && !name.trim().isEmpty()) {
-            var productsFilteredByName = productService.findAllProductsByNameFilter(name);
+            var productsFilteredByName = productService.findActiveProductsByNameFilter(name);
             var productsResponseDto = productsFilteredByName.stream()
                     .map(ProductMapper::toProductResponseDTO)
                     .toList();
             model.addAttribute("products", productsResponseDto);
         } else {
-            var productsPage = productService.getAllProductsPaginated(pageNumber, pageSize);
+            var productsPage = productService.getAllActiveProductsPaginated(pageNumber, pageSize);
             var productsResponseDto = productsPage.getContent().stream()
                     .map(ProductMapper::toProductResponseDTO)
                     .toList();

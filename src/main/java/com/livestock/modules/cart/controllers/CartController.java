@@ -2,6 +2,7 @@ package com.livestock.modules.cart.controllers;
 
 import com.livestock.modules.cart.dto.CartItem;
 import com.livestock.modules.product.domain.product.Product;
+import com.livestock.modules.product.domain.product_image.Product_image;
 import com.livestock.modules.product.services.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,11 +66,16 @@ public class CartController {
 
                 // Obtém a imagem padrão do produto, se existir
                 var productImages = productService.getProductImages(productId);
-                productImages.stream()
-                        .filter(img -> img.getDefaultImage())
-                        .findFirst()
-                        .ifPresent(img -> newItem.setImageUrl(img.getPathUrl()));
 
+
+                // Extrai a URL da imagem padrão ou usa um fallback
+                String imageUrl = productImages.stream()
+                        .filter(img -> Boolean.TRUE.equals(img.getDefaultImage()))
+                        .map(Product_image::getPathUrl)
+                        .findFirst()
+                        .orElse("logo.png");
+
+                newItem.setImageUrl(imageUrl);
                 cart.add(newItem);
             }
 

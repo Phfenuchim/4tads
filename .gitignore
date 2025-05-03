@@ -4,6 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 src/main/resources/static/images/produtos/*
+src/main/resources/images/produtos/*
+uploads/images/produtos/*
 ### STS ###
 .apt_generated
 .classpath

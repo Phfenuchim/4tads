@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/", "/home", "/login", "/register", "/cep/**").permitAll()
                         .requestMatchers("/products/**", "/cart/**", "/fragments/**").permitAll()
-                        .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
+                        .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/fonts/**", "/uploads/images/produtos/*").permitAll()
                         .requestMatchers("/frete/calcular").permitAll()
                         .requestMatchers("/admin/products/**").hasAnyRole("ADMIN", "ESTOQUISTA")
                         .requestMatchers("/admin/*").hasRole("ADMIN")

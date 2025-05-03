@@ -31,7 +31,7 @@ public class AdminProductController {
 
     @Autowired
     private ProductService productService;
-    private static String caminhoImagens = "src/main/resources/static/images/produtos/";
+    private static final String caminhoImagens = "uploads/images/produtos/";
 
     @GetMapping("/create-product")
     @PreAuthorize("hasAnyRole('ADMIN', 'ESTOQUISTA')")
@@ -58,27 +58,35 @@ public class AdminProductController {
         try {
             var product = productService.createProduct(createProductDTO);
 
+            // Se tiver apenas uma imagem, ela será a padrão independente do índice
+            boolean singleImage = arquivos.stream().filter(a -> !a.isEmpty()).count() == 1;
+
             for (int i = 0; i < arquivos.size(); i++) {
                 MultipartFile arquivo = arquivos.get(i);
                 if (!arquivo.isEmpty()) {
-                    byte[] bytes = arquivo.getBytes();
                     String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
-                    Path caminho = Paths.get(caminhoImagens + nomeArquivo);
-                    Files.write(caminho, bytes);
+                    Path pasta = Paths.get(caminhoImagens);
+                    // garante que exista a pasta inteira
+                    Files.createDirectories(pasta);
+                    Path caminho = pasta.resolve(nomeArquivo);
+                    Files.write(caminho, arquivo.getBytes());
 
-                    boolean isDefault = (i == defaultImageIndex); // usa o índice escolhido
+                    // Define isDefault como true se:
+                    // - For a única imagem OU
+                    // - O índice atual for igual ao defaultImageIndex
+                    boolean isDefault = singleImage || i == defaultImageIndex;
+
                     productService.addImageToProduct(product.getId(), nomeArquivo, isDefault);
                 }
             }
-
             redirectAttributes.addFlashAttribute("message", "Produto criado com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erro ao criar produto: " + e.getMessage());
             return "redirect:/admin/create-product";
         }
-
         return "redirect:/admin/products";
     }
+
 
 
 
@@ -152,13 +160,13 @@ public class AdminProductController {
                                @RequestParam(required = false) String name,
                                Model model) {
         if (name != null && !name.trim().isEmpty()) {
-            var productsFilteredByName = productService.findAllProductsByNameFilter(name);
+            var productsFilteredByName = productService.findAllProductsByNameFilterForAdmin(name);
             var productsResponseDto = productsFilteredByName.stream()
                     .map(ProductMapper::toProductResponseDTO)
                     .toList();
             model.addAttribute("products", productsResponseDto);
         } else {
-            var productsPage = productService.getAllProductsPaginated(pageNumber, pageSize);
+            var productsPage = productService.getAllProductsForAdminPaginated(pageNumber, pageSize);
             var productsResponseDto = productsPage.getContent().stream()
                     .map(ProductMapper::toProductResponseDTO)
                     .toList();

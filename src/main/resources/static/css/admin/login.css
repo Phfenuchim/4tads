@@ -131,6 +131,19 @@ button:hover {
     background-color: #006400;
 }
 
+.logo-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 2;
+}
+
+.logo-container img {
+    height: 80px;
+    width: auto;
+    cursor: pointer;
+}
+
 .sign-up {
     font-family: 'Quicksand', Arial, sans-serif;
     font-size: 14px;

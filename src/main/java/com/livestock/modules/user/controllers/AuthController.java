@@ -44,7 +44,7 @@ public class AuthController {
         }
 
         // Carrega os produtos paginados
-        var productsPage = productService.getAllProductsPaginated(pageNumber, pageSize);
+        var productsPage = productService.getAllActiveProductsPaginated(pageNumber, pageSize);
         var productDTOs = productsPage.getContent().stream()
                 .map(ProductMapper::toProductResponseDTO)
                 .toList();

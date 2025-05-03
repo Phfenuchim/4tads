@@ -62,14 +62,28 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Page<Product> getAllProductsPaginated(int pageNumber, int pageSize) {
-        return this.productRepository.findAll(PageRequest.of(pageNumber, pageSize));
+
+    // Para uso na área pública (só produtos ativos)
+    public Page<Product> getAllActiveProductsPaginated(int pageNumber, int pageSize) {
+        return productRepository.findByActiveTrue(PageRequest.of(pageNumber, pageSize));
+    }
+
+    // Para uso na área administrativa (todos os produtos)
+    public Page<Product> getAllProductsForAdminPaginated(int pageNumber, int pageSize) {
+        return productRepository.findAll(PageRequest.of(pageNumber, pageSize));
     }
 
 
-    public List<Product> findAllProductsByNameFilter(String name) {
-        return this.productRepository.findAllByProductNameContainingIgnoreCase(name);
+    // Para uso público
+    public List<Product> findActiveProductsByNameFilter(String name) {
+        return productRepository.findByProductNameContainingIgnoreCaseAndActiveTrue(name);
     }
+
+    // Para uso administrativo
+    public List<Product> findAllProductsByNameFilterForAdmin(String name) {
+        return productRepository.findAllByProductNameContainingIgnoreCase(name);
+    }
+
 
     public boolean updateProductActiveStatus(UUID id, boolean active) {
         if (id == null) {
