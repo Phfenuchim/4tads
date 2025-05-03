@@ -24,7 +24,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     List<Product> findAllByProductNameContainingIgnoreCase(String productName);
 
-    List<Product> findByActive(boolean active);
 
     Optional<Product> findByProductName(String productName);
 
