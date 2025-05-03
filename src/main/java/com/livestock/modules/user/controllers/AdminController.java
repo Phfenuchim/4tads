@@ -1,6 +1,7 @@
 package com.livestock.modules.user.controllers;
 
 import com.livestock.common.dto.PaginationResponseDTO;
+import com.livestock.modules.user.domain.role.Role;
 import com.livestock.modules.user.domain.user.User;
 import com.livestock.modules.user.dto.UpdateUserDTO;
 import com.livestock.modules.user.dto.UpdateUserPasswordDTO;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -123,15 +125,28 @@ public class AdminController {
     @GetMapping("/users/{id}/update-user")
     @PreAuthorize("hasRole('ADMIN')")
     public String showUpdateUserForm(@PathVariable("id") String id, Model model) {
-        var user = userService.getUserById(UUID.fromString(id)); // Buscar usuário
+        User user = userService.getUserById(UUID.fromString(id));
 
         // Preencher DTO com dados do usuário existente
         UpdateUserDTO updateUserDTO = new UpdateUserDTO();
         updateUserDTO.setName(user.getName());
         updateUserDTO.setCpf(user.getCpf());
 
+        // Obter o ID do primeiro role do usuário (se houver)
+        UUID currentRoleId = null;
+        if (!user.getRoles().isEmpty()) {
+            currentRoleId = user.getRoles().iterator().next().getId();
+            updateUserDTO.setRoleId(currentRoleId);
+        }
+
+        // Buscar todos os roles disponíveis
+        List<Role> roles = userService.getAllRoles();
+
         model.addAttribute("id", id);
         model.addAttribute("updateUser", updateUserDTO);
+        model.addAttribute("roles", roles);
+        model.addAttribute("currentRoleId", currentRoleId);
+
         return "admin/update-user";
     }
 
@@ -179,7 +194,6 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("message", "Usuário atualizado com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/users";
         }
         return "redirect:/admin/users";
     }

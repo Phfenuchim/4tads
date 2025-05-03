@@ -39,9 +39,10 @@
                                    th:field="*{name}"
                                    required>
                             <span id="name-error" class="error-message">
-                  O nome deve conter pelo menos 3 caracteres.
-                </span>
+                                O nome deve conter pelo menos 3 caracteres.
+                            </span>
                         </div>
+
                         <div class="mb-3">
                             <label for="cpf" class="form-label">CPF:</label>
                             <input type="text" id="cpf"
@@ -51,9 +52,25 @@
                                    maxlength="14"
                                    oninput="applyCpfMask(this)">
                             <span id="cpf-error" class="error-message">
-                  CPF inválido.
-                </span>
+                                CPF inválido.
+                            </span>
                         </div>
+
+                        <!-- Novo campo de Role/Grupo -->
+                        <div class="mb-3">
+                            <label for="roleId" class="form-label">Grupo/Permissão:</label>
+                            <select id="roleId" class="form-select" th:field="*{roleId}" required>
+                                <option value="">Selecione um grupo...</option>
+                                <option th:each="role : ${roles}"
+                                        th:value="${role.id}"
+                                        th:text="${role.name}"
+                                        th:selected="${role.id == currentRoleId}"></option>
+                            </select>
+                            <span id="role-error" class="error-message">
+                                Selecione um grupo.
+                            </span>
+                        </div>
+
                         <button type="submit" class="btn btn-custom">Salvar Alterações</button>
                     </form>
                 </div>
@@ -75,7 +92,7 @@
         input.value = value;
     }
 
-    // Validação client-side simples
+    // Validação client-side
     function validateForm() {
         let isValid = true;
 
@@ -90,21 +107,35 @@
             }
         }
 
+        // Esconde todas as mensagens de erro no início
+        document.querySelectorAll('.error-message').forEach(span => {
+            span.style.display = 'none';
+        });
+
         // Valida Nome
         const nameInput = document.getElementById("name");
         const nameError = document.getElementById("name-error");
         toggleError(nameInput, nameError, nameInput.value.trim().length >= 3);
+
         // Valida CPF
         const cpfInput = document.getElementById("cpf");
         const cpfError = document.getElementById("cpf-error");
         const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
         toggleError(cpfInput, cpfError, cpfRegex.test(cpfInput.value.trim()));
+
+        // Valida Role
+        const roleSelect = document.getElementById("roleId");
+        const roleError = document.getElementById("role-error");
+        toggleError(roleSelect, roleError, roleSelect.value !== "");
+
         return isValid;
     }
 
-    // Revalida a cada input
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', validateForm);
+    // Inicialização: oculta todas as mensagens de erro
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.error-message').forEach(span => {
+            span.style.display = 'none';
+        });
     });
 </script>
 

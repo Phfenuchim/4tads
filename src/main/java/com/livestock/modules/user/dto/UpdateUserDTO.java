@@ -14,4 +14,5 @@ import java.util.UUID;
 public class UpdateUserDTO {
     private String name;
     private String cpf;
+    private UUID roleId; // Adicione este campo para o ID do role
 }

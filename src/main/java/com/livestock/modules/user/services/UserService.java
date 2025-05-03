@@ -82,7 +82,7 @@ public class UserService {
     }
 
     public User updateUser(UUID id, UpdateUserDTO updateUserDTO) {
-        var user = userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id));
 
         if (updateUserDTO.getName() != null) {
@@ -90,11 +90,25 @@ public class UserService {
         }
 
         if (updateUserDTO.getCpf() != null) {
+            if (!UserValidator.isValidCPF(updateUserDTO.getCpf())) {
+                throw new UserInputException("CPF inválido");
+            }
             user.setCpf(updateUserDTO.getCpf());
+        }
+
+        // Atualizar o role se for fornecido
+        if (updateUserDTO.getRoleId() != null) {
+            Role role = roleRepository.findById(updateUserDTO.getRoleId())
+                    .orElseThrow(() -> new IllegalArgumentException("Role não encontrado"));
+
+            // Limpar roles existentes e adicionar o novo
+            user.getRoles().clear();
+            user.getRoles().add(role);
         }
 
         return userRepository.save(user);
     }
+
 
     public List<Role> getAllRoles() {
         var roles = this.roleRepository.findAll();
