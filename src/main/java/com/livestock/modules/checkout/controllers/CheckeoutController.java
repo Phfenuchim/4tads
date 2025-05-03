@@ -2,6 +2,7 @@ package com.livestock.modules.checkout.controllers;
 
 import com.livestock.modules.cart.controllers.CartController;
 import com.livestock.modules.cart.dto.CartItem;
+import com.livestock.modules.checkout.domain.Freight;
 import com.livestock.modules.client.domain.address.Address;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.repositories.AddressRepository;
@@ -60,7 +61,7 @@ public class CheckeoutController {
         model.addAttribute("items", items);
         model.addAttribute("total",total);
 
-        return "checkout/initialCheckout";
+        return "checkout/initial-checkout";
     }
 
     @PostMapping("/checkout/select-address")
@@ -70,12 +71,14 @@ public class CheckeoutController {
     }
 
     @GetMapping("/checkout/payment")
-    public String checkoutPayment(){
+    public String checkoutPayment(Model model) {
+        model.addAttribute("freteTipos", Freight.values());
         return "checkout/checkout-payment";
     }
 
     @PostMapping("/checkout/validate")
     public String validateRequest(@RequestParam String paymentMethod,
+                                  @RequestParam String freteTipo,
                                 @RequestParam(required = false) String cardName,
                                 @RequestParam(required = false) String cardNumber,
                                 @RequestParam(required = false) String cardCvv,
@@ -84,6 +87,7 @@ public class CheckeoutController {
                                 HttpSession session) {
 
         session.setAttribute("paymentMethod", paymentMethod);
+        session.setAttribute("freteTipo", freteTipo);
 
         if ("cartao".equals(paymentMethod)) {
             if (cardName == null || cardNumber == null || cardCvv == null || cardExpiry == null || installments == null) {
@@ -126,8 +130,12 @@ public class CheckeoutController {
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal frete = new BigDecimal("20.00"); // valor fixo de frete
-        BigDecimal totalGeral = totalProdutos.add(frete);
+
+        String selectedFreight = (String) session.getAttribute("freteTipo");
+        Freight freteTipo = Freight.valueOf(selectedFreight);
+        BigDecimal freight = freteTipo.getValor();
+
+        BigDecimal totalGeral = totalProdutos.add(freight);
 
         String paymentMethod = (String) session.getAttribute("paymentMethod");
 
@@ -145,7 +153,8 @@ public class CheckeoutController {
         model.addAttribute("address", address);
         model.addAttribute("items", items);
         model.addAttribute("totalProdutos", totalProdutos);
-        model.addAttribute("frete", frete);
+        model.addAttribute("frete", freight);
+        model.addAttribute("freteTipo", freteTipo.getNome());
         model.addAttribute("totalGeral", totalGeral);
         model.addAttribute("paymentMethod", paymentMethod);
 
