@@ -10,6 +10,7 @@ import com.livestock.modules.client.dto.NewAddressDTO;
 import com.livestock.modules.client.repositories.ClientRepository;
 import com.livestock.modules.order.infra.apis.CepResultDTO;
 import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
+import com.livestock.modules.user.validators.UserValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -38,6 +39,11 @@ public class ClientService {
         // Verificar se o email já existe
         if (clientRepository.existsByEmail(createClientDTO.getEmail())) {
             throw new IllegalArgumentException("Email já cadastrado");
+        }
+
+        // Validar CPF usando o UserValidator - ADICIONAR ESTA PARTE
+        if (!UserValidator.isValidCPF(createClientDTO.getCpf())) {
+            throw new IllegalArgumentException("CPF inválido");
         }
 
         // Verificar se o CPF já existe

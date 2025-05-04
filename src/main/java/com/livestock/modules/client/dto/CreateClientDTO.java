@@ -1,5 +1,6 @@
 package com.livestock.modules.client.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class CreateClientDTO {
     private String email;
 
     @NotBlank(message = "O telefone é obrigatório")
+    @Pattern(regexp = "^\\(\\d{2}\\)\\s\\d{5}\\-\\d{4}$", message = "Formato de telefone inválido")
     private String phone;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -43,8 +45,10 @@ public class CreateClientDTO {
     @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
     private String password;
 
+    @Valid
     @NotNull(message = "O endereço de faturamento é obrigatório")
     private AddressDTO billingAddress;
 
+    @Valid
     private List<AddressDTO> shippingAddresses;
 }
