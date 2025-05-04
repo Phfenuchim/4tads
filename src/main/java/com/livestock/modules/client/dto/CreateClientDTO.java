@@ -2,17 +2,11 @@ package com.livestock.modules.client.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class CreateClientDTO {
 
     @NotBlank(message = "O nome é obrigatório")
@@ -37,7 +31,6 @@ public class CreateClientDTO {
     @Past(message = "A data de nascimento deve estar no passado")
     private Date dateBirth;
 
-
     @NotBlank(message = "O gênero é obrigatório")
     private String gender;
 
@@ -51,4 +44,97 @@ public class CreateClientDTO {
 
     @Valid
     private List<AddressDTO> shippingAddresses;
+
+    // Construtor vazio
+    public CreateClientDTO() {
+    }
+
+    // Construtor com todos os argumentos
+    public CreateClientDTO(String fullName, String cpf, String email, String phone, Date dateBirth,
+                           String gender, String password, AddressDTO billingAddress,
+                           List<AddressDTO> shippingAddresses) {
+        this.fullName = fullName;
+        this.cpf = cpf;
+        this.email = email;
+        this.phone = phone;
+        this.dateBirth = dateBirth;
+        this.gender = gender;
+        this.password = password;
+        this.billingAddress = billingAddress;
+        this.shippingAddresses = shippingAddresses;
+    }
+
+    // Getters
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public Date getDateBirth() {
+        return dateBirth;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public AddressDTO getBillingAddress() {
+        return billingAddress;
+    }
+
+    public List<AddressDTO> getShippingAddresses() {
+        return shippingAddresses;
+    }
+
+    // Setters
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setDateBirth(Date dateBirth) {
+        this.dateBirth = dateBirth;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setBillingAddress(AddressDTO billingAddress) {
+        this.billingAddress = billingAddress;
+    }
+
+    public void setShippingAddresses(List<AddressDTO> shippingAddresses) {
+        this.shippingAddresses = shippingAddresses;
+    }
 }

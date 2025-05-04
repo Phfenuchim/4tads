@@ -2,12 +2,10 @@ package com.livestock.modules.client.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
-import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-@Data
 public class EditProfileDTO {
 
     @NotBlank(message = "O nome é obrigatório")
@@ -19,4 +17,41 @@ public class EditProfileDTO {
 
     @NotBlank(message = "O gênero é obrigatório")
     private String gender;
+
+    // Construtor vazio
+    public EditProfileDTO() {
+    }
+
+    // Construtor com todos os argumentos
+    public EditProfileDTO(String fullName, Date dateBirth, String gender) {
+        this.fullName = fullName;
+        this.dateBirth = dateBirth;
+        this.gender = gender;
+    }
+
+    // Getters
+    public String getFullName() {
+        return fullName;
+    }
+
+    public Date getDateBirth() {
+        return dateBirth;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    // Setters
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setDateBirth(Date dateBirth) {
+        this.dateBirth = dateBirth;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 }

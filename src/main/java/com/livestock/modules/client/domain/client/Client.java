@@ -2,10 +2,6 @@ package com.livestock.modules.client.domain.client;
 
 import com.livestock.modules.client.domain.address.Address;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,12 +9,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Table(name="tb_client")
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -42,6 +37,31 @@ public class Client {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Address> address = new ArrayList<>();
+
+    // Construtor vazio
+    public Client() {
+    }
+
+    // Construtor com todos os argumentos
+    public Client(UUID id, String firstName, String lastName, String fullName, String cpf,
+                  String email, String phone, String gender, String password, Date date_birth,
+                  Boolean status, LocalDateTime createdAt, LocalDateTime updatedAt,
+                  List<Address> address) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.fullName = fullName;
+        this.cpf = cpf;
+        this.email = email;
+        this.phone = phone;
+        this.gender = gender;
+        this.password = password;
+        this.date_birth = date_birth;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.address = address;
+    }
 
     public UUID getId() {
         return id;
@@ -153,5 +173,32 @@ public class Client {
 
     public void setAddress(List<Address> address) {
         this.address = address;
+    }
+
+    // Equals e HashCode baseados no ID
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return Objects.equals(id, client.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    // ToString para facilitar depuração
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", cpf='" + cpf + '\'' +
+                ", status=" + status +
+                '}';
     }
 }

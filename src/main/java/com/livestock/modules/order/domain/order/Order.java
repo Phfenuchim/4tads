@@ -3,17 +3,14 @@ package com.livestock.modules.order.domain.order;
 import com.livestock.modules.order.domain.payment_method.PaymentMethod;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Table(name = "tb_order")
 @Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Order {
 
     @Id
@@ -49,4 +46,132 @@ public class Order {
     @JoinColumn(name = "payment_method_id", updatable = false, insertable = false, nullable = true)
     private PaymentMethod paymentMethod;
 
+    // Construtor vazio
+    public Order() {
+    }
+
+    // Construtor com todos os argumentos
+    public Order(UUID id, UUID userId, double totalPrice, LocalDateTime createdAt,
+                 String cep, String address, String addressNumber, String complement,
+                 double shipping, PaymentMethod paymentMethod) {
+        this.id = id;
+        this.userId = userId;
+        this.totalPrice = totalPrice;
+        this.createdAt = createdAt;
+        this.cep = cep;
+        this.address = address;
+        this.addressNumber = addressNumber;
+        this.complement = complement;
+        this.shipping = shipping;
+        this.paymentMethod = paymentMethod;
+    }
+
+    // Getters
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getCep() {
+        return cep;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getAddressNumber() {
+        return addressNumber;
+    }
+
+    public String getComplement() {
+        return complement;
+    }
+
+    public double getShipping() {
+        return shipping;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    // Setters
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setCep(String cep) {
+        this.cep = cep;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setAddressNumber(String addressNumber) {
+        this.addressNumber = addressNumber;
+    }
+
+    public void setComplement(String complement) {
+        this.complement = complement;
+    }
+
+    public void setShipping(double shipping) {
+        this.shipping = shipping;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    // Equals e HashCode baseados no ID
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Order order = (Order) o;
+        return Objects.equals(id, order.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    // ToString para facilitar depuração
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", totalPrice=" + totalPrice +
+                ", createdAt=" + createdAt +
+                ", cep='" + cep + '\'' +
+                ", shipping=" + shipping +
+                '}';
+    }
 }
