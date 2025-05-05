@@ -1,7 +1,6 @@
 package com.livestock.modules.order.domain.order;
 
-import com.livestock.modules.order.domain.payment_method.PaymentMethod;
-import jakarta.annotation.Nullable;
+import com.livestock.modules.checkout.payment.PaymentMethod;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 

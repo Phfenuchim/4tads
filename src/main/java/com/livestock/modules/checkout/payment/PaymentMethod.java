@@ -1,17 +1,17 @@
-package com.livestock.modules.order.domain.payment_method;
+package com.livestock.modules.checkout.payment;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.util.Objects;
+import java.util.UUID;
 
 @Table(name = "TB_PAYMENT_METHOD")
 @Entity
 public class PaymentMethod {
 
     @Id
-    private int id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(name = "payment_name", nullable = false)
     private String paymentName;
@@ -21,13 +21,13 @@ public class PaymentMethod {
     }
 
     // Construtor com todos os argumentos
-    public PaymentMethod(int id, String paymentName) {
+    public PaymentMethod(UUID id, String paymentName) {
         this.id = id;
         this.paymentName = paymentName;
     }
 
     // Getters
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -36,7 +36,7 @@ public class PaymentMethod {
     }
 
     // Setters
-    public void setId(int id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

@@ -3,6 +3,7 @@ package com.livestock.modules.checkout.controllers;
 import com.livestock.modules.cart.controllers.CartController;
 import com.livestock.modules.cart.dto.CartItem;
 import com.livestock.modules.checkout.domain.Freight;
+import com.livestock.modules.checkout.services.CheckoutService;
 import com.livestock.modules.client.domain.address.Address;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.repositories.AddressRepository;
@@ -17,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class CheckeoutController {
@@ -27,11 +26,13 @@ public class CheckeoutController {
     private final AddressRepository addressRepository;
     private final CartController cartController;
     private final ClientRepository clientRepository;
+    private final CheckoutService checkoutService;
 
-    public CheckeoutController(AddressRepository addressRepository, CartController cartController, ClientRepository clientRepository) {
+    public CheckeoutController(AddressRepository addressRepository, CartController cartController, ClientRepository clientRepository, CheckoutService checkoutService) {
         this.addressRepository = addressRepository;
         this.cartController = cartController;
         this.clientRepository = clientRepository;
+        this.checkoutService = checkoutService;
     }
 
     @GetMapping("/checkout")
@@ -79,25 +80,36 @@ public class CheckeoutController {
     @PostMapping("/checkout/validate")
     public String validateRequest(@RequestParam String paymentMethod,
                                   @RequestParam String freteTipo,
-                                @RequestParam(required = false) String cardName,
-                                @RequestParam(required = false) String cardNumber,
-                                @RequestParam(required = false) String cardCvv,
-                                @RequestParam(required = false) String cardExpiry,
-                                @RequestParam(required = false) String installments,
-                                HttpSession session) {
+                                  @RequestParam Map<String, String> allParams,
+                                  HttpSession session) {
 
+        // Armazenar parâmetros na sessão
         session.setAttribute("paymentMethod", paymentMethod);
         session.setAttribute("freteTipo", freteTipo);
 
+        // Para cartão, validar campos específicos
         if ("cartao".equals(paymentMethod)) {
-            if (cardName == null || cardNumber == null || cardCvv == null || cardExpiry == null || installments == null) {
-                return "redirect:/checkout/payment?error=Campos do cartão obrigatórios";
+            Map<String, String> cardDetails = new HashMap<>();
+            cardDetails.put("cardName", allParams.get("cardName"));
+            cardDetails.put("cardNumber", allParams.get("cardNumber"));
+            cardDetails.put("cardCvv", allParams.get("cardCvv"));
+            cardDetails.put("cardExpiry", allParams.get("cardExpiry"));
+            cardDetails.put("installments", allParams.get("installments"));
+
+            try {
+                // Validar com a estratégia
+                boolean valid = checkoutService.validatePaymentDetails(paymentMethod, cardDetails);
+                if (!valid) {
+                    return "redirect:/checkout/payment?error=Dados do cartão inválidos";
+                }
+
+                // Armazenar detalhes do cartão
+                for (Map.Entry<String, String> entry : cardDetails.entrySet()) {
+                    session.setAttribute(entry.getKey(), entry.getValue());
+                }
+            } catch (Exception e) {
+                return "redirect:/checkout/payment?error=" + e.getMessage();
             }
-            session.setAttribute("cardName", cardName);
-            session.setAttribute("cardNumber", cardNumber);
-            session.setAttribute("cardCvv", cardCvv);
-            session.setAttribute("cardExpiry",cardExpiry);
-            session.setAttribute("installments", installments);
         }
 
         return "redirect:/checkout/confirm";
