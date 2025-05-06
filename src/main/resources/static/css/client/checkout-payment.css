@@ -22,6 +22,7 @@ main {
     flex: 1;
 }
 
+/* Card principal */
 .card {
     max-width: 700px;
     margin: 0 auto;
@@ -30,19 +31,40 @@ main {
     border-radius: 20px;
 }
 
+/* Título */
 h2 {
     color: #228B22;
     font-weight: 700;
 }
 
-h4, h5 {
+/* Labels */
+label {
+    font-weight: 600;
     color: #444;
 }
 
-.table th, .table td {
-    vertical-align: middle;
+/* Inputs e Selects */
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 15px;
+    transition: border-color 0.2s ease-in-out;
 }
 
+.form-control:focus,
+.form-select:focus {
+    border-color: #228B22;
+    box-shadow: 0 0 0 0.1rem rgba(34, 139, 34, 0.2);
+}
+
+/* Campos do cartão */
+#cardFields {
+    margin-top: 20px;
+}
+
+/* Botão */
 .btn {
     border-radius: 12px;
     padding: 10px 24px;
@@ -50,18 +72,36 @@ h4, h5 {
     transition: all 0.2s ease-in-out;
 }
 
-.btn-primary {
+.btn-success {
     background-color: #228B22;
     border: none;
 }
 
-.btn-primary:hover {
+.btn-success:hover {
     background-color: #006400;
 }
 
+.btn-success:disabled {
+    background-color: #cccccc;
+    border: none;
+    cursor: not-allowed;
+}
+
+/* Footer */
 footer {
     background-color: #f8f9fa;
     color: #666;
     padding: 1rem;
     text-align: center;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .card {
+        padding: 20px;
+    }
+
+    .btn {
+        width: 100%;
+    }
 }

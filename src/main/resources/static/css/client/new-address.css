@@ -1,0 +1,90 @@
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../../fonts/Quicksand-Regular.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Quicksand', sans-serif;
+    background-color: #f3f6f9;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.card {
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: #fff;
+    border: none;
+    border-radius: 20px;
+}
+
+h2 {
+    color: #228B22;
+    font-weight: 700;
+}
+
+label {
+    font-weight: 600;
+    color: #444;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 15px;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #228B22;
+    box-shadow: 0 0 0 0.1rem rgba(34, 139, 34, 0.2);
+}
+
+.btn {
+    border-radius: 12px;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #228B22;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #006400;
+}
+
+footer {
+    background-color: #f8f9fa;
+    color: #666;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .card {
+        padding: 20px;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}

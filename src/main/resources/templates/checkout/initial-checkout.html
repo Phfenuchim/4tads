@@ -5,7 +5,7 @@
     <title>Finalização da compra</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/client/checkout.css}">
+    <link rel="stylesheet" th:href="@{/css/client/initial-checkout.css}">
 </head>
 <body>
 
@@ -17,14 +17,22 @@
 
         <form th:action="@{/checkout/select-address}" method="post">
             <label for="addressSelect" class="form-label">Escolha o endereço de entrega:</label>
-            <select class="form-select mb-3" name="addressId" id="addressSelect" required>
-                <option disabled selected>Selecione um endereço</option>
+            <select class="form-select mb-2" name="addressId" id="addressSelect" required>
+                <option value="" disabled selected>Selecione um endereço</option>
                 <option th:each="addr : ${addresses}"
                         th:value="${addr.id}"
                         th:text="${addr.street} + ', ' + ${addr.number} + ' - ' + ${addr.state} + ' - ' + ${addr.cep}">
                 </option>
             </select>
-            <button type="submit" class="btn btn-primary">Escolher Método de Pagamento</button>
+
+            <!-- Botão de adicionar novo endereço -->
+            <div class="mb-3 text-end">
+                <a th:href="@{/client/addresses/new}" class="btn btn-outline-secondary btn-sm">
+                    + Adicionar Novo Endereço
+                </a>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary" disabled>Escolher Método de Pagamento</button>
         </form>
 
     </div>
@@ -33,5 +41,15 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const addressSelect = document.getElementById('addressSelect');
+    const submitBtn = document.getElementById('submitBtn');
+
+    addressSelect.addEventListener('change', function () {
+        submitBtn.disabled = !this.value;
+    });
+</script>
+
 </body>
 </html>
