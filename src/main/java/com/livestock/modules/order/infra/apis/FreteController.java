@@ -1,5 +1,6 @@
 package com.livestock.modules.order.infra.apis;
 
+import com.livestock.modules.checkout.domain.Freight;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -63,10 +64,26 @@ public class FreteController {
         BigDecimal freteBase = fretePorEstado.getOrDefault(uf, BigDecimal.valueOf(400));
 
         List<OpcaoFrete> opcoes = List.of(
-                new OpcaoFrete("Gado Rápido", "2 a 3 dias úteis", freteBase.add(BigDecimal.valueOf(80))),
-                new OpcaoFrete("BoiExpresso", "4 a 6 dias úteis", freteBase.add(BigDecimal.valueOf(50))),
-                new OpcaoFrete("TransBoi Econômico", "6 a 9 dias úteis", freteBase)
+                new OpcaoFrete(
+                        Freight.GADO_RAPIDO.getNome(),
+                        "2 a 3 dias úteis",
+                        freteBase.add(BigDecimal.valueOf(80)),
+                        Freight.GADO_RAPIDO.name()
+                ),
+                new OpcaoFrete(
+                        Freight.BOI_EXPRESSO.getNome(),
+                        "4 a 6 dias úteis",
+                        freteBase.add(BigDecimal.valueOf(50)),
+                        Freight.BOI_EXPRESSO.name()
+                ),
+                new OpcaoFrete(
+                        Freight.TRANSBOI.getNome(),
+                        "6 a 9 dias úteis",
+                        freteBase,
+                        Freight.TRANSBOI.name()
+                )
         );
+
 
         FreteResponse response = new FreteResponse(endereco, cidade, estado, uf, opcoes);
         return ResponseEntity.ok(response);

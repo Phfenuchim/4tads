@@ -74,8 +74,9 @@
                     <label class="form-label">Tipo de Endereço</label>
                     <select th:field="*{type}" class="form-select">
                         <option value="ENTREGA">Entrega</option>
-                        <option value="FATURAMENTO">Faturamento</option>
+                        <option value="FATURAMENTO" th:if="${mostrarFaturamento}">Faturamento</option>
                     </select>
+
                 </div>
 
             </div>

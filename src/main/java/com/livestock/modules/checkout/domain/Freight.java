@@ -1,6 +1,7 @@
 package com.livestock.modules.checkout.domain;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 public enum Freight {
     GADO_RAPIDO("Gado Rápido", new BigDecimal("230.00")),
@@ -23,4 +24,13 @@ public enum Freight {
     public BigDecimal getValor() {
         return valor;
     }
+
+    public static Freight fromNome(String nome) {
+        try {
+            return Freight.valueOf(nome);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Tipo de frete inválido: " + nome);
+        }
+    }
+
 }

@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/products/**").hasAnyRole("ADMIN", "ESTOQUISTA")
                         .requestMatchers("/admin/*").hasRole("ADMIN")
                         .requestMatchers("/client/**").access(this::isClient) // Usa método personalizado
+                        .requestMatchers("/checkout/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

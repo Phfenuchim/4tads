@@ -52,7 +52,7 @@
                                 <span th:text="'Bem-vindo, ' + ${#authentication.name}">Bem-vindo</span>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Meus Pedidos</a></li>
+                            <li><a class="dropdown-item" th:href="@{/client/my-orders}">Meus Pedidos</a></li>
                             <li><a class="dropdown-item" th:href="@{/client/profile}">Editar Perfil</a></li>
                             <li><a class="dropdown-item" th:href="@{/client/change-password}">Alterar Senha</a></li>
                             <li><a class="dropdown-item" th:href="@{/client/addresses}">Endereços de Entrega</a></li>

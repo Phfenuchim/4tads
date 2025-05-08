@@ -1,6 +1,7 @@
 package com.livestock.modules.order.domain.order;
 
 import com.livestock.modules.checkout.payment.PaymentMethod;
+import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.order.domain.order_status.OrderStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,6 +42,11 @@ public class Order {
 
     @Column(nullable = false)
     private double shipping;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    private Client client;
+
 
     @ManyToOne
     @JoinColumn(name = "payment_method_id", updatable = false, insertable = false, nullable = true)

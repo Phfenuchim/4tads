@@ -1,0 +1,107 @@
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../../fonts/Quicksand-Regular.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Quicksand', sans-serif;
+    background-color: #f3f6f9;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Container principal */
+.card {
+    background-color: #ffffff;
+    border: none;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+    padding: 2rem;
+}
+
+/* Título da página */
+.card h2 {
+    font-weight: 700;
+    color: #343a40;
+}
+
+/* Tabela de pedidos */
+.table {
+    margin-top: 1.5rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+    font-size: 0.95rem;
+}
+
+/* Badge de status */
+.badge {
+    padding: 0.5em 0.9em;
+    font-size: 0.875rem;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.badge.bg-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.badge.bg-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.badge.bg-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.badge.bg-info {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+/* Botão de detalhes */
+.btn-outline-primary.btn-sm {
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary.btn-sm:hover {
+    background-color: #0d6efd;
+    color: #fff;
+    border-color: #0d6efd;
+}
+
+/* Footer fixo ao fim da tela quando conteúdo é curto */
+footer {
+    background-color: #f8f9fa;
+    color: #666;
+    padding: 1rem;
+    text-align: center;
+}

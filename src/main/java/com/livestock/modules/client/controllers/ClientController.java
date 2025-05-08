@@ -4,8 +4,10 @@ import com.livestock.common.GadusUserDetails;
 import com.livestock.modules.client.domain.address.Address;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.dto.*;
+import com.livestock.modules.client.repositories.AddressRepository;
 import com.livestock.modules.client.repositories.ClientRepository;
 import com.livestock.modules.client.services.ClientService;
+import com.livestock.modules.order.domain.order.Order;
 import com.livestock.modules.order.infra.apis.CepResultDTO;
 import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
 import jakarta.transaction.Transactional;
@@ -22,6 +24,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -35,6 +39,9 @@ public class ClientController {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
 
     @GetMapping("/register")
@@ -209,20 +216,26 @@ public class ClientController {
 
 
     @GetMapping("/client/addresses")
-    public String listAddresses(@RequestParam(value = "redirectTo", required = false) String redirectTo,
-                                Model model, Principal principal) {
-        Client client = clientRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
+    public String listAddresses(Model model, Principal principal) {
+        String email = principal.getName();
+        Optional<Client> client = clientRepository.findByEmail(email);
 
-        model.addAttribute("addresses", client.getAddress());
-        model.addAttribute("newAddressDTO", new NewAddressDTO());
-
-        if (redirectTo != null) {
-            model.addAttribute("redirectTo", redirectTo);
+        if (client.isEmpty()) {
+            return "redirect:/login";
         }
+
+        List<Address> addresses = addressRepository.findByClientId(client.get().getId());
+
+        boolean temFaturamento = addresses.stream()
+                .anyMatch(a -> a.getType().toString().equals("FATURAMENTO"));
+
+        model.addAttribute("addresses", addresses);
+        model.addAttribute("newAddressDTO", new NewAddressDTO());
+        model.addAttribute("mostrarFaturamento", !temFaturamento);
 
         return "client/addresses";
     }
+
 
 
     @PostMapping("/client/address/{id}/set-default")
@@ -235,6 +248,18 @@ public class ClientController {
         }
         return "redirect:/client/addresses";
     }
+
+    @GetMapping("/client/my-orders")
+    public String viewMyOrders(Model model, Principal principal) {
+        Client client = clientRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
+
+        List<Order> orders = clientService.findOrdersByClient(client.getId());
+        model.addAttribute("orders", orders);
+
+        return "client/my-orders";
+    }
+
 
 
 }

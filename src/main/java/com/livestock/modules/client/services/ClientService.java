@@ -8,8 +8,10 @@ import com.livestock.modules.client.dto.ChangePasswordDTO;
 import com.livestock.modules.client.dto.CreateClientDTO;
 import com.livestock.modules.client.dto.NewAddressDTO;
 import com.livestock.modules.client.repositories.ClientRepository;
+import com.livestock.modules.order.domain.order.Order;
 import com.livestock.modules.order.infra.apis.CepResultDTO;
 import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
+import com.livestock.modules.order.repositories.OrderRepository;
 import com.livestock.modules.user.validators.UserValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,10 @@ public class ClientService {
 
     @Autowired
     private ConsultaCepAPI consultaCepAPI;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
 
     @Transactional
     public Client createClient(CreateClientDTO createClientDTO) {
@@ -134,7 +140,15 @@ public class ClientService {
         Client client = clientRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
-        // Validação do CEP via API
+        // Se for tipo FATURAMENTO, impedir caso já tenha um
+        if (dto.getType() == AddressType.FATURAMENTO) {
+            boolean alreadyHasBilling = client.getAddress().stream()
+                    .anyMatch(a -> a.getType() == AddressType.FATURAMENTO);
+            if (alreadyHasBilling) {
+                throw new IllegalArgumentException("Você já possui um endereço de faturamento.");
+            }
+        }
+
         CepResultDTO cepResult = consultaCepAPI.consultaCep(dto.getCep());
         if (cepResult == null || cepResult.getCep() == null) {
             throw new IllegalArgumentException("CEP inválido");
@@ -161,6 +175,7 @@ public class ClientService {
         clientRepository.save(client);
     }
 
+
     @Transactional
     public void setDefaultAddress(String email, UUID addressId) {
         Client client = clientRepository.findByEmail(email)
@@ -179,6 +194,17 @@ public class ClientService {
 
         clientRepository.save(client);
     }
+
+    public List<Order> getClientOrders(String email) {
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
+        return client.getOrders(); // ou consulte um OrderRepository se preferir
+    }
+
+    public List<Order> findOrdersByClient(UUID clientId) {
+        return orderRepository.findByUserId(clientId);
+    }
+
 
 
 

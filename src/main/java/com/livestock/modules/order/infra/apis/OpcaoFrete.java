@@ -6,11 +6,13 @@ public class OpcaoFrete {
     private String nome;
     private String prazo;
     private BigDecimal valor;
+    private String enumName;
 
-    public OpcaoFrete(String nome, String prazo, BigDecimal valor) {
+    public OpcaoFrete(String nome, String prazo, BigDecimal valor, String enumName) {
         this.nome = nome;
         this.prazo = prazo;
         this.valor = valor;
+        this.enumName = enumName;
     }
 
     public String getNome() {
@@ -35,5 +37,13 @@ public class OpcaoFrete {
 
     public void setValor(BigDecimal valor) {
         this.valor = valor;
+    }
+
+    public String getEnumName() {
+        return enumName;
+    }
+
+    public void setEnumName(String enumName) {
+        this.enumName = enumName;
     }
 }

@@ -12,3 +12,4 @@ CREATE TABLE TB_ORDER_PRODUCT
     CONSTRAINT fk_order_product_order FOREIGN KEY (order_id)
         REFERENCES TB_ORDER (id) ON DELETE CASCADE
 );
+

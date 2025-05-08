@@ -9,6 +9,8 @@ import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.repositories.AddressRepository;
 import com.livestock.modules.client.repositories.ClientRepository;
 import com.livestock.modules.order.domain.order.Order;
+import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
+import com.livestock.modules.order.infra.apis.FreteResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,11 +32,14 @@ public class CheckoutController {
     private final ClientRepository clientRepository;
     private final CheckoutService checkoutService;
 
-    public CheckoutController(AddressRepository addressRepository, CartController cartController, ClientRepository clientRepository, CheckoutService checkoutService) {
+    private final ConsultaCepAPI consultaCepAPI;
+
+    public CheckoutController(AddressRepository addressRepository, CartController cartController, ClientRepository clientRepository, CheckoutService checkoutService, ConsultaCepAPI consultaCepAPI) {
         this.addressRepository = addressRepository;
         this.cartController = cartController;
         this.clientRepository = clientRepository;
         this.checkoutService = checkoutService;
+        this.consultaCepAPI = consultaCepAPI;
     }
 
     @GetMapping("/checkout")
@@ -74,10 +79,25 @@ public class CheckoutController {
     }
 
     @GetMapping("/checkout/payment")
-    public String checkoutPayment(Model model) {
-        model.addAttribute("freteTipos", Freight.values());
+    public String checkoutPayment(Model model, HttpSession session) {
+        UUID addressId = (UUID) session.getAttribute("selectedAddressId");
+
+        if (addressId == null) {
+            return "redirect:/checkout";
+        }
+
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+
+        FreteResponse freteResponse = consultaCepAPI.consultaCepViaApiInterna(address.getCep());
+
+        model.addAttribute("freteTipos", freteResponse.getOpcoesFrete());
+        session.setAttribute("freteOpcoes", freteResponse.getOpcoesFrete());
+
         return "checkout/checkout-payment";
     }
+
+
 
     @PostMapping("/checkout/validate")
     public String validateRequest(@RequestParam String paymentMethod,
@@ -146,7 +166,7 @@ public class CheckoutController {
 
 
         String selectedFreight = (String) session.getAttribute("freteTipo");
-        Freight freteTipo = Freight.valueOf(selectedFreight);
+        Freight freteTipo = Freight.fromNome(selectedFreight);
         BigDecimal freight = freteTipo.getValor();
 
         BigDecimal totalGeral = totalProdutos.add(freight);
@@ -201,12 +221,19 @@ public class CheckoutController {
     }
 
     @GetMapping("/checkout/checkout-success")
-    public String checkoutSucesso(Model model) {
-        if (!model.containsAttribute("orderNumber")) {
-            // Se acessou diretamente sem passar pelo fluxo de checkout
+    public String checkoutSucesso(Model model, HttpSession session) {
+        Object orderNumber = model.asMap().get("orderNumber");
+        Object orderTotal = model.asMap().get("orderTotal");
+
+        if (orderNumber == null || orderTotal == null) {
             return "redirect:/home";
         }
+
+        model.addAttribute("orderNumber", orderNumber);
+        model.addAttribute("orderTotal", orderTotal);
+
         return "checkout/checkout-success";
     }
+
 
 }
