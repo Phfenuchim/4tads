@@ -20,16 +20,14 @@
             <div class="mb-3">
                 <label for="freight" class="form-label">Escolha o tipo de frete:</label>
                 <select name="freteTipo" id="freight" class="form-select" required>
-                    <option th:each="freight : ${freteTipos}" th:value="${freight.name()}"
-                            th:text="${freight.nome} + ' - R$ ' + ${freight.valor}"></option>
+                    <option th:each="freight : ${freteTipos}" th:value="${freight.name()}" th:text="${freight.nome} + ' - R$ ' + ${freight.valor}"></option>
                 </select>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Forma de Pagamento:</label>
                 <div>
-                    <input class="form-check-input" type="radio" name="paymentMethod" value="boleto" id="boletoOption"
-                           required>
+                    <input class="form-check-input" type="radio" name="paymentMethod" value="boleto" id="boletoOption" required>
                     <label class="form-check-label" for="boletoOption">Boleto</label>
                 </div>
                 <div>

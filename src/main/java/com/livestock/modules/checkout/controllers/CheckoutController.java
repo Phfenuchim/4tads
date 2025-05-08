@@ -21,14 +21,14 @@ import java.security.Principal;
 import java.util.*;
 
 @Controller
-public class CheckeoutController {
+public class CheckoutController {
 
     private final AddressRepository addressRepository;
     private final CartController cartController;
     private final ClientRepository clientRepository;
     private final CheckoutService checkoutService;
 
-    public CheckeoutController(AddressRepository addressRepository, CartController cartController, ClientRepository clientRepository, CheckoutService checkoutService) {
+    public CheckoutController(AddressRepository addressRepository, CartController cartController, ClientRepository clientRepository, CheckoutService checkoutService) {
         this.addressRepository = addressRepository;
         this.cartController = cartController;
         this.clientRepository = clientRepository;
