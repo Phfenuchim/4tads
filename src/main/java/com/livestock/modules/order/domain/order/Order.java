@@ -1,6 +1,7 @@
 package com.livestock.modules.order.domain.order;
 
 import com.livestock.modules.checkout.payment.PaymentMethod;
+import com.livestock.modules.order.domain.order_status.OrderStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -44,6 +45,32 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "payment_method_id", updatable = false, insertable = false, nullable = true)
     private PaymentMethod paymentMethod;
+
+    // Adicione à entidade Order
+    @Column(name = "order_number", nullable = false, unique = true)
+    private Long orderNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private OrderStatus status;
+
+    // Getters e Setters para os novos campos
+    public Long getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(Long orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
 
     // Construtor vazio
     public Order() {

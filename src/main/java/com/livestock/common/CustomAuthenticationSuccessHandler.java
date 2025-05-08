@@ -37,7 +37,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             return;
         }
 
-        
+
         if (authentication.getPrincipal() instanceof GadusUserDetails userDetails) {
 
             if (!userDetails.isClient()) {

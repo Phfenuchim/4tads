@@ -8,12 +8,14 @@ import com.livestock.modules.client.domain.address.Address;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.repositories.AddressRepository;
 import com.livestock.modules.client.repositories.ClientRepository;
+import com.livestock.modules.order.domain.order.Order;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -174,13 +176,37 @@ public class CheckoutController {
     }
 
     @PostMapping("/checkout/finalizar")
-    public String finalizarCompra(HttpSession session) {
-        // Aqui você salva o pedido no banco ou chama o serviço de finalização
+    public String finalizarCompra(HttpSession session, Principal principal, RedirectAttributes redirectAttributes) {
+        try {
+            // Chamar o serviço para criar o pedido
+            Order order = checkoutService.createOrder(principal, session);
 
-        session.removeAttribute("cart");
-        session.removeAttribute("paymentMethod");
-        session.removeAttribute("selectedAddressId");
+            // Limpar a sessão
+            session.removeAttribute("cart");
+            session.removeAttribute("paymentMethod");
+            session.removeAttribute("selectedAddressId");
+            session.removeAttribute("freteTipo");
 
-        return "redirect:/checkout/sucesso";
+            // Adicionar informações para a página de sucesso
+            redirectAttributes.addFlashAttribute("orderNumber", order.getOrderNumber());
+            redirectAttributes.addFlashAttribute("orderTotal", order.getTotalPrice());
+            redirectAttributes.addFlashAttribute("success", true);
+
+            return "redirect:/checkout/checkout-success";
+        } catch (Exception e) {
+            // Em caso de erro, redirecionar com mensagem de erro
+            redirectAttributes.addFlashAttribute("error", "Erro ao finalizar compra: " + e.getMessage());
+            return "redirect:/checkout/checkout-confirm";
+        }
     }
+
+    @GetMapping("/checkout/checkout-success")
+    public String checkoutSucesso(Model model) {
+        if (!model.containsAttribute("orderNumber")) {
+            // Se acessou diretamente sem passar pelo fluxo de checkout
+            return "redirect:/home";
+        }
+        return "checkout/checkout-success";
+    }
+
 }
