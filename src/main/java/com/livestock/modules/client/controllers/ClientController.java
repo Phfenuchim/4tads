@@ -1,5 +1,6 @@
 package com.livestock.modules.client.controllers;
 
+import com.livestock.common.GadusUserDetails;
 import com.livestock.modules.client.domain.address.Address;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.dto.*;
@@ -11,6 +12,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -175,41 +177,53 @@ public class ClientController {
         clientRepository.save(client);
     }
 
-
-    @GetMapping("/client/address/new")
-    public String showNewAddressForm(Model model) {
-        model.addAttribute("newAddressDTO", new NewAddressDTO());
-        return "client/new-address";
-    }
-
-    @PostMapping("/client/address/new")
-    public String saveNewAddress(@Valid @ModelAttribute("newAddressDTO") NewAddressDTO dto,
-                                 BindingResult result,
-                                 Principal principal,
-                                 RedirectAttributes redirectAttributes) {
+    @PostMapping("/client/addresses")
+    public String saveAddress(@Valid @ModelAttribute("newAddressDTO") NewAddressDTO dto,
+                              BindingResult result,
+                              @RequestParam(value = "redirectTo", required = false) String redirectTo,
+                              Principal principal,
+                              RedirectAttributes redirectAttributes,
+                              Model model) {
         if (result.hasErrors()) {
-            return "client/new-address";
+            Client client = clientRepository.findByEmail(principal.getName())
+                    .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
+            model.addAttribute("addresses", client.getAddress());
+            model.addAttribute("redirectTo", redirectTo);
+            return "client/addresses";
         }
 
         try {
             clientService.addNewAddress(principal.getName(), dto);
             redirectAttributes.addFlashAttribute("success", "Endereço adicionado com sucesso!");
-            return "redirect:/client/addresses";
+            return redirectTo != null ? "redirect:" + redirectTo : "redirect:/client/addresses";
         } catch (IllegalArgumentException e) {
             result.rejectValue("cep", null, e.getMessage());
-            return "client/new-address";
+            Client client = clientRepository.findByEmail(principal.getName())
+                    .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
+            model.addAttribute("addresses", client.getAddress());
+            model.addAttribute("redirectTo", redirectTo);
+            return "client/addresses";
         }
     }
 
+
+
     @GetMapping("/client/addresses")
-    public String listAddresses(Model model, Principal principal) {
+    public String listAddresses(@RequestParam(value = "redirectTo", required = false) String redirectTo,
+                                Model model, Principal principal) {
         Client client = clientRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
 
         model.addAttribute("addresses", client.getAddress());
         model.addAttribute("newAddressDTO", new NewAddressDTO());
+
+        if (redirectTo != null) {
+            model.addAttribute("redirectTo", redirectTo);
+        }
+
         return "client/addresses";
     }
+
 
     @PostMapping("/client/address/{id}/set-default")
     public String setDefaultAddress(@PathVariable UUID id, Principal principal, RedirectAttributes redirectAttributes) {

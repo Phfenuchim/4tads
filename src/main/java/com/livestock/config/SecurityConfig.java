@@ -65,15 +65,20 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Método para verificar se é cliente
     private AuthorizationDecision isClient(Supplier<Authentication> authentication,
                                            RequestAuthorizationContext context) {
         Authentication auth = authentication.get();
-        if (auth.getPrincipal() instanceof GadusUserDetails) {
-            return new AuthorizationDecision(((GadusUserDetails) auth.getPrincipal()).isClient());
+
+        if (auth.getPrincipal() instanceof GadusUserDetails userDetails) {
+            boolean isAdminOrEstoquista = userDetails.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_ESTOQUISTA"));
+
+            return new AuthorizationDecision(!isAdminOrEstoquista);
         }
+
         return new AuthorizationDecision(false);
     }
+
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {

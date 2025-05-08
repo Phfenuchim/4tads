@@ -27,9 +27,11 @@
 
             <!-- Botão de adicionar novo endereço -->
             <div class="mb-3 text-end">
-                <a th:href="@{/client/addresses/new}" class="btn btn-outline-secondary btn-sm">
+                <a th:href="@{'/client/addresses'(redirectTo='/checkout')}" class="btn btn-outline-secondary btn-sm">
                     + Adicionar Novo Endereço
                 </a>
+
+
             </div>
 
             <button type="submit" id="submitBtn" class="btn btn-primary" disabled>Escolher Método de Pagamento</button>
