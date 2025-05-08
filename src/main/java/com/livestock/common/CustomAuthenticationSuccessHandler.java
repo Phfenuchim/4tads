@@ -25,6 +25,19 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
+
+        // Verificar se existe um redirecionamento específico na sessão
+        String redirectAfterLogin = (String) request.getSession().getAttribute("redirectAfterLogin");
+
+        if (redirectAfterLogin != null) {
+            System.out.println("Redirecionando para: " + redirectAfterLogin);
+            // Remover da sessão para evitar redirecionamentos futuros indesejados
+            request.getSession().removeAttribute("redirectAfterLogin");
+            response.sendRedirect(redirectAfterLogin);
+            return;
+        }
+
+        
         if (authentication.getPrincipal() instanceof GadusUserDetails userDetails) {
 
             if (!userDetails.isClient()) {

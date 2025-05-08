@@ -101,7 +101,7 @@
                     <span>R$ <span id="total-com-frete" th:text="${total}">0.00</span></span>
                 </div>
 
-                <a href="/checkout" class="btn btn-dark w-100">Finalizar Compra</a>
+                <a th:href="@{/cart/verify-checkout}" class="btn btn-dark w-100">Finalizar Compra</a>
             </div>
         </div>
     </div>

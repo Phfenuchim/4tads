@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -140,6 +141,18 @@ public class CartController {
 
         session.setAttribute("cart", cart);
         return "redirect:/cart";
+    }
+
+
+    @GetMapping("/verify-checkout")
+    public String verifyCheckout(Principal principal, HttpSession session) {
+        if (principal == null) {
+            // Usuário não está logado
+            session.setAttribute("redirectAfterLogin", "/cart");
+            return "redirect:/login";
+        }
+        // Usuário está logado
+        return "redirect:/checkout";
     }
 
 }
