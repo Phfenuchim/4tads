@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Pattern;
 public class AddressDTO {
 
     @NotBlank(message = "O CEP é obrigatório")
-    @Pattern(regexp = "^\\d{8}$", message = "CEP inválido")
+    @Pattern(regexp = "^\\d{5}-?\\d{3}$", message = "CEP inválido")
     private String cep;
 
     @NotBlank(message = "O logradouro é obrigatório")
