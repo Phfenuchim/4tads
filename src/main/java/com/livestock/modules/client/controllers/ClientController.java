@@ -260,6 +260,14 @@ public class ClientController {
         return "client/my-orders";
     }
 
+    @PostMapping("/api/client/register")
+    @ResponseBody
+    public ResponseEntity<Client> registerClientApi(@RequestBody @Valid CreateClientDTO dto) {
+        Client client = clientService.createClient(dto);
+        return ResponseEntity.ok(client);
+    }
+
+
 
 
 }

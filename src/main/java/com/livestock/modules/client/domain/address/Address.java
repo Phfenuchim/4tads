@@ -1,5 +1,6 @@
 package com.livestock.modules.client.domain.address;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.livestock.modules.client.domain.client.Client;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,6 +19,7 @@ public class Address {
     private UUID id;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 

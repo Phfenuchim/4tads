@@ -42,12 +42,14 @@ public class SecurityConfig {
                         .requestMatchers("/products/**", "/cart/**", "/fragments/**").permitAll()
                         .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/fonts/**", "/uploads/images/produtos/*").permitAll()
                         .requestMatchers("/frete/calcular").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/admin/products/**").hasAnyRole("ADMIN", "ESTOQUISTA")
                         .requestMatchers("/admin/*").hasRole("ADMIN")
-                        .requestMatchers("/client/**").access(this::isClient) // Usa método personalizado
+                        .requestMatchers("/client/**").access(this::isClient)
                         .requestMatchers("/checkout/**").authenticated()
                         .anyRequest().authenticated()
                 )
+
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler(successHandler)
@@ -62,6 +64,7 @@ public class SecurityConfig {
                 );
 
         http.authenticationProvider(authenticationProvider());
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
 
         return http.build();
     }
