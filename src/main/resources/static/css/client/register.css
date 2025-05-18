@@ -97,3 +97,9 @@ h5 {
 .field-error {
     border-color: #dc3545;
 }
+.client-side-only {
+    color: red; /* Ou a cor que preferir para erros do cliente */
+}
+.field-error {
+    border-color: red !important; /* Destaca o campo com erro */
+}

@@ -1,2 +1,0 @@
-ALTER TABLE tb_order
-    ADD COLUMN order_number BIGINT UNIQUE NOT NULL DEFAULT 0;

@@ -44,10 +44,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 // Usuários administrativos
                 Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
                 if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-                    response.sendRedirect("/admin/products");
+                    response.sendRedirect("/home");
                     return;
                 } else if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ESTOQUISTA"))) {
-                    response.sendRedirect("/admin/products");
+                    response.sendRedirect("/home");
                     return;
                 } else {
                     response.sendRedirect("/home");
