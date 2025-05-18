@@ -1,5 +1,7 @@
 package com.livestock.modules.cart.controllers;
 
+import com.livestock.modules.cart.adapter.CartAdapter;
+import com.livestock.modules.cart.composite.CartCompositeGroup;
 import com.livestock.modules.cart.dto.CartItem;
 import com.livestock.modules.product.domain.product.Product;
 import com.livestock.modules.product.domain.product_image.Product_image;
@@ -25,18 +27,22 @@ public class CartController {
     @Autowired
     private ProductService productService;
 
+    // Adicionei essas anotações para ficar mais claro o fluxo de visualizar o carrinho
     @GetMapping
     public String viewCart(Model model, HttpSession session) {
         List<CartItem> cart = getCartFromSession(session);
 
-        BigDecimal total = cart.stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Adapter: transforma a lista simples em um Composite
+        CartCompositeGroup cartComposite = CartAdapter.toCompositeGroup(cart);
 
-        model.addAttribute("cart", cart);
-        model.addAttribute("total", total);
+        // Usa o Composite para calcular o total
+        BigDecimal total = cartComposite.getTotalPrice();
+
+        model.addAttribute("cart", cart);         // ainda usa CartItem para exibir os itens
+        model.addAttribute("total", total);       // agora o total é do Composite
         return "view-cart";
     }
+
 
     @PostMapping("/add")
     public String addToCart(
