@@ -2,12 +2,66 @@
 
 footer {
     background-color: #343a40;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
+    color: #ffffff;
+    padding: 40px 0;
+    text-align: left;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 14px;
 }
 
 footer .container {
     padding: 20px 15px;
     max-width: 100%;
 }
+
+footer h5,
+footer h6 {
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+footer p,
+footer li {
+    line-height: 1.6;
+}
+
+footer a {
+    color: #f8f9fa;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+footer a:hover,
+footer a:focus {
+    color: #ffc107;
+    text-decoration: underline;
+    outline: none;
+}
+
+footer .form-control {
+    border-radius: 0.25rem;
+    font-size: 13px;
+}
+
+footer .btn {
+    font-size: 13px;
+    padding: 5px 10px;
+}
+
+footer .bi {
+    font-size: 18px;
+    color: #ffffff;
+    transition: color 0.2s ease;
+}
+
+footer .bi:hover,
+footer .bi:focus {
+    color: #ffc107;
+    outline: none;
+}
+
+footer h5 {
+    margin-bottom: 15px;
+    margin-top: 0;
+}
+

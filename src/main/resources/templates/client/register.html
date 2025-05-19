@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Cadastro de Cliente - GADUS</title>
     <meta charset="UTF-8">
@@ -13,8 +13,8 @@
 
 <div class="container py-5">
     <div class="col-md-8 mx-auto">
+        <h1 class="visually-hidden">Cadastro de Usuário</h1> <!-- Apenas para acessibilidade -->
         <h2 class="mb-4">Crie sua Conta</h2>
-
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
 
@@ -87,18 +87,21 @@
             <div class="mb-3">
                 <label for="gender" class="form-label">Gênero</label>
                 <select id="gender" th:field="*{gender}" class="form-control"
-                        th:classappend="${#fields.hasErrors('gender')} ? 'field-error'" required
-                        onchange="handleFieldInput(this, 'gender')"
-                        oninvalid="handleFieldInvalid(this, 'genderClientError', 'O gênero é obrigatório.')">
+                        aria-label="Selecione o gênero"
+                        oninput="handleFieldInput(this, 'gender')"
+                        oninvalid="handleFieldInvalid(this, 'genderClientError', 'O gênero é obrigatório.')"
+                        th:classappend="${#fields.hasErrors('gender')} ? 'field-error'" required>
                     <option value="">Selecione</option>
                     <option value="Masculino">Masculino</option>
                     <option value="Feminino">Feminino</option>
                     <option value="Outro">Outro</option>
                     <option value="Prefiro não informar">Prefiro não informar</option>
                 </select>
+
                 <div class="error-message" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
                 <div id="genderClientError" class="error-message client-side-only" style="display: none;"></div>
             </div>
+
 
             <div class="mb-3">
                 <label for="password" class="form-label">Senha</label>
@@ -112,7 +115,8 @@
                 <small class="text-muted" th:text="${#fields.hasErrors('password')} ? '' : 'A senha deve ter no mínimo 6 caracteres'"></small>
             </div>
 
-            <h5 class="mt-4">Endereço de Faturamento</h5>
+            <!-- Título de Endereço -->
+            <h3 class="mt-4">Endereço de Faturamento</h3>
 
             <div class="row mb-3">
                 <div class="col-md-4">
@@ -202,14 +206,16 @@
 
             <div class="mb-3">
                 <label for="addressType" class="form-label">Tipo de Endereço</label>
-                <select id="addressType" th:field="*{billingAddress.type}" class="form-select" required
-                        th:classappend="${#fields.hasErrors('billingAddress.type')} ? 'field-error'"
-                        onchange="handleFieldInput(this, 'billingAddress.type')"
-                        oninvalid="handleFieldInvalid(this, 'addressTypeClientError', 'O tipo de endereço é obrigatório.')">
+                <select id="addressType" th:field="*{billingAddress.type}" class="form-select"
+                        aria-label="Tipo de endereço"
+                        oninput="handleFieldInput(this, 'billingAddress.type')"
+                        oninvalid="handleFieldInvalid(this, 'addressTypeClientError', 'O tipo de endereço é obrigatório.')"
+                        th:classappend="${#fields.hasErrors('billingAddress.type')} ? 'field-error'" required>
                     <option value="">Selecione</option>
                     <option value="ENTREGA">Entrega</option>
                     <option value="FATURAMENTO">Faturamento</option>
                 </select>
+
                 <div class="error-message" th:if="${#fields.hasErrors('billingAddress.type')}" th:errors="*{billingAddress.type}"></div>
                 <div id="addressTypeClientError" class="error-message client-side-only" style="display: none;"></div>
             </div>

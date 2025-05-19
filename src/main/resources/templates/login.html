@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 <head>
     <title>Faça o seu Login - GADUS</title>
     <meta charset="UTF-8">
@@ -10,17 +10,19 @@
 </head>
 <body>
 
-<div class="logo-container">
+<header class="logo-container">
     <a th:href="@{/home}">
         <img src="/images/logo.png" alt="GADUS Logo">
     </a>
-</div>
+</header>
 
-<div class="container">
+<main class="container" role="main">
     <div class="login-box">
+        <h1 class="visually-hidden">Login no sistema GADUS</h1>
         <h2>Faça o seu Login</h2>
         <p>Entre com seus dados abaixo</p>
-        <form method="post" role="form" th:action="@{/login}">
+
+        <form method="post" role="form" th:action="@{/login}" aria-label="Formulário de login">
             <div class="input-container">
                 <label for="username">E-mail</label>
                 <input type="email" id="username" name="username" placeholder="Insira seu e-mail" required>
@@ -29,12 +31,14 @@
                 <label for="password">Senha</label>
                 <input type="password" id="password" name="password" placeholder="Insira a senha" required>
             </div>
-            <button type="submit">Log In</button>
-            <p class="sign-up">Não possui uma conta? <a th:href="@{/register}">Cadastre-se</a></p>
-
+            <button type="submit" aria-label="Entrar no sistema">Log In</button>
+            <p class="sign-up">
+                Não possui uma conta?
+                <a th:href="@{/register}" aria-label="Cadastrar-se">Cadastre-se</a>
+            </p>
         </form>
     </div>
-</div>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

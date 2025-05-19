@@ -1,53 +1,40 @@
-<!-- fragments/footer.html -->
 <link rel="stylesheet" th:href="@{/css/fragments/footer.css}">
 
 <footer class="bg-dark text-white py-5 mt-5" style="position: static; width: 100%;">
     <div class="container">
         <div class="row text-start">
             <div class="col-md-3">
-                <h5>Exclusive</h5>
-                <p>Subscribe</p>
-                <small>Get 10% off your first order</small>
-                <div class="input-group mt-2">
-                    <input type="email" class="form-control form-control-sm" placeholder="Enter your email">
-                    <button class="btn btn-light btn-sm">&gt;</button>
-                </div>
+                <h5 class="mt-0">GADUS</h5>
+                <p class="small">
+                    A GADUS é uma empresa fictícia voltada para soluções inteligentes no mercado de gado e produtos agropecuários. Com tecnologia e compromisso, aproximamos produtores e consumidores.
+                </p>
             </div>
-            <div class="col-md-2">
-                <h6>Support</h6>
-                <p class="small mb-0">111 Bijoy sarani, Dhaka, DH 1515, Bangladesh.</p>
-                <p class="small mb-0">exclusive@gmail.com</p>
-                <p class="small">+88015-88888-9999</p>
+            <div class="col-md-3">
+                <h6>Suporte</h6>
+                <p class="small mb-0">Av. Eng. Eusébio Stevaux, 823</p>
+                <p class="small mb-0">Santo Amaro, São Paulo - SP</p>
+                <p class="small mb-0">04696-000</p>
+                <p class="small mb-0">gadus@gmail.com</p>
+                <p class="small">+55 (11) 99999-9999</p>
             </div>
-            <div class="col-md-2">
-                <h6>Account</h6>
+            <div class="col-md-3">
+                <h6>Minha Conta</h6>
                 <ul class="list-unstyled small">
-                    <li><a href="#" class="text-white text-decoration-none">My Account</a></li>
-                    <li><a href="#" th:href="@{/login}" class="text-white text-decoration-none">Login / Register</a></li>
-                    <li><a href="#" th:href="@{/cart}" class="text-white text-decoration-none">Cart</a></li>
-                    <li><a href="#" class="text-white text-decoration-none">Wishlist</a></li>
-                    <li><a href="#" class="text-white text-decoration-none">Shop</a></li>
-                </ul>
-            </div>
-            <div class="col-md-2">
-                <h6>Quick Link</h6>
-                <ul class="list-unstyled small">
-                    <li><a href="#" class="text-white text-decoration-none">Privacy Policy</a></li>
-                    <li><a href="#" class="text-white text-decoration-none">Terms Of Use</a></li>
-                    <li><a href="#" class="text-white text-decoration-none">FAQ</a></li>
-                    <li><a href="#" class="text-white text-decoration-none">Contact</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Meu Perfil</a></li>
+                    <li><a th:href="@{/login}" class="text-white text-decoration-none">Login / Cadastro</a></li>
+                    <li><a th:href="@{/cart}" class="text-white text-decoration-none">Carrinho</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Pedidos</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Loja</a></li>
                 </ul>
             </div>
             <div class="col-md-3">
-                <h6>Download App</h6>
-                <small>Save $3 with App New User Only</small>
-                <div class="d-flex gap-2 mt-2">
-                    <img src="/images/qrcode.png" width="60" height="60" alt="QR">
-                    <div>
-                        <img src="/images/playstore.png" width="100" class="mb-2">
-                        <img src="/images/appstore.png" width="100">
-                    </div>
-                </div>
+                <h6>Links Rápidos</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#" class="text-white text-decoration-none">Política de Privacidade</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Termos de Uso</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">FAQ</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Contato</a></li>
+                </ul>
                 <div class="mt-3">
                     <i class="bi bi-facebook mx-1"></i>
                     <i class="bi bi-twitter mx-1"></i>
