@@ -109,3 +109,16 @@ footer {
     padding: 1rem;
     text-align: center;
 }
+.client-side-only {
+    color: red; /* Cor para erros do cliente */
+    font-size: 0.875em; /* Tamanho similar ao de erros do Bootstrap/Thymeleaf */
+}
+.field-error {
+    border-color: red !important; /* Destaca o campo com erro */
+}
+/* Para manter o espaçamento consistente abaixo do input, mesmo sem erro do Thymeleaf */
+.error-message + .client-side-only,
+input + .client-side-only,
+select + .client-side-only {
+    margin-top: 0.25rem;
+}

@@ -73,6 +73,7 @@ public class ClientService {
         client.setPhone(createClientDTO.getPhone());
         client.setDate_birth(createClientDTO.getDateBirth());
         client.setStatus(true);
+        client.setGender(createClientDTO.getGender());
         String encodedPassword = passwordEncoder.encode(createClientDTO.getPassword());
         client.setPassword(encodedPassword);
 
