@@ -38,6 +38,10 @@ public class ProductService {
             throw new ProductInputException("Descrição não pode exceder 2000 caracteres.");
         }
 
+        if (createProductDTO.getQuantity() < 0) {
+            throw new ProductInputException("Quantidade do produto não pode ser negativa!"); // Mensagem customizada
+        }
+
         if (createProductDTO.getPrice() == null || createProductDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ProductInputException("Preço do produto deve ser maior que zero!");
         }
@@ -96,6 +100,7 @@ public class ProductService {
             throw new IllegalArgumentException("Não foi possível ativar/desativar o produto!");
         }
 
+
         return true;
     }
 
@@ -148,10 +153,16 @@ public class ProductService {
         }
 
         if (updateProductDTO.getPrice() != null) {
+            if (updateProductDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new ProductInputException("Preço do produto deve ser maior que zero!");
+            }
             product.setPrice(updateProductDTO.getPrice());
         }
 
         if (updateProductDTO.getQuantity() != null) {
+            if (updateProductDTO.getQuantity() < 0) {
+                throw new ProductInputException("Quantidade do produto não pode ser negativa!"); // Mensagem customizada
+            }
             product.setQuantity(updateProductDTO.getQuantity());
         }
 

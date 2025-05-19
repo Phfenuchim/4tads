@@ -2,6 +2,8 @@ package com.livestock.modules.product.domain.product;
 
 import com.livestock.modules.product.domain.product_image.Product_image;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,6 +25,8 @@ public class Product {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @NotNull(message = "Quantidade não pode ser nula.")
+    @Min(value = 0, message = "Quantidade do produto não pode ser negativa.")
     @Column(nullable = false)
     private Integer quantity;
 
@@ -110,6 +114,9 @@ public class Product {
     }
 
     public void setQuantity(Integer quantity) {
+        if (quantity != null && quantity < 0) {
+            throw new IllegalArgumentException("Quantidade do produto não pode ser negativa.");
+        }
         this.quantity = quantity;
     }
 

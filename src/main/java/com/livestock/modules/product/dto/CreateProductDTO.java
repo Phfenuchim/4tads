@@ -1,15 +1,31 @@
 package com.livestock.modules.product.dto;
 
+import jakarta.validation.constraints.*;
+
 import java.math.BigDecimal;
 
 public class CreateProductDTO {
-    private String productName;
-    private Integer quantity;
-    private String description;
-    private BigDecimal price;
-    private BigDecimal rating;
-    private Boolean active;
 
+    @NotBlank(message = "Nome do produto não pode ser vazio!")
+    @Size(max = 200, message = "Nome do produto não pode exceder 200 caracteres.")
+    private String productName;
+
+    @NotNull(message = "Quantidade não pode ser nula.")
+    @Min(value = 0, message = "Quantidade do produto não pode ser negativa.") // Adicionado
+    private Integer quantity;
+
+    @Size(max = 2000, message = "Descrição não pode exceder 2000 caracteres.")
+    private String description;
+
+    @NotNull(message = "Preço do produto não pode ser nulo.")
+    @DecimalMin(value = "0.01", message = "Preço do produto deve ser maior que zero!")
+    private BigDecimal price;
+
+    @DecimalMin(value = "1.0", message = "Avaliação deve ser no mínimo 1.")
+    @DecimalMax(value = "5.0", message = "Avaliação deve ser no máximo 5.") // Importar DecimalMax
+    private BigDecimal rating; // Pode ser nulo se não for obrigatório
+
+    private Boolean active;
     // Construtor vazio
     public CreateProductDTO() {
     }

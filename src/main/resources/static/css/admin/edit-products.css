@@ -82,3 +82,10 @@ body {
 .table-striped tbody tr:nth-of-type(odd) {
     background-color: #f2f2f2;
 }
+.field-error { /* Para destacar campos com erro, opcional */
+    border-color: red;
+}
+.error-message {
+    color: red;
+    font-size: 0.9em;
+}

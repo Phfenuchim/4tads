@@ -1,14 +1,31 @@
 package com.livestock.modules.product.dto;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class UpdateProductDTO {
+
+    @Size(max = 200, message = "Nome do produto não pode exceder 200 caracteres.")
     private String productName;
-    private Boolean active;
+
+    private Boolean active = true; // Ou false, dependendo do default desejado
+
+    @Min(value = 0, message = "Quantidade do produto não pode ser negativa.") // Adicionado
     private Integer quantity;
+
+    @Size(max = 2000, message = "Descrição não pode exceder 2000 caracteres.")
     private String description;
+
+    @DecimalMin(value = "0.01", inclusive = false, message = "Preço do produto deve ser maior que zero!") // inclusive=false se não puder ser 0.01
     private BigDecimal price;
+
+    @DecimalMin(value = "1.0", message = "Avaliação deve ser no mínimo 1.")
+    @DecimalMax(value = "5.0", message = "Avaliação deve ser no máximo 5.")
     private BigDecimal rating;
 
     // Construtor vazio
@@ -35,7 +52,7 @@ public class UpdateProductDTO {
     }
 
     public Boolean getActive() {
-        return active;
+        return active != null ? active : false; // Garante que nunca retorne null
     }
 
     public void setActive(Boolean active) {
