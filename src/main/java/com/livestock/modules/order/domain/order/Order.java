@@ -48,9 +48,8 @@ public class Order {
     private Client client;
 
 
-    @ManyToOne
-    @JoinColumn(name = "payment_method_id", updatable = false, insertable = false, nullable = true)
-    private PaymentMethod paymentMethod;
+    @Column(name = "payment_method_id")
+    private Short paymentMethodId; // Deve corresponder ao tipo da PK em PaymentMethod (SMALLINT -> Short)
 
     // Adicione à entidade Order
     @Column(name = "order_number", nullable = false, unique = true)
@@ -85,7 +84,7 @@ public class Order {
     // Construtor com todos os argumentos
     public Order(UUID id, UUID userId, double totalPrice, LocalDateTime createdAt,
                  String cep, String address, String addressNumber, String complement,
-                 double shipping, PaymentMethod paymentMethod) {
+                 double shipping, Short paymentMethodId) {
         this.id = id;
         this.userId = userId;
         this.totalPrice = totalPrice;
@@ -95,7 +94,7 @@ public class Order {
         this.addressNumber = addressNumber;
         this.complement = complement;
         this.shipping = shipping;
-        this.paymentMethod = paymentMethod;
+        this.paymentMethodId = paymentMethodId;
     }
 
     // Getters
@@ -135,9 +134,6 @@ public class Order {
         return shipping;
     }
 
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
 
     // Setters
     public void setId(UUID id) {
@@ -176,8 +172,12 @@ public class Order {
         this.shipping = shipping;
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public Short getPaymentMethodId() {
+        return paymentMethodId;
+    }
+
+    public void setPaymentMethodId(Short paymentMethodId) {
+        this.paymentMethodId = paymentMethodId;
     }
 
     // Equals e HashCode baseados no ID

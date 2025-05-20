@@ -10,8 +10,8 @@ import java.util.UUID;
 public class PaymentMethod {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    // Removido @GeneratedValue se os IDs são fixos (1, 2) e controlados por você
+    private Short id;
 
     @Column(name = "payment_name", nullable = false)
     private String paymentName;
@@ -21,13 +21,13 @@ public class PaymentMethod {
     }
 
     // Construtor com todos os argumentos
-    public PaymentMethod(UUID id, String paymentName) {
+    public PaymentMethod(Short id, String paymentName) {
         this.id = id;
         this.paymentName = paymentName;
     }
 
     // Getters
-    public UUID getId() {
+    public Short getId() {
         return id;
     }
 
@@ -36,7 +36,7 @@ public class PaymentMethod {
     }
 
     // Setters
-    public void setId(UUID id) {
+    public void setId(Short id) {
         this.id = id;
     }
 

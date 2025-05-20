@@ -55,28 +55,40 @@ public class CheckoutService {
         // Obter cliente
         String username = principal.getName();
         Client client = clientRepository.findByEmail(username)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + username));
 
         // Recuperar dados da sessão
         UUID selectedAddressId = (UUID) session.getAttribute("selectedAddressId");
-        String paymentMethod = (String) session.getAttribute("paymentMethod");
+        String paymentMethodCodeFromSession = (String) session.getAttribute("paymentMethod"); // Ex: "cartao", "boleto"
         String freteTipo = (String) session.getAttribute("freteTipo");
         List<CartItem> items = cartController.getCartFromSession(session);
 
         // Validações
-        if (items.isEmpty()) {
-            throw new IllegalStateException("Carrinho vazio");
+        if (selectedAddressId == null) {
+            throw new IllegalStateException("Nenhum endereço de entrega selecionado.");
+        }
+        if (items == null || items.isEmpty()) {
+            throw new IllegalStateException("Carrinho vazio. Não é possível criar o pedido.");
+        }
+        if (paymentMethodCodeFromSession == null || paymentMethodCodeFromSession.trim().isEmpty()) {
+            // Decida o que fazer: lançar erro ou permitir pedido sem método de pagamento (se a coluna no DB permitir NULL)
+            throw new IllegalStateException("Método de pagamento não selecionado na sessão.");
+        }
+        if (freteTipo == null || freteTipo.trim().isEmpty()) {
+            throw new IllegalStateException("Tipo de frete não selecionado na sessão.");
         }
 
+
         Address address = addressRepository.findById(selectedAddressId)
-                .orElseThrow(() -> new IllegalArgumentException("Endereço não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Endereço de entrega não encontrado para o ID: " + selectedAddressId));
 
         // Calcular totais
         BigDecimal totalProdutos = items.stream()
+                .filter(item -> item != null && item.getPrice() != null && item.getQuantity() > 0) // Validação básica
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        Freight freight = Freight.valueOf(freteTipo);
+        Freight freight = Freight.valueOf(freteTipo.toUpperCase()); // Garanta que freteTipo corresponda ao nome do enum
         BigDecimal freteValor = freight.getValor();
 
         BigDecimal totalGeral = totalProdutos.add(freteValor);
@@ -86,29 +98,72 @@ public class CheckoutService {
 
         // Criar pedido
         Order order = new Order();
-        order.setUserId(client.getId());
-        order.setTotalPrice(totalGeral.doubleValue());
+        order.setUserId(client.getId()); // Supondo que Order tenha setUserId(UUID id)
+        // Se Order tem @ManyToOne Client client, então seria order.setClient(client);
+        order.setTotalPrice(totalGeral.doubleValue()); // Considere usar BigDecimal em Order.totalPrice também
         order.setCep(address.getCep());
         order.setAddress(address.getStreet());
         order.setAddressNumber(address.getNumber());
         order.setComplement(address.getComplement());
-        order.setShipping(freteValor.doubleValue());
+        order.setShipping(freteValor.doubleValue()); // Considere usar BigDecimal em Order.shipping
         order.setOrderNumber(orderNumber);
-        order.setStatus(OrderStatus.AGUARDANDO_PAGAMENTO);
+        order.setStatus(OrderStatus.AGUARDANDO_PAGAMENTO); // Supondo que OrderStatus seja um enum
+
+        // ---- INÍCIO DA LÓGICA PARA DEFINIR O MÉTODO DE PAGAMENTO ----
+        Short paymentMethodIdDatabase = null;
+        if ("cartao".equalsIgnoreCase(paymentMethodCodeFromSession)) {
+            paymentMethodIdDatabase = 1; // ID para 'Crédito'
+        } else if ("boleto".equalsIgnoreCase(paymentMethodCodeFromSession)) {
+            paymentMethodIdDatabase = 2; // ID para 'Boleto'
+        }
+        // Adicione mais 'else if' para outros métodos (ex: "pix" -> 3)
+
+        if (paymentMethodIdDatabase != null) {
+            // **ESCOLHA UMA DAS OPÇÕES ABAIXO (A ou B) COM BASE EM COMO VOCÊ MAPEOU Order.paymentMethodId**
+
+            // **Opção A: Se Order.java tem 'private Short paymentMethodId;'**
+            order.setPaymentMethodId(paymentMethodIdDatabase);
+
+            // **Opção B: Se Order.java tem '@ManyToOne private PaymentMethod paymentMethod;'**
+            /*
+            if (paymentMethodRepository == null) { // Checagem para evitar NPE se não injetado
+                throw new IllegalStateException("PaymentMethodRepository não foi injetado no CheckoutService.");
+            }
+            PaymentMethod pmEntity = paymentMethodRepository.findById(paymentMethodIdDatabase)
+                    .orElseThrow(() -> new IllegalArgumentException("Método de pagamento com ID " + paymentMethodIdDatabase + " não encontrado no banco de dados."));
+            order.setPaymentMethod(pmEntity);
+            */
+
+        } else {
+            // Lançar exceção ou logar, pois o método de pagamento da sessão não foi reconhecido
+            // Se payment_method_id na TB_ORDER for NOT NULL, isso causará um erro de banco se não for setado.
+            // Se for NULL, o pedido será criado sem método de pagamento.
+            System.err.println("AVISO: Código do método de pagamento '" + paymentMethodCodeFromSession + "' não reconhecido. O pedido será salvo sem método de pagamento específico.");
+            // Se a coluna no banco for NOT NULL, você DEVE lançar uma exceção aqui:
+            // throw new IllegalArgumentException("Método de pagamento '" + paymentMethodCodeFromSession + "' não é suportado.");
+        }
+        // ---- FIM DA LÓGICA PARA DEFINIR O MÉTODO DE PAGAMENTO ----
 
         // Salvar pedido
-        order = orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order); // Renomeado para savedOrder para clareza
 
         // Salvar itens do pedido
         for (CartItem item : items) {
+            if (item == null || item.getProductId() == null) continue; // Pular itens nulos ou sem ID de produto
+
             OrderProduct orderProduct = new OrderProduct();
-            orderProduct.setOrderId(order.getId());
+            orderProduct.setOrderId(savedOrder.getId()); // Usar o ID do pedido salvo
             orderProduct.setProductId(item.getProductId());
             orderProduct.setQuantity(item.getQuantity());
+            // Você também pode querer salvar o preço unitário do produto no momento da compra aqui
+            // orderProduct.setUnitPrice(item.getPrice());
             orderProductRepository.save(orderProduct);
         }
 
-        return order;
+        // Limpar o carrinho da sessão após o pedido ser criado com sucesso
+        // cartController.clearCart(session); // Se você tiver este método
+
+        return savedOrder;
     }
 
     // Método auxiliar para gerar número sequencial do pedido
