@@ -9,8 +9,14 @@ public class ConsultaCepAPI {
 
     public CepResultDTO consultaCep(String cep) {
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<CepResultDTO> responseEntity = restTemplate.getForEntity(String.format("https://viacep.com.br/ws/%s/json", cep), CepResultDTO.class);
-        return responseEntity.getBody();
+        try {
+            ResponseEntity<CepResultDTO> responseEntity = restTemplate.getForEntity(String.format("https://viacep.com.br/ws/%s/json", cep), CepResultDTO.class);
+            return responseEntity.getBody();
+        } catch (Exception e) {
+            // Logar a exceção (pode ser útil para depuração)
+            System.err.println("Erro ao consultar CEP: " + e.getMessage());
+            return null; // Retorna null em caso de erro
+        }
     }
 
     public FreteResponse consultaCepViaApiInterna(String cep) {
@@ -19,5 +25,6 @@ public class ConsultaCepAPI {
         ResponseEntity<FreteResponse> response = restTemplate.getForEntity(url, FreteResponse.class);
         return response.getBody();
     }
+
 
 }

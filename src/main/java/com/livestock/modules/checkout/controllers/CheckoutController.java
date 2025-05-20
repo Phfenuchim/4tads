@@ -9,8 +9,9 @@ import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.repositories.AddressRepository;
 import com.livestock.modules.client.repositories.ClientRepository;
 import com.livestock.modules.order.domain.order.Order;
-import com.livestock.modules.order.infra.apis.ConsultaCepAPI; // Suponho que esta classe chama sua API de CEP/Frete
-import com.livestock.modules.order.infra.apis.FreteResponse; // Suponho que esta seja a resposta da sua API de CEP/Frete
+import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
+import com.livestock.modules.order.infra.apis.FreteResponse;
+import com.livestock.modules.order.infra.apis.OpcaoFrete; // Certifique-se de importar OpcaoFrete
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,21 +25,15 @@ import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
 
-/**
- * Controller responsável por gerenciar o fluxo de checkout da aplicação.
- * Lida com as etapas de seleção de endereço, pagamento, confirmação e finalização do pedido.
- */
 @Controller
 public class CheckoutController {
 
-    // Injeção das dependências necessárias para o funcionamento do checkout.
     private final AddressRepository addressRepository;
-    private final CartController cartController; // Para interagir com o carrinho (armazenado na sessão).
-    private final ClientRepository clientRepository; // Para buscar dados do cliente.
-    private final CheckoutService checkoutService; // Serviço que contém a lógica de negócio do checkout.
-    private final ConsultaCepAPI consultaCepAPI; // Para consultar informações de CEP/Frete.
+    private final CartController cartController;
+    private final ClientRepository clientRepository;
+    private final CheckoutService checkoutService;
+    private final ConsultaCepAPI consultaCepAPI;
 
-    // Construtor para injeção de dependências.
     public CheckoutController(AddressRepository addressRepository,
                               CartController cartController,
                               ClientRepository clientRepository,
@@ -51,112 +46,108 @@ public class CheckoutController {
         this.consultaCepAPI = consultaCepAPI;
     }
 
-    /**
-     * Exibe a primeira etapa do checkout: seleção de endereço.
-     * Carrega os endereços do cliente e os itens do carrinho para exibição.
-     */
     @GetMapping("/checkout")
     public String initialCheckout(Model model, Principal principal, HttpSession session) {
-        // Obtém o email do usuário logado.
         String username = principal.getName();
-        // Busca o cliente no banco de dados.
         Optional<Client> clientOpt = clientRepository.findByEmail(username);
 
-        // Se o cliente não for encontrado, redireciona para o login.
         if (clientOpt.isEmpty()) {
             return "redirect:/login";
         }
         Client client = clientOpt.get();
 
-        // Busca os endereços cadastrados para o cliente.
         List<Address> addresses = addressRepository.findByClientId(client.getId());
 
-        // Se não houver endereços, redireciona para a página de cadastro de endereços.
-        // O usuário precisa ter pelo menos um endereço para prosseguir.
         if (addresses.isEmpty()) {
-            // Talvez redirecionar com um parâmetro para voltar ao checkout depois
-            // ex: "redirect:/client/addresses?redirectTo=/checkout"
             return "redirect:/client/addresses?redirectTo=/checkout";
         }
 
-        // Obtém os itens do carrinho da sessão.
         List<CartItem> items = cartController.getCartFromSession(session);
         if (items == null || items.isEmpty()) {
-            // Se o carrinho estiver vazio, redireciona para o carrinho ou home
             return "redirect:/cart";
         }
 
-        // Calcula o subtotal dos produtos no carrinho.
         BigDecimal total = items.stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Adiciona os dados ao Model para serem usados na view.
-        model.addAttribute("userFirstName", client.getFirstName()); // Nome do usuário para saudação.
-        model.addAttribute("addresses", addresses); // Lista de endereços para seleção.
-        model.addAttribute("items", items); // Itens do carrinho para resumo.
-        model.addAttribute("subtotal", total); // Subtotal dos produtos.
+        model.addAttribute("userFirstName", client.getFirstName());
+        model.addAttribute("addresses", addresses);
+        model.addAttribute("items", items);
+        model.addAttribute("subtotal", total);
 
-        // Retorna a view da primeira etapa do checkout.
         return "checkout/initial-checkout";
     }
 
-    /**
-     * Processa a seleção do endereço pelo usuário.
-     * Armazena o ID do endereço selecionado na sessão e redireciona para a etapa de pagamento.
-     */
     @PostMapping("/checkout/select-address")
     public String selectAddress(@RequestParam("addressId") UUID addressId, HttpSession session) {
-        // Armazena o ID do endereço escolhido na sessão para uso posterior.
         session.setAttribute("selectedAddressId", addressId);
-        // Redireciona para a próxima etapa: seleção de pagamento e frete.
         return "redirect:/checkout/payment";
     }
 
-    /**
-     * Exibe a etapa de seleção de método de pagamento e opções de frete.
-     */
     @GetMapping("/checkout/payment")
     public String checkoutPayment(Model model, HttpSession session) {
-        // Recupera o ID do endereço selecionado na etapa anterior.
-        UUID addressId = (UUID) session.getAttribute("selectedAddressId");
+        UUID selectedAddressId = (UUID) session.getAttribute("selectedAddressId");
 
-        // Se nenhum endereço foi selecionado (ex: acesso direto à URL), volta para a primeira etapa.
-        if (addressId == null) {
+        if (selectedAddressId == null) {
             return "redirect:/checkout";
         }
 
-        // Busca o objeto Address completo.
-        Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Endereço não encontrado para o ID: " + addressId));
+        Address address = addressRepository.findById(selectedAddressId)
+                .orElseThrow(() -> new RuntimeException("Endereço não encontrado para o ID: " + selectedAddressId));
 
-        // Consulta as opções de frete para o CEP do endereço selecionado.
-        // "consultaCepViaApiInterna" sugere que esta API já retorna as opções de frete.
+        // CORREÇÃO: Usar consultaCepViaApiInterna para obter o FreteResponse com valores calculados.
         FreteResponse freteResponse = consultaCepAPI.consultaCepViaApiInterna(address.getCep());
 
-        // Adiciona as opções de frete ao Model e também à sessão para uso posterior.
-        model.addAttribute("freteOpcoes", freteResponse.getOpcoesFrete()); // Para exibir na tela
-        session.setAttribute("freteOpcoesDisponiveis", freteResponse.getOpcoesFrete()); // Para validação ou referência
+        if (freteResponse == null || freteResponse.getOpcoesFrete() == null || freteResponse.getOpcoesFrete().isEmpty()) {
+            model.addAttribute("freteError", "Não foi possível calcular o frete para este endereço.");
+            model.addAttribute("freteOpcoes", Collections.emptyList());
+        } else {
+            model.addAttribute("freteOpcoes", freteResponse.getOpcoesFrete());
+            session.setAttribute("freteOpcoesDisponiveis", freteResponse.getOpcoesFrete());
+        }
 
-        // Retorna a view da etapa de pagamento e frete.
         return "checkout/checkout-payment";
     }
 
-
-    /**
-     * Valida os dados de pagamento e frete submetidos pelo usuário.
-     * Armazena as informações na sessão e redireciona para a confirmação.
-     */
     @PostMapping("/checkout/validate")
-    public String validateRequest(@RequestParam String paymentMethod, // "cartao" ou "boleto"
-                                  @RequestParam String freteTipo,   // Código/nome do tipo de frete escolhido
-                                  @RequestParam Map<String, String> allParams, // Todos os parâmetros do formulário
-                                  HttpSession session,
-                                  RedirectAttributes redirectAttributes) { // Para mensagens de erro
+    public String validateRequest(
+            @RequestParam String paymentMethod,
+            @RequestParam String freteTipo, // Ex: "GADO_RAPIDO"
+            @RequestParam Map<String, String> allParams,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
-        // Armazena o método de pagamento e o tipo de frete escolhidos na sessão.
-        session.setAttribute("paymentMethod", paymentMethod.toLowerCase()); // Padroniza para minúsculas
-        session.setAttribute("freteTipo", freteTipo); // Ex: "GADO_RAPIDO"
+        session.setAttribute("paymentMethod", paymentMethod.toLowerCase());
+        session.setAttribute("freteTipo", freteTipo); // Armazena o ENUM_NAME do frete escolhido
+
+        UUID addressId = (UUID) session.getAttribute("selectedAddressId");
+        if (addressId == null) {
+            return "redirect:/checkout";
+        }
+        // Não precisamos do 'Address address' aqui, pois o valor do frete virá da sessão.
+
+        // Recupera as opções de frete (com valores já calculados) da sessão.
+        List<OpcaoFrete> freteOpcoesDisponiveis = (List<OpcaoFrete>) session.getAttribute("freteOpcoesDisponiveis");
+
+        if (freteOpcoesDisponiveis == null || freteOpcoesDisponiveis.isEmpty()) {
+            redirectAttributes.addFlashAttribute("paymentError", "Erro ao carregar opções de frete. Tente novamente.");
+            return "redirect:/checkout/payment";
+        }
+
+        // Encontra a opção de frete selecionada pelo usuário e obtém seu valor.
+        Optional<OpcaoFrete> opcaoFreteSelecionadaOpt = freteOpcoesDisponiveis.stream()
+                .filter(opcao -> opcao.getEnumName().equals(freteTipo))
+                .findFirst();
+
+        if (opcaoFreteSelecionadaOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("paymentError", "Tipo de frete selecionado é inválido.");
+            return "redirect:/checkout/payment";
+        }
+
+        OpcaoFrete opcaoFreteSelecionada = opcaoFreteSelecionadaOpt.get();
+        BigDecimal valorFrete = opcaoFreteSelecionada.getValor(); // Pega o valor JÁ CALCULADO da opção.
+        session.setAttribute("valorFrete", valorFrete); // Armazena o VALOR do frete na sessão.
 
         // Se o método for cartão, coleta e valida os detalhes do cartão.
         if ("cartao".equalsIgnoreCase(paymentMethod)) {
@@ -168,79 +159,62 @@ public class CheckoutController {
             cardDetails.put("installments", allParams.get("installments"));
 
             try {
-                // Usa o CheckoutService para validar os detalhes do cartão com a estratégia apropriada.
                 boolean valid = checkoutService.validatePaymentDetails(paymentMethod.toLowerCase(), cardDetails);
                 if (!valid) {
                     redirectAttributes.addFlashAttribute("paymentError", "Dados do cartão inválidos. Verifique as informações.");
-                    return "redirect:/checkout/payment"; // Volta para a tela de pagamento com erro
+                    return "redirect:/checkout/payment";
                 }
+                session.setAttribute("cardDetails", cardDetails);
 
-                // Se válido, armazena os detalhes do cartão na sessão (cuidado com dados sensíveis).
-                // Idealmente, apenas um token ou referência ao pagamento seria armazenado.
-                // Para este exemplo, estamos armazenando diretamente, mas em produção isso seria revisado.
-                session.setAttribute("cardDetails", cardDetails); // Armazena o mapa todo
-                // Ou individualmente, como você estava fazendo:
-                // for (Map.Entry<String, String> entry : cardDetails.entrySet()) {
-                //     session.setAttribute(entry.getKey(), entry.getValue());
-                // }
-
-            } catch (IllegalArgumentException e) { // Captura exceções da validação (ex: método não suportado)
+            } catch (IllegalArgumentException e) {
                 redirectAttributes.addFlashAttribute("paymentError", e.getMessage());
                 return "redirect:/checkout/payment";
             }
         }
-        // Se for boleto, não há validação de campos extras nesta etapa (a validação seria ter escolhido 'boleto').
 
-        // Redireciona para a tela de confirmação do pedido.
         return "redirect:/checkout/confirm";
     }
 
-    /**
-     * Exibe a tela de confirmação do pedido, com todos os detalhes para revisão final.
-     */
     @GetMapping("/checkout/confirm")
     public String confirmRequest(Model model, HttpSession session, Principal principal) {
-        // Verifica e obtém os dados necessários da sessão e do usuário.
         String username = principal.getName();
         Optional<Client> clientOpt = clientRepository.findByEmail(username);
 
-        if (clientOpt.isEmpty()) { return "redirect:/login"; } // Cliente não logado
+        if (clientOpt.isEmpty()) {
+            return "redirect:/login";
+        }
         Client client = clientOpt.get();
 
         UUID selectedAddressId = (UUID) session.getAttribute("selectedAddressId");
         List<CartItem> items = cartController.getCartFromSession(session);
-        String paymentMethodCode = (String) session.getAttribute("paymentMethod"); // "cartao" ou "boleto"
-        String selectedFreightType = (String) session.getAttribute("freteTipo");   // Ex: "GADO_RAPIDO"
+        String paymentMethodCode = (String) session.getAttribute("paymentMethod");
+        String selectedFreightTypeEnumName = (String) session.getAttribute("freteTipo"); // Enum name, ex: "GADO_RAPIDO"
+        BigDecimal valorFrete = (BigDecimal) session.getAttribute("valorFrete"); // VALOR do frete, já calculado
 
-        // Validações de segurança: se algum dado essencial da sessão sumiu, volta ao início do checkout.
-        if (selectedAddressId == null || items == null || items.isEmpty() || paymentMethodCode == null || selectedFreightType == null) {
+        if (selectedAddressId == null || items == null || items.isEmpty() || paymentMethodCode == null || selectedFreightTypeEnumName == null || valorFrete == null) {
             return "redirect:/checkout";
         }
 
-        // Busca o endereço selecionado.
         Address address = addressRepository.findById(selectedAddressId)
                 .orElseThrow(() -> new RuntimeException("Endereço selecionado não encontrado: " + selectedAddressId));
 
-        // Calcula totais novamente para garantir consistência (ou recupera da sessão se já calculado).
         BigDecimal totalProdutos = items.stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        Freight freteEnum = Freight.valueOf(selectedFreightType.toUpperCase()); // Converte a string para o Enum
-        BigDecimal valorFrete = freteEnum.getValor();
+        // Converte o enumName para o Enum para obter o nome amigável
+        Freight freteEnum = Freight.valueOf(selectedFreightTypeEnumName.toUpperCase());
         BigDecimal totalGeral = totalProdutos.add(valorFrete);
 
-        // Adiciona os dados ao Model para exibição na tela de confirmação.
         model.addAttribute("clientFirstName", client.getFirstName());
         model.addAttribute("selectedAddress", address);
         model.addAttribute("cartItems", items);
         model.addAttribute("subtotalProdutos", totalProdutos);
-        model.addAttribute("freteValor", valorFrete);
-        model.addAttribute("freteNome", freteEnum.getNome()); // Nome amigável do frete
+        model.addAttribute("freteValor", valorFrete); // Usa o valor recuperado da sessão
+        model.addAttribute("freteNome", freteEnum.getNome());
         model.addAttribute("totalPedido", totalGeral);
-        model.addAttribute("paymentMethodDisplay", "cartao".equals(paymentMethodCode) ? "Cartão de Crédito" : "Boleto Bancário"); // Nome para exibição
+        model.addAttribute("paymentMethodDisplay", "cartao".equals(paymentMethodCode) ? "Cartão de Crédito" : "Boleto Bancário");
 
-        // Se for cartão e houver parcelas, calcula e adiciona ao modelo.
         if ("cartao".equals(paymentMethodCode)) {
             Map<String, String> cardDetails = (Map<String, String>) session.getAttribute("cardDetails");
             if (cardDetails != null && cardDetails.containsKey("installments")) {
@@ -252,62 +226,43 @@ public class CheckoutController {
                         model.addAttribute("valorParcela", valorParcela);
                     }
                 } catch (NumberFormatException e) {
-                    // Tratar erro se 'installments' não for um número válido
                     model.addAttribute("installmentsError", "Número de parcelas inválido.");
                 }
             }
         }
-
-        // Retorna a view de confirmação.
         return "checkout/checkout-confirm";
     }
 
-    /**
-     * Processa a finalização da compra.
-     * Chama o CheckoutService para criar o pedido no banco de dados.
-     * Limpa a sessão e redireciona para a página de sucesso ou erro.
-     */
     @PostMapping("/checkout/finalizar")
     public String finalizarCompra(HttpSession session, Principal principal, RedirectAttributes redirectAttributes) {
         try {
-            // Delegação para o CheckoutService, que contém a lógica transacional de criação do pedido.
             Order order = checkoutService.createOrder(principal, session);
 
-            // Limpa os atributos de checkout da sessão APÓS o pedido ser criado com sucesso.
-            cartController.clearCart(session); // Limpa o carrinho
+            cartController.clearCart(session);
             session.removeAttribute("selectedAddressId");
             session.removeAttribute("paymentMethod");
             session.removeAttribute("freteTipo");
+            session.removeAttribute("valorFrete"); // Limpa o valor do frete também
             session.removeAttribute("freteOpcoesDisponiveis");
-            session.removeAttribute("cardDetails"); // E outros detalhes de cartão se armazenados individualmente
+            session.removeAttribute("cardDetails");
 
-            // Adiciona dados do pedido aos FlashAttributes para serem exibidos na página de sucesso.
             redirectAttributes.addFlashAttribute("orderNumber", order.getOrderNumber());
             redirectAttributes.addFlashAttribute("orderTotal", order.getTotalPrice());
-            redirectAttributes.addFlashAttribute("successMessage", "Pedido realizado com sucesso!"); // Mensagem de sucesso
+            redirectAttributes.addFlashAttribute("successMessage", "Pedido realizado com sucesso!");
 
             return "redirect:/checkout/checkout-success";
         } catch (Exception e) {
-            // Em caso de erro (ex: estoque indisponível, falha ao salvar),
-            // redireciona de volta para a tela de confirmação com uma mensagem de erro.
-            e.printStackTrace(); // Logar a exceção para depuração no servidor
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("checkoutError", "Erro ao finalizar compra: " + e.getMessage());
-            return "redirect:/checkout/confirm"; // Volta para a tela de confirmação para o usuário tentar novamente ou ver o erro.
+            return "redirect:/checkout/confirm";
         }
     }
 
-    /**
-     * Exibe a página de sucesso após a finalização da compra.
-     * Os dados do pedido (número, total) são passados via FlashAttributes.
-     */
     @GetMapping("/checkout/checkout-success")
     public String checkoutSucesso(Model model) {
-        // Verifica se os atributos flash (orderNumber, orderTotal) estão presentes no modelo.
-        // Se não estiverem (ex: acesso direto à URL), redireciona para a home.
         if (!model.containsAttribute("orderNumber") || !model.containsAttribute("orderTotal")) {
-            return "redirect:/"; // Ou para a página de pedidos do usuário
+            return "redirect:/";
         }
-        // Os atributos flash já estarão no model se vierem de um redirect com RedirectAttributes.
         return "checkout/checkout-success";
     }
 }

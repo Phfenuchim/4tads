@@ -17,7 +17,9 @@
 
         <div class="mb-3">
             <h5 class="fw-semibold">Endereço de Entrega</h5>
-            <p th:text="${address.street + ', ' + address.number + ' - ' + address.state + ' - ' + address.cep}"></p>
+            <!-- CORREÇÃO AQUI -->
+            <p th:if="${selectedAddress}" th:text="${selectedAddress.street + ', ' + selectedAddress.number + ' - ' + selectedAddress.state + ' - ' + selectedAddress.cep}"></p>
+            <p th:unless="${selectedAddress}">Endereço não informado.</p>
         </div>
 
         <div class="mb-3">
@@ -32,32 +34,41 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="item : ${items}">
+                <!-- Assumindo que 'items' é o nome correto do atributo do model para List<CartItem> -->
+                <tr th:each="item : ${cartItems}"> <!-- CORREÇÃO: Usar cartItems conforme definido no controller -->
                     <td th:text="${item.productName}"></td>
                     <td th:text="${item.quantity}"></td>
-                    <td th:text="${item.price}"></td>
-                    <td th:text="${item.price.multiply(new java.math.BigDecimal(item.quantity))}"></td>
+                    <!-- Formatando o preço unitário -->
+                    <td th:text="${#numbers.formatDecimal(item.price, 1, 'POINT', 2, 'COMMA')}"></td>
+                    <!-- Formatando o subtotal do item -->
+                    <td th:text="${#numbers.formatDecimal(item.price.multiply(new java.math.BigDecimal(item.quantity)), 1, 'POINT', 2, 'COMMA')}"></td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
         <div class="mb-3">
-            <p><strong>Total Produtos:</strong> R$ <span th:text="${totalProdutos}"></span></p>
-            <p><strong>Frete:</strong> <span th:text="${freteTipo}"></span> - R$ <span th:text="${frete}"></span></p>
+            <!-- CORREÇÃO: Usar subtotalProdutos e formatar -->
+            <p><strong>Total Produtos:</strong> R$ <span th:text="${#numbers.formatDecimal(subtotalProdutos, 1, 'POINT', 2, 'COMMA')}"></span></p>
+            <!-- CORREÇÃO: Usar freteNome e freteValor, e formatar -->
+            <p><strong>Frete:</strong> <span th:text="${freteNome}"></span> - R$ <span th:text="${#numbers.formatDecimal(freteValor, 1, 'POINT', 2, 'COMMA')}"></span></p>
 
             <hr style="margin-top: 1rem; margin-bottom: 0.75rem;">
 
-            <h5 class="total-geral"><strong>Total Geral:</strong> R$ <span th:text="${totalGeral}"></span></h5>
+            <!-- CORREÇÃO: Usar totalPedido e formatar -->
+            <h5 class="total-geral"><strong>Total Geral:</strong> R$ <span th:text="${#numbers.formatDecimal(totalPedido, 1, 'POINT', 2, 'COMMA')}"></span></h5>
         </div>
 
 
         <div class="mb-4">
             <h5 class="fw-semibold">Forma de Pagamento</h5>
-            <p th:text="${paymentMethod == 'cartao' ? 'Cartão de Crédito' : 'Boleto Bancário'}"></p>
+            <!-- CORREÇÃO: Usar paymentMethodDisplay (se preferir) ou manter a lógica com 'paymentMethod' (atributo da sessão) -->
+            <p th:text="${paymentMethodDisplay}"></p> <!-- Ou: th:text="${session.paymentMethod == 'cartao' ? 'Cartão de Crédito' : 'Boleto Bancário'}" -->
         </div>
-        <div th:if="${paymentMethod == 'cartao'}" class="mt-3">
-            <p><strong>Pagamento Parcelado:</strong> <span th:text="${installments}"></span>x de R$ <span th:text="${installmentValue}"></span>
+
+        <!-- CORREÇÃO: Usar numeroParcelas e valorParcela, e formatar -->
+        <div th:if="${session.paymentMethod == 'cartao' and numeroParcelas != null and valorParcela != null}" class="mt-3">
+            <p><strong>Pagamento Parcelado:</strong> <span th:text="${numeroParcelas}"></span>x de R$ <span th:text="${#numbers.formatDecimal(valorParcela, 1, 'POINT', 2, 'COMMA')}"></span>
             </p>
         </div>
 

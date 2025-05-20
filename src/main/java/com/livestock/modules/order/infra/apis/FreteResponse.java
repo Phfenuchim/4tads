@@ -37,4 +37,8 @@ public class FreteResponse {
     public List<OpcaoFrete> getOpcoesFrete() {
         return opcoesFrete;
     }
+
+    public void setOpcoesFrete(List<OpcaoFrete> opcoesFrete) {
+        this.opcoesFrete = opcoesFrete;
+    }
 }

@@ -1,105 +1,95 @@
 package com.livestock.modules.order.infra.apis;
 
-import com.livestock.modules.checkout.domain.Freight; // Certifique-se que esta classe existe e está correta
+import com.livestock.modules.checkout.domain.Freight;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
+
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects; // Importar Objects
+// O mapa local foi removido daqui
 
 @Controller
-@RequestMapping("/frete") // Mapeamento a nível de classe
+@RequestMapping("/frete")
 public class FreteController {
 
     @Autowired
     private ConsultaCepAPI consultaCepAPI;
 
-    // O Map em si está ok
-    private static final Map<String, BigDecimal> fretePorEstado = Map.ofEntries(
-            Map.entry("SP", BigDecimal.valueOf(150)),
-            Map.entry("RJ", BigDecimal.valueOf(200)),
-            Map.entry("MG", BigDecimal.valueOf(200)),
-            Map.entry("ES", BigDecimal.valueOf(200)),
-            Map.entry("PR", BigDecimal.valueOf(250)),
-            Map.entry("SC", BigDecimal.valueOf(250)),
-            Map.entry("RS", BigDecimal.valueOf(250)),
-            Map.entry("MS", BigDecimal.valueOf(300)),
-            Map.entry("MT", BigDecimal.valueOf(300)),
-            Map.entry("GO", BigDecimal.valueOf(300)),
-            Map.entry("DF", BigDecimal.valueOf(300)),
-            Map.entry("BA", BigDecimal.valueOf(280)),
-            Map.entry("SE", BigDecimal.valueOf(280)),
-            Map.entry("AL", BigDecimal.valueOf(280)),
-            Map.entry("PE", BigDecimal.valueOf(280)),
-            Map.entry("PB", BigDecimal.valueOf(280)),
-            Map.entry("RN", BigDecimal.valueOf(280)),
-            Map.entry("CE", BigDecimal.valueOf(280)),
-            Map.entry("PI", BigDecimal.valueOf(280)),
-            Map.entry("MA", BigDecimal.valueOf(280)),
-            Map.entry("TO", BigDecimal.valueOf(350)),
-            Map.entry("PA", BigDecimal.valueOf(350)),
-            Map.entry("AP", BigDecimal.valueOf(350)),
-            Map.entry("RR", BigDecimal.valueOf(350)),
-            Map.entry("AM", BigDecimal.valueOf(350)),
-            Map.entry("AC", BigDecimal.valueOf(350)),
-            Map.entry("RO", BigDecimal.valueOf(350))
-    );
+    // REMOVIDO o mapa 'fretePorEstado' daqui, pois agora usaremos FreteConfig
 
-    @GetMapping("/calcular") // Alterado de @GetMapping("/{cep}") para @GetMapping("/calcular") e usar @RequestParam
-    @ResponseBody // Para garantir que retorne JSON diretamente
+    @GetMapping("/calcular")
+    @ResponseBody
     public ResponseEntity<FreteResponse> calcular(@RequestParam String cep) {
         CepResultDTO dados = consultaCepAPI.consultaCep(cep);
 
-        // Verificação crucial: E se dados for null ou a UF não for encontrada?
-        if (dados == null) {
-            // Você pode retornar um erro ou um FreteResponse com erro/padrão
-            return ResponseEntity.badRequest().body(new FreteResponse(null, null, null, null,
-                    List.of(new OpcaoFrete("Erro", "CEP não encontrado ou inválido", BigDecimal.ZERO, "ERRO"))
+        if (dados == null || dados.getUf() == null) {
+            return ResponseEntity.badRequest().body(new FreteResponse(
+                    "Endereço não encontrado",
+                    "N/A", "N/A", "N/A",
+                    List.of(new OpcaoFrete("Erro", "CEP inválido ou não encontrado", BigDecimal.ZERO, "ERRO"))
             ));
         }
 
         String uf = dados.getUf();
-        String cidade = dados.getLocalidade();
-        // Ajustado para obter o nome completo do estado, se disponível, ou usar UF.
+        String cidade = dados.getLocalidade() != null ? dados.getLocalidade() : "N/A";
         String estado = dados.getEstado() != null && !dados.getEstado().isEmpty() ? dados.getEstado() : uf;
-        String endereco = dados.getLogradouro() != null ? dados.getLogradouro() : ""; // Evitar NullPointerException aqui
+        String endereco = dados.getLogradouro() != null ? dados.getLogradouro() : "N/A";
         if (dados.getComplemento() != null && !dados.getComplemento().isEmpty()) {
             endereco += " - " + dados.getComplemento();
         }
 
-        BigDecimal freteBase;
-        if (uf != null && fretePorEstado.containsKey(uf.toUpperCase())) { // Verifica se a chave existe e uf não é null
-            freteBase = fretePorEstado.get(uf.toUpperCase());
-        } else {
-            freteBase = BigDecimal.valueOf(400); // Valor padrão se UF for nula ou não estiver no mapa
-        }
+        // USANDO FRETECONFIG: Obtém o valor base do frete para o estado
+        BigDecimal freteBase = FreteConfig.getFreteBasePorEstado(uf);
 
-        // Certifique-se que seu enum Freight e o método getNome() existem
         List<OpcaoFrete> opcoes = List.of(
-                new OpcaoFrete(
-                        Freight.GADO_RAPIDO.getNome(), // Assumindo que Freight.GADO_RAPIDO.getNome() existe
-                        "2 a 3 dias úteis",
-                        freteBase.add(BigDecimal.valueOf(80)),
-                        Freight.GADO_RAPIDO.name() // Para identificar o tipo de frete
-                ),
-                new OpcaoFrete(
-                        Freight.BOI_EXPRESSO.getNome(),
-                        "4 a 6 dias úteis",
-                        freteBase.add(BigDecimal.valueOf(50)),
-                        Freight.BOI_EXPRESSO.name()
-                ),
-                new OpcaoFrete(
-                        Freight.TRANSBOI.getNome(),
-                        "6 a 9 dias úteis",
-                        freteBase,
-                        Freight.TRANSBOI.name()
-                )
+                criarOpcaoFrete(Freight.GADO_RAPIDO, freteBase),
+                criarOpcaoFrete(Freight.BOI_EXPRESSO, freteBase),
+                criarOpcaoFrete(Freight.TRANSBOI, freteBase)
         );
 
         FreteResponse response = new FreteResponse(endereco, cidade, estado, uf, opcoes);
         return ResponseEntity.ok(response);
+    }
+
+    private OpcaoFrete criarOpcaoFrete(Freight tipoFrete, BigDecimal freteBase) {
+        // Mantendo a lógica de valor adicional como estava no seu FreteController.
+        // Se você moveu isso para o enum Freight como 'getValorAdicional()', ajuste aqui.
+        BigDecimal valorAdicional;
+        switch (tipoFrete) {
+            case GADO_RAPIDO:
+                valorAdicional = BigDecimal.valueOf(80);
+                break;
+            case BOI_EXPRESSO:
+                valorAdicional = BigDecimal.valueOf(50);
+                break;
+            case TRANSBOI:
+                valorAdicional = BigDecimal.ZERO;
+                break;
+            default:
+                valorAdicional = BigDecimal.valueOf(100); // Valor padrão para tipos não mapeados
+        }
+        BigDecimal valorTotal = freteBase.add(valorAdicional);
+
+        return new OpcaoFrete(
+                tipoFrete.getNome(),
+                getPrazoEntrega(tipoFrete),
+                valorTotal,
+                tipoFrete.name()
+        );
+    }
+
+    private String getPrazoEntrega(Freight tipoFrete) {
+        switch (tipoFrete) {
+            case GADO_RAPIDO:
+                return "2 a 3 dias úteis";
+            case BOI_EXPRESSO:
+                return "4 a 6 dias úteis";
+            case TRANSBOI:
+                return "6 a 9 dias úteis";
+            default:
+                return "Prazo não definido";
+        }
     }
 }

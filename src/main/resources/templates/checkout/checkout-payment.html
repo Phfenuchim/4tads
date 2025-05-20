@@ -20,7 +20,7 @@
             <div class="mb-3">
                 <label for="freight" class="form-label">Escolha o tipo de frete:</label>
                 <select name="freteTipo" id="freight" class="form-select" required>
-                    <option th:each="freight : ${freteTipos}"
+                    <option th:each="freight : ${freteOpcoes}"
                             th:value="${freight.enumName}"
                             th:text="${freight.nome + ' - R$ ' + freight.valor}">
                     </option>
@@ -111,6 +111,6 @@
         }
     });
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
