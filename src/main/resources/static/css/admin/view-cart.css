@@ -15,7 +15,7 @@ body {
     color: #333;
 }
 
-/* Títulos, textos, botões */
+/* Títulos e inputs */
 h1, h2, h3, h4, h5, h6,
 .form-control,
 .btn,
@@ -24,12 +24,11 @@ h1, h2, h3, h4, h5, h6,
     font-family: 'Quicksand', Arial, sans-serif;
 }
 
-/* Container da página */
 main.container {
     max-width: 1200px;
 }
 
-/* Estilo das imagens dos produtos */
+/* Imagem produto */
 .cart-product-img {
     width: 64px;
     height: 64px;
@@ -38,7 +37,7 @@ main.container {
     border: 1px solid #ddd;
 }
 
-/* Estilo dos itens do carrinho */
+/* Item */
 .cart-item {
     background-color: #fff;
     border-radius: 12px;
@@ -47,7 +46,7 @@ main.container {
     margin-bottom: 20px;
 }
 
-/* Estilo do resumo */
+/* Resumo */
 .cart-summary {
     background-color: #f5f5f5;
     padding: 25px;
@@ -65,7 +64,7 @@ main.container {
     font-size: 14px;
 }
 
-/* Botão final */
+/* Botão */
 .btn-dark {
     background-color: #000;
     color: #fff;
@@ -77,26 +76,7 @@ main.container {
     background-color: #333;
 }
 
-/* Frete info visível com fade */
-#frete-info {
-    transition: all 0.3s ease;
-    opacity: 1;
-}
-
-.cart-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 20px;
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.03);
-    min-height: 100px;
-}
-
-/* Garante que cada bloco extra (quantidade, subtotal, remover) fique alinhado */
+/* Quantidade */
 .cart-controls,
 .cart-subtotal,
 .cart-remove {
@@ -115,6 +95,18 @@ main.container {
     min-width: 40px;
 }
 
+.btn-outline-secondary {
+    color: #212529; /* texto escuro */
+    background-color: #fff; /* fundo branco */
+    border-color: #212529; /* borda escura */
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: #212529; /* fundo escuro no hover */
+    color: #fff; /* texto claro no hover */
+    border-color: #212529;
+}
 
 
 /* Responsivo */

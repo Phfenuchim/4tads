@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Carrinho</title>
@@ -12,62 +12,54 @@
 <th:block th:replace="~{fragments/header :: header}"></th:block>
 
 <main class="container my-5 flex-grow-1">
+    <h1 class="visually-hidden">Carrinho de Compras</h1>
+
     <div class="row">
         <!-- Lista de Itens -->
         <div class="col-lg-8">
-            <h3 class="fw-bold mb-4">Shopping Cart <span th:text="'(' + ${cart.size()} + ' items)'"></span></h3>
+            <h2 class="fw-bold mb-4">Shopping Cart <span th:text="'(' + ${cart.size()} + ' items)'"></span></h2>
 
             <div th:if="${cart.isEmpty()}" class="alert alert-info">
                 Seu carrinho está vazio.
             </div>
 
             <div th:each="item : ${cart}" class="cart-item d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <!-- IMAGEM + NOME -->
                 <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
-                    <img th:src="@{'/images/produtos/' + ${item.imageUrl}}" class="cart-product-img">
+                    <img th:src="@{'/images/produtos/' + ${item.imageUrl}}" class="cart-product-img" alt="Imagem de ${item.productName}">
                     <div class="text-truncate">
-                        <h6 class="mb-1 text-break" th:text="${item.productName}">Produto</h6>
+                        <h3 class="mb-1 text-break fs-6" th:text="${item.productName}">Produto</h3>
                         <small>R$ <span th:text="${item.price}">0.00</span></small>
                     </div>
                 </div>
 
-                <!-- QUANTIDADE -->
                 <div class="cart-controls d-flex align-items-center gap-2">
-                    <!-- Botão - -->
                     <form th:action="@{/cart/decrease}" method="post">
                         <input type="hidden" name="productId" th:value="${item.productId}">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm px-2">−</button>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm px-2" aria-label="Diminuir quantidade">−</button>
                     </form>
-
-                    <span th:text="${item.quantity}"></span>
-
-                    <!-- Botão + -->
+                    <input type="text" class="form-control text-center" style="width: 50px;" th:value="${item.quantity}" readonly aria-label="Quantidade selecionada">
                     <form th:action="@{/cart/increase}" method="post">
                         <input type="hidden" name="productId" th:value="${item.productId}">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm px-2">+</button>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm px-2" aria-label="Aumentar quantidade">+</button>
                     </form>
                 </div>
 
-                <!-- SUBTOTAL -->
                 <div class="cart-subtotal fw-semibold">
                     R$ <span th:text="${item.price * item.quantity}">0.00</span>
                 </div>
 
-                <!-- REMOVER -->
                 <form th:action="@{/cart/remove}" method="post" class="cart-remove">
                     <input type="hidden" name="productId" th:value="${item.productId}">
-                    <button type="submit" class="btn btn-link text-danger">✕</button>
+                    <button type="submit" class="btn btn-link text-danger" aria-label="Remover item do carrinho">✕</button>
                 </form>
             </div>
-
         </div>
 
         <!-- Resumo -->
         <div class="col-lg-4 mt-5 mt-lg-0">
             <div class="cart-summary">
-                <h5 class="fw-bold mb-3">Resumo</h5>
+                <h3 class="fw-bold mb-3 fs-5">Resumo</h3>
 
-                <!-- Subtotal -->
                 <div class="d-flex justify-content-between mb-2">
                     <span>Itens</span>
                     <span>R$ <span id="subtotal" th:text="${total}">0.00</span></span>
@@ -78,7 +70,7 @@
                     <label for="cep" class="form-label">Calcular Frete</label>
                     <div class="input-group">
                         <input type="text" id="cep" class="form-control" placeholder="Digite seu CEP">
-                        <button class="btn btn-outline-secondary" type="button" onclick="calcularFrete()">Calcular</button>
+                        <button class="btn btn-outline-secondary" type="button" onclick="calcularFrete()" aria-label="Calcular frete">Calcular</button>
                     </div>
                 </div>
 
@@ -90,13 +82,13 @@
                     <div><strong>UF:</strong> <span id="uf"></span></div>
 
                     <label for="opcao-frete" class="form-label mt-2">Opções de Frete</label>
-                    <select id="opcao-frete" class="form-select"
-                            onchange="atualizarTotalComFrete(); mostrarPrazoEntrega()">
+                    <select id="opcao-frete" class="form-select" aria-label="Opções de frete">
                     </select>
+                    <button class="btn btn-outline-secondary btn-sm mt-2" onclick="atualizarTotalComFrete()" aria-label="Aplicar opção de frete">Confirmar Frete</button>
                     <small id="prazo-entrega" class="text-muted d-block mt-1"></small>
                 </div>
-                <br/>
-                <div class="d-flex justify-content-between fw-bold mb-3">
+
+                <div class="d-flex justify-content-between fw-bold mb-3 mt-3">
                     <span>Total</span>
                     <span>R$ <span id="total-com-frete" th:text="${total}">0.00</span></span>
                 </div>
@@ -128,7 +120,6 @@
             document.getElementById('uf').innerText = data.uf;
 
             const select = document.getElementById('opcao-frete');
-            const prazo = document.getElementById('prazo-entrega');
             select.innerHTML = '';
 
             data.opcoesFrete.forEach((opcao) => {
@@ -140,7 +131,6 @@
 
             select.selectedIndex = 0;
             mostrarPrazoEntrega();
-            atualizarTotalComFrete();
         } catch (err) {
             console.error(err);
             alert('Erro ao calcular frete.');
@@ -166,8 +156,9 @@
             const novoTotal = (subtotal + valorFreteSelecionado).toFixed(2).replace('.', ',');
             totalEl.innerText = novoTotal;
         }
+
+        mostrarPrazoEntrega();
     }
 </script>
-
 </body>
 </html>

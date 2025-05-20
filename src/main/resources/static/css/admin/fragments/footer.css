@@ -63,5 +63,7 @@ footer .bi:focus {
 footer h5 {
     margin-bottom: 15px;
     margin-top: 0;
+    color: white !important;
 }
+
 

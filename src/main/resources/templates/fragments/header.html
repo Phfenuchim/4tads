@@ -3,11 +3,12 @@
 <header class="bg-white border-bottom py-3">
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light">
-            <!-- Logo -->
-            <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/home}">
-                <img src="/images/logo.png" alt="Logo" style="height: 40px;">
+            <!-- Logo com aria-label diferenciado -->
+            <a class="navbar-brand d-flex align-items-center gap-2" aria-label="Ir para a página inicial da GADUS">
+                <img src="/images/logo.png" alt="" style="height: 40px;" aria-hidden="true">
                 <h4 class="fw-bold m-0">GADUS</h4>
             </a>
+
 
             <!-- Botão de colapso (mobile) -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -18,13 +19,13 @@
             <!-- Itens da navbar -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" th:href="@{/home}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/contact}">Contact</a></li>
-                    <li class="nav-item"><a class="nav-link" th:href="@{/about}">About</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/home}">Home</a>
+                    </li>
 
-                    <!-- Exibir "Sign Up" apenas se o usuário não estiver logado -->
+                    <!-- Exibir apenas se deslogado -->
                     <li class="nav-item" sec:authorize="isAnonymous()">
-                        <a class="nav-link" th:href="@{/login}">Sign Up</a>
+                        <a class="nav-link" th:href="@{/login}">Entrar / Cadastrar</a>
                     </li>
                 </ul>
 
@@ -32,20 +33,20 @@
                 <div class="d-flex align-items-center gap-3">
                     <!-- Carrinho -->
                     <a th:href="@{/cart}" class="nav-link">
-                        <img src="/images/cart.png" alt="Cart" style="width:20px;">
+                        <img src="/images/cart.png" alt="Ícone do carrinho de compras" style="width:20px;">
                     </a>
 
                     <!-- Ícone de usuário se estiver deslogado -->
                     <div sec:authorize="isAnonymous()">
                         <a class="nav-link" th:href="@{/login}">
-                            <img src="/images/user.png" alt="User" style="width:20px;">
+                            <img src="/images/user.png" alt="Ícone de usuário não autenticado" style="width:20px;">
                         </a>
                     </div>
 
-                    <!-- Dropdown usuário: visível apenas se logado -->
+                    <!-- Dropdown usuário autenticado -->
                     <div class="dropdown" sec:authorize="isAuthenticated()">
                         <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <img src="/images/user.png" alt="User" style="width:20px;">
+                            <img src="/images/user.png" alt="Ícone do perfil do usuário" style="width:20px;">
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li class="dropdown-item-text">
@@ -56,7 +57,6 @@
                             <li><a class="dropdown-item" th:href="@{/client/profile}">Editar Perfil</a></li>
                             <li><a class="dropdown-item" th:href="@{/client/change-password}">Alterar Senha</a></li>
                             <li><a class="dropdown-item" th:href="@{/client/addresses}">Endereços de Entrega</a></li>
-
                             <li>
                                 <form th:action="@{/logout}" method="post">
                                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

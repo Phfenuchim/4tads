@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
@@ -86,8 +86,8 @@
                 <!-- Filtro de busca -->
                 <form method="get" th:action="@{/products}">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="name" placeholder="Digite o nome do produto"
-                               th:value="${param.name}">
+                        <label for="search-input" class="visually-hidden">Buscar produto</label>
+                        <input id="search-input" type="text" class="form-control" name="name" placeholder="Digite o nome do produto" th:value="${param.name}">
                         <button class="btn btn-outline-primary" type="submit">Filtrar</button>
                     </div>
                 </form>
@@ -113,7 +113,7 @@
                             <!--                            </div>-->
 
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title" th:text="${product.productName}"></h5>
+                                <h2 class="card-title h5" th:text="${product.productName}"></h2>
                                 <p class="card-text" th:text="${#strings.abbreviate(product.description, 100)}"></p>
                                 <p class="card-text">R$ <span
                                         th:text="${#numbers.formatDecimal(product.price, 1, 2)}"></span></p>
@@ -123,7 +123,7 @@
                                     <input type="hidden" name="productId" th:value="${product.id}">
                                     <div class="quantity-wrapper">
                                         <button type="button" onclick="this.nextElementSibling.stepDown()">-</button>
-                                        <input type="number" name="quantity" value="1" min="1" max="99">
+                                        <input type="number" name="quantity" value="1" min="1" max="99" aria-label="Quantidade do produto">
                                         <button type="button" onclick="this.previousElementSibling.stepUp()">+</button>
                                     </div>
                                     <button type="submit" class="btn-cart">Adicionar ao Carrinho</button>

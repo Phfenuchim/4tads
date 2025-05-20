@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title th:text="${product.productName}">Detalhes do Produto</title>
@@ -16,36 +16,33 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 <th:block th:replace="~{fragments/header :: header}"></th:block>
+
 <main class="container my-5 flex-grow-1">
+    <h1 class="visually-hidden">Detalhes do Produto</h1> <!-- Importante para acessibilidade -->
+
     <div class="row g-5 align-items-center">
-        <!-- Carrossel de Imagens -->
         <!-- Carrossel de Imagens -->
         <div class="col-md-6">
             <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
-                <!-- Indicadores (bolinhas) -->
                 <div class="carousel-indicators">
                     <button type="button"
                             th:each="image, iter : ${product.images}"
                             th:data-bs-target="'#productCarousel'"
                             th:data-bs-slide-to="${iter.index}"
                             th:classappend="${iter.index == 0} ? 'active' : ''"
-                            aria-current="true"
                             th:aria-label="'Imagem ' + ${iter.index + 1}">
                     </button>
-
                 </div>
 
-                <!-- Slides -->
                 <div class="carousel-inner">
                     <div th:each="image, iter : ${product.images}"
                          th:class="${iter.index == 0} ? 'carousel-item active' : 'carousel-item'">
                         <img th:src="@{'/images/produtos/' + ${image.pathUrl}}"
                              class="d-block w-100 rounded shadow-sm product-image"
-                             alt="Imagem do Produto">
+                             th:alt="'Imagem do produto ' + ${iter.index + 1}" />
                     </div>
                 </div>
 
-                <!-- Controles -->
                 <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Anterior</span>
@@ -57,16 +54,15 @@
             </div>
         </div>
 
-
         <!-- Detalhes -->
         <div class="col-md-6">
             <h2 class="fw-bold mb-3" th:text="${product.productName}">Nome do Produto</h2>
             <p class="text-muted mb-4" th:text="${product.description}">Descrição do produto...</p>
-            <h4 class="text-success fw-semibold mb-3">R$ <span th:text="${product.price}">0.00</span></h4>
+            <h3 class="text-success fw-semibold mb-3">R$ <span th:text="${product.price}">0.00</span></h3>
 
             <!-- Avaliação -->
             <div class="rating mb-3">
-                <div class="stars">
+                <div class="stars" aria-label="Avaliação do produto">
                     <i th:each="i : ${#numbers.sequence(1, 5)}"
                        th:classappend="${i <= product.rating} ? 'bi-star-fill' : 'bi-star'"
                        class="bi me-1"></i>
@@ -78,20 +74,22 @@
             <form th:action="@{/cart/add}" method="post" class="d-flex flex-column gap-3 w-100">
                 <input type="hidden" name="productId" th:value="${product.id}">
                 <div class="d-flex flex-column gap-2">
-                    <label class="form-label m-0">Quantidade:</label>
+                    <label for="quantity" class="form-label">Quantidade:</label>
                     <div class="quantity-selector d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="changeQuantity(-1)">−</button>
-                        <input type="number" name="quantity" id="quantity" class="form-control text-center" value="1" min="1" readonly>
-                        <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="changeQuantity(1)">+</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="changeQuantity(-1)" aria-label="Diminuir quantidade">−</button>
+                        <input type="number" name="quantity" id="quantity" class="form-control text-center"
+                               value="1" min="1" readonly aria-label="Quantidade do produto">
+                        <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="changeQuantity(1)" aria-label="Aumentar quantidade">+</button>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-dark w-100 mt-2">Adicionar ao Carrinho</button>
             </form>
 
-            <a href="/products" class="btn btn-link mt-3">&larr; Voltar para Produtos</a>
+            <a href="/products" class="btn btn-link mt-3" aria-label="Voltar para a listagem de produtos">&larr; Voltar para Produtos</a>
         </div>
     </div>
 </main>
+
 <th:block th:replace="~{fragments/footer :: footer}"></th:block>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -100,11 +98,9 @@
         const input = document.getElementById('quantity');
         let value = parseInt(input.value);
         if (isNaN(value)) value = 1;
-
         const newValue = value + delta;
         input.value = newValue > 0 ? newValue : 1;
     }
 </script>
-
 </body>
 </html>
