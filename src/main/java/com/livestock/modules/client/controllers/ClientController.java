@@ -159,30 +159,6 @@ public class ClientController {
         }
     }
 
-    @Transactional
-    public void addNewAddress(String email, NewAddressDTO dto) {
-        Client client = clientRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
-
-        if (dto.isDefault()) {
-            client.getAddress().forEach(addr -> addr.setDefaultAddress(false));
-        }
-
-        Address newAddress = new Address();
-        newAddress.setClient(client);
-        newAddress.setCep(dto.getCep());
-        newAddress.setStreet(dto.getStreet());
-        newAddress.setNumber(dto.getNumber());
-        newAddress.setComplement(dto.getComplement());
-        newAddress.setDistrict(dto.getDistrict());
-        newAddress.setCity(dto.getCity());
-        newAddress.setState(dto.getState());
-        newAddress.setCountry(dto.getCountry());
-        newAddress.setDefaultAddress(dto.isDefault());
-
-        client.getAddress().add(newAddress);
-        clientRepository.save(client);
-    }
 
     @PostMapping("/client/addresses")
     public String saveAddress(@Valid @ModelAttribute("newAddressDTO") NewAddressDTO dto,
@@ -191,63 +167,67 @@ public class ClientController {
                               Principal principal,
                               RedirectAttributes redirectAttributes,
                               Model model) {
+
         if (result.hasErrors()) {
-            Client client = clientRepository.findByEmail(principal.getName())
+            // ... (lógica para retornar à view com erros, como já discutido)
+            String email = principal.getName();
+            Client client = clientService.findClientByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
-            model.addAttribute("addresses", client.getAddress());
+            model.addAttribute("addresses", clientService.findAddressesByClientId(client.getId()));
             model.addAttribute("redirectTo", redirectTo);
             return "client/addresses";
         }
 
         try {
+            // A CHAMADA AO SERVIÇO QUE DEVE SER TRANSACIONAL
             clientService.addNewAddress(principal.getName(), dto);
-            redirectAttributes.addFlashAttribute("success", "Endereço adicionado com sucesso!");
-            return redirectTo != null ? "redirect:" + redirectTo : "redirect:/client/addresses";
+            redirectAttributes.addFlashAttribute("success", "Novo endereço de entrega adicionado com sucesso!");
+
+            if (redirectTo != null && !redirectTo.trim().isEmpty()) {
+                return "redirect:" + redirectTo;
+            } else {
+                return "redirect:/client/addresses";
+            }
         } catch (IllegalArgumentException e) {
-            result.rejectValue("cep", null, e.getMessage());
-            Client client = clientRepository.findByEmail(principal.getName())
-                    .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
-            model.addAttribute("addresses", client.getAddress());
-            model.addAttribute("redirectTo", redirectTo);
-            return "client/addresses";
+            // ... (tratamento de erro, como já discutido)
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("newAddressDTO", dto);
+            // ...
+            return "redirect:/client/addresses";
         }
     }
 
 
 
+
+
     @GetMapping("/client/addresses")
-    public String listAddresses(Model model, Principal principal) {
+    public String listAddresses(Model model, Principal principal,
+                                @RequestParam(value = "redirectTo", required = false) String redirectTo) {
         String email = principal.getName();
-        Optional<Client> client = clientRepository.findByEmail(email);
+        // Usar o método do serviço que você criou para buscar o cliente
+        Client client = clientService.findClientByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado: " + email));
 
-        if (client.isEmpty()) {
-            return "redirect:/login";
+        // Usar o método do serviço para buscar os endereços
+        List<Address> addresses = clientService.findAddressesByClientId(client.getId());
+
+        if (!model.containsAttribute("newAddressDTO")) {
+            model.addAttribute("newAddressDTO", new NewAddressDTO());
         }
-
-        List<Address> addresses = addressRepository.findByClientId(client.get().getId());
-
-        boolean temFaturamento = addresses.stream()
-                .anyMatch(a -> a.getType().toString().equals("FATURAMENTO"));
-
         model.addAttribute("addresses", addresses);
-        model.addAttribute("newAddressDTO", new NewAddressDTO());
-        model.addAttribute("mostrarFaturamento", !temFaturamento);
+        // REMOVIDO: model.addAttribute("mostrarFaturamento", !hasBillingAddress);
+        model.addAttribute("redirectTo", redirectTo);
 
         return "client/addresses";
     }
 
 
 
-    @PostMapping("/client/address/{id}/set-default")
-    public String setDefaultAddress(@PathVariable UUID id, Principal principal, RedirectAttributes redirectAttributes) {
-        try {
-            clientService.setDefaultAddress(principal.getName(), id);
-            redirectAttributes.addFlashAttribute("success", "Endereço definido como padrão com sucesso!");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/client/addresses";
-    }
+
+
+
+
 
     @GetMapping("/client/my-orders")
     public String viewMyOrders(Model model, Principal principal) {

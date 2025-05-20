@@ -31,7 +31,6 @@ CREATE TABLE tb_address
     city         VARCHAR(100) NOT NULL,
     state        VARCHAR(100) NOT NULL,
     country      VARCHAR(100) NOT NULL,
-    is_default   BOOLEAN       DEFAULT FALSE,
     created_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (client_id) REFERENCES tb_client (id)

@@ -39,8 +39,8 @@ public class CreateClientDTO {
     private String password;
 
     @Valid
-    @NotNull(message = "O endereço de faturamento é obrigatório")
-    private AddressDTO billingAddress;
+    @NotNull(message = "O endereço de cadastro é obrigatório")
+    private AddressDTO initialAddress;
 
     @Valid
     private List<AddressDTO> shippingAddresses;
@@ -51,8 +51,7 @@ public class CreateClientDTO {
 
     // Construtor com todos os argumentos
     public CreateClientDTO(String fullName, String cpf, String email, String phone, Date dateBirth,
-                           String gender, String password, AddressDTO billingAddress,
-                           List<AddressDTO> shippingAddresses) {
+                           String gender, String password, AddressDTO initialAddress) {
         this.fullName = fullName;
         this.cpf = cpf;
         this.email = email;
@@ -60,8 +59,7 @@ public class CreateClientDTO {
         this.dateBirth = dateBirth;
         this.gender = gender;
         this.password = password;
-        this.billingAddress = billingAddress;
-        this.shippingAddresses = shippingAddresses;
+        this.initialAddress = initialAddress;
     }
 
     // Getters
@@ -89,13 +87,18 @@ public class CreateClientDTO {
         return gender;
     }
 
+    public AddressDTO getInitialAddress() {
+        return initialAddress;
+    }
+
+    public void setInitialAddress(AddressDTO initialAddress) {
+        this.initialAddress = initialAddress;
+    }
+
     public String getPassword() {
         return password;
     }
 
-    public AddressDTO getBillingAddress() {
-        return billingAddress;
-    }
 
     public List<AddressDTO> getShippingAddresses() {
         return shippingAddresses;
@@ -130,9 +133,6 @@ public class CreateClientDTO {
         this.password = password;
     }
 
-    public void setBillingAddress(AddressDTO billingAddress) {
-        this.billingAddress = billingAddress;
-    }
 
     public void setShippingAddresses(List<AddressDTO> shippingAddresses) {
         this.shippingAddresses = shippingAddresses;

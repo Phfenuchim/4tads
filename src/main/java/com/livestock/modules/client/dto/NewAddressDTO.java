@@ -31,10 +31,6 @@ public class NewAddressDTO {
     @NotBlank(message = "País é obrigatório")
     private String country;
 
-    private boolean isDefault;
-
-    @NotNull(message = "O tipo de endereço é obrigatório")
-    private AddressType type;
 
     // Construtor vazio
     public NewAddressDTO() {
@@ -42,8 +38,7 @@ public class NewAddressDTO {
 
     // Construtor com todos os argumentos
     public NewAddressDTO(String cep, String street, String number, String complement,
-                         String district, String city, String state, String country,
-                         boolean isDefault, AddressType type) {
+                         String district, String city, String state, String country) {
         this.cep = cep;
         this.street = street;
         this.number = number;
@@ -52,8 +47,6 @@ public class NewAddressDTO {
         this.city = city;
         this.state = state;
         this.country = country;
-        this.isDefault = isDefault;
-        this.type = type;
     }
 
     // Getters
@@ -89,13 +82,6 @@ public class NewAddressDTO {
         return country;
     }
 
-    public boolean isDefault() {
-        return isDefault;
-    }
-
-    public AddressType getType() {
-        return type;
-    }
 
     // Setters
     public void setCep(String cep) {
@@ -130,11 +116,5 @@ public class NewAddressDTO {
         this.country = country;
     }
 
-    public void setDefault(boolean isDefault) {
-        this.isDefault = isDefault;
-    }
 
-    public void setType(AddressType type) {
-        this.type = type;
-    }
 }

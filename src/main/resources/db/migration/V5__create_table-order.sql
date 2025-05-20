@@ -8,8 +8,7 @@ CREATE TABLE TB_PAYMENT_METHOD
 -- Dados iniciais para métodos de pagamento
 INSERT INTO TB_PAYMENT_METHOD (id, payment_name)
 VALUES (1, 'Crédito'),
-       (2, 'Débito'),
-       (3, 'Pix');
+       (2, 'Boleto');
 
 -- Tabela de pedidos com os campos adicionais
 CREATE TABLE TB_ORDER

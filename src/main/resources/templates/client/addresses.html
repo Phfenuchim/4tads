@@ -1,111 +1,131 @@
-<!-- templates/client/addresses.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Meus Endereços</title>
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/client/addresses.css}">
+    <style>
+        .invalid-feedback { display: block; }
+        #success-message { transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+    </style>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main class="container mt-5 mb-5">
-    <div th:if="${success}" id="success-message" class="alert alert-success">
-        <span th:text="${success}">Endereço adicionado com sucesso!</span>
+    <div th:if="${success}" id="success-message" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div class="card shadow-lg p-4 rounded-4">
-        <h2 class="mb-4 text-center fw-bold text-success">Meus Endereços de Entrega</h2>
+    <div class="card shadow-lg p-3 p-md-4 rounded-4">
+        <h2 class="mb-4 text-center fw-bold text-success">Adicionar Novo Endereço de Entrega</h2>
 
-        <form th:action="@{/client/addresses}" method="post" th:object="${newAddressDTO}">
-
-        <input type="hidden" name="redirectTo" th:value="${redirectTo}">
-
-
+        <form th:action="@{/client/addresses}" method="post" th:object="${newAddressDTO}" novalidate>
+            <input type="hidden" name="redirectTo" th:value="${redirectTo}"/>
             <div class="row g-3">
+                <!-- CEP -->
                 <div class="col-md-4">
-                    <label class="form-label">CEP</label>
-                    <input type="text" th:field="*{cep}" class="form-control" placeholder="00000-000"
-                           oninput="applyCepMask(this)">
+                    <label for="cep" class="form-label">CEP</label>
+                    <input type="text" id="cep" th:field="*{cep}" class="form-control" placeholder="00000-000"
+                           oninput="applyCepMask(this)" th:classappend="${#fields.hasErrors('cep')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('cep')}" th:errors="*{cep}" class="invalid-feedback"></div>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-outline-green w-100" onclick="buscarCep()">Buscar</button>
-
+                    <button type="button" class="btn btn-outline-green w-100" onclick="buscarCep()">Buscar CEP</button>
                 </div>
+                <!-- Rua -->
                 <div class="col-md-6">
-                    <label class="form-label">Rua</label>
-                    <input type="text" th:field="*{street}" class="form-control">
+                    <label for="street" class="form-label">Rua</label>
+                    <input type="text" id="street" th:field="*{street}" class="form-control"
+                           th:classappend="${#fields.hasErrors('street')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('street')}" th:errors="*{street}" class="invalid-feedback"></div>
                 </div>
-
+                <!-- Número -->
                 <div class="col-md-3">
-                    <label class="form-label">Número</label>
-                    <input type="text" th:field="*{number}" class="form-control">
+                    <label for="number" class="form-label">Número</label>
+                    <input type="text" id="number" th:field="*{number}" class="form-control"
+                           th:classappend="${#fields.hasErrors('number')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('number')}" th:errors="*{number}" class="invalid-feedback"></div>
                 </div>
+                <!-- Complemento -->
                 <div class="col-md-3">
-                    <label class="form-label">Complemento</label>
-                    <input type="text" th:field="*{complement}" class="form-control">
+                    <label for="complement" class="form-label">Complemento</label>
+                    <input type="text" id="complement" th:field="*{complement}" class="form-control"
+                           th:classappend="${#fields.hasErrors('complement')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('complement')}" th:errors="*{complement}" class="invalid-feedback"></div>
                 </div>
+                <!-- Bairro -->
                 <div class="col-md-6">
-                    <label class="form-label">Bairro</label>
-                    <input type="text" th:field="*{district}" class="form-control">
+                    <label for="district" class="form-label">Bairro</label>
+                    <input type="text" id="district" th:field="*{district}" class="form-control"
+                           th:classappend="${#fields.hasErrors('district')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('district')}" th:errors="*{district}" class="invalid-feedback"></div>
                 </div>
+                <!-- Cidade -->
                 <div class="col-md-4">
-                    <label class="form-label">Cidade</label>
-                    <input type="text" th:field="*{city}" class="form-control">
+                    <label for="city" class="form-label">Cidade</label>
+                    <input type="text" id="city" th:field="*{city}" class="form-control"
+                           th:classappend="${#fields.hasErrors('city')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('city')}" th:errors="*{city}" class="invalid-feedback"></div>
                 </div>
+                <!-- Estado -->
                 <div class="col-md-4">
-                    <label class="form-label">Estado</label>
-                    <input type="text" th:field="*{state}" class="form-control">
+                    <label for="state" class="form-label">Estado</label>
+                    <input type="text" id="state" th:field="*{state}" class="form-control"
+                           th:classappend="${#fields.hasErrors('state')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('state')}" th:errors="*{state}" class="invalid-feedback"></div>
                 </div>
+                <!-- País -->
                 <div class="col-md-4">
-                    <label class="form-label">País</label>
-                    <input type="text" th:field="*{country}" class="form-control">
+                    <label for="country" class="form-label">País</label>
+                    <input type="text" id="country" th:field="*{country}" class="form-control"
+                           th:classappend="${#fields.hasErrors('country')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('country')}" th:errors="*{country}" class="invalid-feedback"></div>
                 </div>
 
-                <div class="col-12 form-check">
-                    <input type="checkbox" th:field="*{default}" class="form-check-input" id="isDefault">
-                    <label for="isDefault" class="form-check-label">Usar como endereço padrão</label>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Tipo de Endereço</label>
-                    <select th:field="*{type}" class="form-select">
-                        <option value="ENTREGA">Entrega</option>
-                        <option value="FATURAMENTO" th:if="${mostrarFaturamento}">Faturamento</option>
-                    </select>
-
-                </div>
+                <!-- REMOVIDO: Checkbox "Usar como endereço padrão" -->
+                <!-- REMOVIDO: Select "Tipo de Endereço" -->
 
             </div>
 
             <div class="d-flex justify-content-end mt-4">
-                <button type="submit" class="btn btn-success">Adicionar Endereço</button>
+                <button type="submit" class="btn btn-success px-4">Adicionar Endereço</button>
             </div>
         </form>
 
-        <hr class="my-4">
+        <hr class="my-5">
 
-        <h5 class="mb-3">Endereços Cadastrados</h5>
-        <div th:if="${addresses.isEmpty()}" class="text-muted">Nenhum endereço cadastrado ainda.</div>
+        <h3 class="mb-4 fw-bold text-secondary">Endereços Cadastrados</h3>
+        <div th:if="${addresses == null or addresses.isEmpty()}" class="alert alert-info">
+            Nenhum endereço cadastrado.
+        </div>
 
-        <ul class="list-group" th:each="addr : ${addresses}">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span th:text="${addr.street + ', ' + addr.number + ' - ' + addr.city + '/' + addr.state}"></span>
-
-                <div>
-                    <span class="badge bg-success me-2" th:if="${addr.defaultAddress}">Padrão</span>
-
-                    <form th:action="@{'/client/address/' + ${addr.id} + '/set-default'}" method="post"
-                          th:if="${!addr.defaultAddress}">
-                        <button type="submit" class="btn btn-sm btn-outline-success">Tornar Padrão</button>
-                    </form>
+        <ul class="list-group list-group-flush" th:if="${addresses != null and not addresses.isEmpty()}">
+            <li class="list-group-item py-3" th:each="addr : ${addresses}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1" th:text="${addr.street + ', ' + addr.number}"></h6>
+                        <p class="mb-1 text-muted" th:text="${(addr.complement != null and !addr.complement.isEmpty() ? addr.complement + ' - ' : '') + addr.district}"></p>
+                        <p class="mb-0 text-muted" th:text="${addr.city + '/' + addr.state + ' - CEP: ' + addr.cep}"></p>
+                        <!-- Exibir o tipo de endereço -->
+                        <small class="text-muted" th:text="${'Tipo: ' + (addr.type == T(com.livestock.modules.client.domain.address.AddressType).ENTREGA ? 'Entrega' : (addr.type == T(com.livestock.modules.client.domain.address.AddressType).FATURAMENTO ? 'Faturamento' : 'Não especificado'))}"></small>
+                    </div>
+                    <div class="text-end">
+                        <!-- REMOVIDO: Badge "Padrão" e formulário "Tornar Padrão" -->
+                        <!-- Você pode adicionar botões de Editar/Excluir aqui se desejar -->
+                        <!-- Ex: <a th:href="@{'/client/address/' + ${addr.id} + '/edit'}" class="btn btn-sm btn-outline-primary me-2">Editar</a> -->
+                        <!-- Ex: <form th:action="@{'/client/address/' + ${addr.id} + '/delete'}" method="post" style="display: inline;"><button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button></form> -->
+                    </div>
                 </div>
             </li>
         </ul>
-
     </div>
 </main>
 
@@ -113,6 +133,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Função applyCepMask (sem alterações)
     function applyCepMask(input) {
         let value = input.value.replace(/\D/g, '');
         if (value.length > 8) value = value.slice(0, 8);
@@ -120,27 +141,45 @@
         input.value = value;
     }
 
+    // Função buscarCep (sem alterações na lógica principal, mas garanta que os IDs dos campos correspondam)
     async function buscarCep() {
-        const cep = document.querySelector('[name="cep"]').value.replace(/\D/g, '');
-        if (cep.length !== 8) return alert("CEP inválido");
+        const cepInput = document.getElementById('cep');
+        const cep = cepInput.value.replace(/\D/g, '');
 
-        const res = await fetch(`/cep/${cep}`);
-        const data = await res.json();
-
-        document.querySelector('[name="street"]').value = data.street || "";
-        document.querySelector('[name="district"]').value = data.district || "";
-        document.querySelector('[name="city"]').value = data.city || "";
-        document.querySelector('[name="state"]').value = data.state || "";
-        document.querySelector('[name="country"]').value = data.country || "Brasil";
+        if (cep.length !== 8) {
+            alert("CEP inválido. Por favor, digite 8 números.");
+            return;
+        }
+        try {
+            const url = `[[@{/cep/}]]${cep}`;
+            const res = await fetch(url);
+            if (!res.ok) {
+                alert(`Erro ao buscar CEP: ${res.statusText} (status: ${res.status})`);
+                return;
+            }
+            const data = await res.json();
+            if (data.erro) {
+                alert("CEP não encontrado ou inválido. Por favor, verifique os dados.");
+                return;
+            }
+            document.getElementById('street').value = data.street || "";
+            document.getElementById('district').value = data.district || "";
+            document.getElementById('city').value = data.city || "";
+            document.getElementById('state').value = data.state || "";
+            document.getElementById('country').value = data.country || "Brasil";
+        } catch (error) {
+            console.error("Erro na função buscarCep:", error);
+            alert("Não foi possível buscar o CEP. Verifique sua conexão ou tente novamente mais tarde.");
+        }
     }
 
+    // Toast de sucesso
     document.addEventListener('DOMContentLoaded', () => {
-        const toast = document.getElementById('success-message');
-        if (toast) {
+        const successAlert = document.getElementById('success-message');
+        if (successAlert) {
             setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-20px)';
-                setTimeout(() => toast.style.display = 'none', 600);
+                var alertInstance = new bootstrap.Alert(successAlert);
+                alertInstance.close();
             }, 3000);
         }
     });

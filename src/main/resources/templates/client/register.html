@@ -6,6 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/client/register.css}">
+    <style>
+        /* Para garantir que a mensagem de erro do Bootstrap seja exibida */
+        .error-message.client-side-only, .error-message {
+            display: none; /* Começa escondido, JS ou Thymeleaf mostrará */
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+        .form-control.field-error {
+            border-color: #dc3545;
+        }
+    </style>
 </head>
 <body>
 <!-- Header -->
@@ -13,11 +25,20 @@
 
 <div class="container py-5">
     <div class="col-md-8 mx-auto">
-        <h1 class="visually-hidden">Cadastro de Usuário</h1> <!-- Apenas para acessibilidade -->
+        <h1 class="visually-hidden">Cadastro de Cliente</h1>
         <h2 class="mb-4">Crie sua Conta</h2>
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
 
+        <!-- Mensagens Globais (Flash Attributes) -->
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- O objeto do formulário é "client" (CreateClientDTO) -->
         <form method="post" th:action="@{/register}" th:object="${client}" novalidate>
             <div th:if="${#fields.hasErrors('global')}" class="alert alert-danger">
                 <ul>
@@ -25,15 +46,18 @@
                 </ul>
             </div>
 
+            <!-- Dados Pessoais -->
+            <h3 class="mt-4 mb-3">Dados Pessoais</h3>
+
             <div class="mb-3">
-                <label for="name" class="form-label">Nome Completo</label>
-                <input type="text" id="name" th:field="*{fullName}" class="form-control"
+                <label for="fullName" class="form-label">Nome Completo</label>
+                <input type="text" id="fullName" th:field="*{fullName}" class="form-control"
                        th:classappend="${#fields.hasErrors('fullName')} ? 'field-error'"
                        placeholder="Seu nome completo" required
                        oninput="handleFieldInput(this, 'fullName')"
-                       oninvalid="handleFieldInvalid(this, 'nameClientError', 'O nome é obrigatório')">
+                       oninvalid="handleFieldInvalid(this, 'fullNameClientError', 'O nome é obrigatório')">
                 <div class="error-message" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
-                <div id="nameClientError" class="error-message client-side-only" style="display: none;"></div>
+                <div id="fullNameClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
@@ -44,7 +68,7 @@
                        oninput="handleFieldInput(this, 'email')"
                        oninvalid="handleFieldInvalid(this, 'emailClientError', 'O email é obrigatório.')">
                 <div class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-                <div id="emailClientError" class="error-message client-side-only" style="display: none;"></div>
+                <div id="emailClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
@@ -56,10 +80,8 @@
                        onblur="validateCPF(this, 'cpfClientErrorSpan')"
                        oninvalid="handleFieldInvalid(this, 'cpfClientErrorDiv', 'O CPF é obrigatório.')">
                 <div class="error-message" th:if="${#fields.hasErrors('cpf')}" th:errors="*{cpf}"></div>
-                <!-- Span para erro específico de formato/validação do CPF (controlado por validateCPF) -->
-                <span id="cpfClientErrorSpan" class="error-message client-side-only" style="display: none;">CPF inválido.</span>
-                <!-- Div para erro de campo obrigatório (controlado por oninvalid) -->
-                <div id="cpfClientErrorDiv" class="error-message client-side-only" style="display: none;"></div>
+                <span id="cpfClientErrorSpan" class="error-message client-side-only">CPF inválido.</span>
+                <div id="cpfClientErrorDiv" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
@@ -70,18 +92,18 @@
                        oninput="applyPhoneMask(this); handleFieldInput(this, 'phone')"
                        oninvalid="handleFieldInvalid(this, 'phoneClientError', 'O telefone é obrigatório.')">
                 <div class="error-message" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
-                <div id="phoneClientError" class="error-message client-side-only" style="display: none;"></div>
+                <div id="phoneClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
                 <label for="dateBirth" class="form-label">Data de Nascimento</label>
                 <input type="date" id="dateBirth" th:field="*{dateBirth}" class="form-control" required
-                       min="1900-01-01" th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
-                       oninput="handleDateInput(this); handleFieldInput(this, 'dateBirth')"
-                       oninvalid="handleDateInvalid(this, 'A data de nascimento é obrigatória.')"
-                       th:classappend="${#fields.hasErrors('dateBirth')} ? 'field-error'"/>
+                       min="1900-01-01" th:max="${#temporals.format(#temporals.createNow().minusYears(18), 'yyyy-MM-dd')}"
+                oninput="handleDateInput(this); handleFieldInput(this, 'dateBirth')"
+                oninvalid="handleDateInvalid(this, 'A data de nascimento é obrigatória.')"
+                th:classappend="${#fields.hasErrors('dateBirth')} ? 'field-error'"/>
                 <div class="error-message" th:if="${#fields.hasErrors('dateBirth')}" th:errors="*{dateBirth}"></div>
-                <div id="dateBirthClientError" class="error-message client-side-only" style="display: none;"></div>
+                <div id="dateBirthClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
@@ -97,11 +119,9 @@
                     <option value="Outro">Outro</option>
                     <option value="Prefiro não informar">Prefiro não informar</option>
                 </select>
-
                 <div class="error-message" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
-                <div id="genderClientError" class="error-message client-side-only" style="display: none;"></div>
+                <div id="genderClientError" class="error-message client-side-only"></div>
             </div>
-
 
             <div class="mb-3">
                 <label for="password" class="form-label">Senha</label>
@@ -111,121 +131,108 @@
                        oninput="handleFieldInput(this, 'password')"
                        oninvalid="handleFieldInvalid(this, 'passwordClientError', 'A senha é obrigatória.')">
                 <div class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
-                <div id="passwordClientError" class="error-message client-side-only" style="display: none;"></div>
-                <small class="text-muted" th:text="${#fields.hasErrors('password')} ? '' : 'A senha deve ter no mínimo 6 caracteres'"></small>
+                <div id="passwordClientError" class="error-message client-side-only"></div>
+                <small class="text-muted" th:if="${not #fields.hasErrors('password')}">A senha deve ter no mínimo 6 caracteres.</small>
             </div>
 
-            <!-- Título de Endereço -->
-            <h3 class="mt-4">Endereço de Faturamento</h3>
+            <!-- Título de Endereço - Alterado -->
+            <h3 class="mt-4 mb-3">Seu Endereço Principal</h3>
+            <p class="text-muted mb-3">Este endereço será usado para entrega e faturamento. Você poderá adicionar outros endereços de entrega após o cadastro.</p>
 
+            <!-- Campos do Endereço Inicial -->
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label for="cep" class="form-label">CEP</label>
-                    <input type="text" id="cep" th:field="*{billingAddress.cep}" class="form-control"
-                           th:classappend="${#fields.hasErrors('billingAddress.cep')} ? 'field-error'"
+                    <!-- ID e th:field ajustados para initialAddress -->
+                    <label for="initialAddressCep" class="form-label">CEP</label>
+                    <input type="text" id="initialAddressCep" th:field="*{initialAddress.cep}" class="form-control"
+                           th:classappend="${#fields.hasErrors('initialAddress.cep')} ? 'field-error'"
                            placeholder="00000-000" maxlength="9" required
-                           oninput="applyCepMask(this); handleFieldInput(this, 'billingAddress.cep')"
-                           oninvalid="handleFieldInvalid(this, 'cepClientError', 'O CEP é obrigatório.')">
-                    <div class="error-message" th:if="${#fields.hasErrors('billingAddress.cep')}" th:errors="*{billingAddress.cep}"></div>
-                    <div id="cepClientError" class="error-message client-side-only" style="display: none;"></div>
+                           oninput="applyCepMask(this); handleFieldInput(this, 'initialAddress.cep')"
+                           oninvalid="handleFieldInvalid(this, 'initialAddressCepClientError', 'O CEP é obrigatório.')">
+                    <div class="error-message" th:if="${#fields.hasErrors('initialAddress.cep')}" th:errors="*{initialAddress.cep}"></div>
+                    <div id="initialAddressCepClientError" class="error-message client-side-only"></div>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-outline-primary w-100" onclick="buscarCep()">Buscar</button>
+                    <!-- O onclick buscarCep() precisará saber quais campos preencher -->
+                    <button type="button" class="btn btn-outline-primary w-100" onclick="buscarCep('initialAddress')">Buscar</button>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label for="street" class="form-label">Rua</label>
-                <input type="text" id="street" th:field="*{billingAddress.street}" class="form-control"
-                       th:classappend="${#fields.hasErrors('billingAddress.street')} ? 'field-error'" required
-                       oninput="handleFieldInput(this, 'billingAddress.street')"
-                       oninvalid="handleFieldInvalid(this, 'streetClientError', 'A rua é obrigatória.')">
-                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.street')}" th:errors="*{billingAddress.street}"></div>
-                <div id="streetClientError" class="error-message client-side-only" style="display: none;"></div>
+                <label for="initialAddressStreet" class="form-label">Rua</label>
+                <input type="text" id="initialAddressStreet" th:field="*{initialAddress.street}" class="form-control"
+                       th:classappend="${#fields.hasErrors('initialAddress.street')} ? 'field-error'" required
+                       oninput="handleFieldInput(this, 'initialAddress.street')"
+                       oninvalid="handleFieldInvalid(this, 'initialAddressStreetClientError', 'A rua é obrigatória.')">
+                <div class="error-message" th:if="${#fields.hasErrors('initialAddress.street')}" th:errors="*{initialAddress.street}"></div>
+                <div id="initialAddressStreetClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
-                <label for="number" class="form-label">Número</label>
-                <input type="text" id="number" th:field="*{billingAddress.number}" class="form-control"
-                       th:classappend="${#fields.hasErrors('billingAddress.number')} ? 'field-error'" required
-                       oninput="handleFieldInput(this, 'billingAddress.number')"
-                       oninvalid="handleFieldInvalid(this, 'numberClientError', 'O número é obrigatório.')">
-                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.number')}" th:errors="*{billingAddress.number}"></div>
-                <div id="numberClientError" class="error-message client-side-only" style="display: none;"></div>
+                <label for="initialAddressNumber" class="form-label">Número</label>
+                <input type="text" id="initialAddressNumber" th:field="*{initialAddress.number}" class="form-control"
+                       th:classappend="${#fields.hasErrors('initialAddress.number')} ? 'field-error'" required
+                       oninput="handleFieldInput(this, 'initialAddress.number')"
+                       oninvalid="handleFieldInvalid(this, 'initialAddressNumberClientError', 'O número é obrigatório.')">
+                <div class="error-message" th:if="${#fields.hasErrors('initialAddress.number')}" th:errors="*{initialAddress.number}"></div>
+                <div id="initialAddressNumberClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
-                <label for="complement" class="form-label">Complemento</label>
-                <input type="text" id="complement" th:field="*{billingAddress.complement}" class="form-control"
-                       th:classappend="${#fields.hasErrors('billingAddress.complement')} ? 'field-error'"
-                       oninput="handleFieldInput(this, 'billingAddress.complement')"> <!-- Não é obrigatório, sem oninvalid -->
-                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.complement')}" th:errors="*{billingAddress.complement}"></div>
+                <label for="initialAddressComplement" class="form-label">Complemento</label>
+                <input type="text" id="initialAddressComplement" th:field="*{initialAddress.complement}" class="form-control"
+                       th:classappend="${#fields.hasErrors('initialAddress.complement')} ? 'field-error'"
+                       oninput="handleFieldInput(this, 'initialAddress.complement')">
+                <div class="error-message" th:if="${#fields.hasErrors('initialAddress.complement')}" th:errors="*{initialAddress.complement}"></div>
             </div>
 
             <div class="mb-3">
-                <label for="district" class="form-label">Bairro</label>
-                <input type="text" id="district" th:field="*{billingAddress.district}" class="form-control"
-                       th:classappend="${#fields.hasErrors('billingAddress.district')} ? 'field-error'" required
-                       oninput="handleFieldInput(this, 'billingAddress.district')"
-                       oninvalid="handleFieldInvalid(this, 'districtClientError', 'O bairro é obrigatório.')">
-                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.district')}" th:errors="*{billingAddress.district}"></div>
-                <div id="districtClientError" class="error-message client-side-only" style="display: none;"></div>
+                <label for="initialAddressDistrict" class="form-label">Bairro</label>
+                <input type="text" id="initialAddressDistrict" th:field="*{initialAddress.district}" class="form-control"
+                       th:classappend="${#fields.hasErrors('initialAddress.district')} ? 'field-error'" required
+                       oninput="handleFieldInput(this, 'initialAddress.district')"
+                       oninvalid="handleFieldInvalid(this, 'initialAddressDistrictClientError', 'O bairro é obrigatório.')">
+                <div class="error-message" th:if="${#fields.hasErrors('initialAddress.district')}" th:errors="*{initialAddress.district}"></div>
+                <div id="initialAddressDistrictClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
-                <label for="city" class="form-label">Cidade</label>
-                <input type="text" id="city" th:field="*{billingAddress.city}" class="form-control"
-                       th:classappend="${#fields.hasErrors('billingAddress.city')} ? 'field-error'" required
-                       oninput="handleFieldInput(this, 'billingAddress.city')"
-                       oninvalid="handleFieldInvalid(this, 'cityClientError', 'A cidade é obrigatória.')">
-                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.city')}" th:errors="*{billingAddress.city}"></div>
-                <div id="cityClientError" class="error-message client-side-only" style="display: none;"></div>
+                <label for="initialAddressCity" class="form-label">Cidade</label>
+                <input type="text" id="initialAddressCity" th:field="*{initialAddress.city}" class="form-control"
+                       th:classappend="${#fields.hasErrors('initialAddress.city')} ? 'field-error'" required
+                       oninput="handleFieldInput(this, 'initialAddress.city')"
+                       oninvalid="handleFieldInvalid(this, 'initialAddressCityClientError', 'A cidade é obrigatória.')">
+                <div class="error-message" th:if="${#fields.hasErrors('initialAddress.city')}" th:errors="*{initialAddress.city}"></div>
+                <div id="initialAddressCityClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
-                <label for="state" class="form-label">Estado</label>
-                <input type="text" id="state" th:field="*{billingAddress.state}" class="form-control"
-                       th:classappend="${#fields.hasErrors('billingAddress.state')} ? 'field-error'" required
-                       oninput="handleFieldInput(this, 'billingAddress.state')"
-                       oninvalid="handleFieldInvalid(this, 'stateClientError', 'O estado é obrigatório.')">
-                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.state')}" th:errors="*{billingAddress.state}"></div>
-                <div id="stateClientError" class="error-message client-side-only" style="display: none;"></div>
+                <label for="initialAddressState" class="form-label">Estado</label>
+                <input type="text" id="initialAddressState" th:field="*{initialAddress.state}" class="form-control"
+                       th:classappend="${#fields.hasErrors('initialAddress.state')} ? 'field-error'" required
+                       oninput="handleFieldInput(this, 'initialAddress.state')"
+                       oninvalid="handleFieldInvalid(this, 'initialAddressStateClientError', 'O estado é obrigatório.')">
+                <div class="error-message" th:if="${#fields.hasErrors('initialAddress.state')}" th:errors="*{initialAddress.state}"></div>
+                <div id="initialAddressStateClientError" class="error-message client-side-only"></div>
             </div>
 
             <div class="mb-3">
-                <label for="country" class="form-label">País</label>
-                <input type="text" id="country" th:field="*{billingAddress.country}" class="form-control"
-                       th:classappend="${#fields.hasErrors('billingAddress.country')} ? 'field-error'" required
-                       oninput="handleFieldInput(this, 'billingAddress.country')"
-                       oninvalid="handleFieldInvalid(this, 'countryClientError', 'O país é obrigatório.')">
-                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.country')}" th:errors="*{billingAddress.country}"></div>
-                <div id="countryClientError" class="error-message client-side-only" style="display: none;"></div>
+                <label for="initialAddressCountry" class="form-label">País</label>
+                <input type="text" id="initialAddressCountry" th:field="*{initialAddress.country}" class="form-control"
+                       th:classappend="${#fields.hasErrors('initialAddress.country')} ? 'field-error'" required
+                       oninput="handleFieldInput(this, 'initialAddress.country')"
+                       oninvalid="handleFieldInvalid(this, 'initialAddressCountryClientError', 'O país é obrigatório.')">
+                <div class="error-message" th:if="${#fields.hasErrors('initialAddress.country')}" th:errors="*{initialAddress.country}"></div>
+                <div id="initialAddressCountryClientError" class="error-message client-side-only"></div>
             </div>
 
-            <input type="hidden" th:field="*{billingAddress.default}" value="true" />
+            <!-- REMOVIDO: Input oculto para defaultAddress.default -->
+            <!-- REMOVIDO: Select para billingAddress.type -->
+            <!-- REMOVIDO: Checkbox para billingAddress.default -->
 
-            <div class="mb-3">
-                <label for="addressType" class="form-label">Tipo de Endereço</label>
-                <select id="addressType" th:field="*{billingAddress.type}" class="form-select"
-                        aria-label="Tipo de endereço"
-                        oninput="handleFieldInput(this, 'billingAddress.type')"
-                        oninvalid="handleFieldInvalid(this, 'addressTypeClientError', 'O tipo de endereço é obrigatório.')"
-                        th:classappend="${#fields.hasErrors('billingAddress.type')} ? 'field-error'" required>
-                    <option value="">Selecione</option>
-                    <option value="ENTREGA">Entrega</option>
-                    <option value="FATURAMENTO">Faturamento</option>
-                </select>
-
-                <div class="error-message" th:if="${#fields.hasErrors('billingAddress.type')}" th:errors="*{billingAddress.type}"></div>
-                <div id="addressTypeClientError" class="error-message client-side-only" style="display: none;"></div>
+            <div class="d-grid gap-2"> <!-- Para o botão ocupar a largura total -->
+                <button type="submit" class="btn btn-success btn-lg">Cadastrar</button>
             </div>
-
-            <div class="mb-3 form-check">
-                <input type="checkbox" id="isDefault" class="form-check-input" th:field="*{billingAddress.default}">
-                <label for="isDefault" class="form-check-label">Usar como endereço padrão</label>
-            </div>
-
-            <button type="submit" class="btn btn-success">Cadastrar</button>
         </form>
     </div>
 </div>
@@ -239,169 +246,124 @@
     function applyPhoneMask(input) { let value = input.value.replace(/\D/g, ''); if (value.length > 11) value = value.slice(0, 11); value = value.replace(/^(\d{2})(\d)/, '($1) $2'); value = value.replace(/(\d{5})(\d)/, '$1-$2'); input.value = value; }
     function applyCepMask(input) { let value = input.value.replace(/\D/g, ''); if (value.length > 8) value = value.slice(0, 8); if (value.length > 5) { value = value.replace(/^(\d{5})(\d)/, '$1-$2'); } input.value = value; }
 
-    // Função buscarCep (existente)
-    async function buscarCep() {
-        const cep = document.getElementById("cep").value.trim().replace(/\D/g, '');
+    // Função buscarCep - AJUSTADA para aceitar um prefixo para os IDs dos campos
+    async function buscarCep(addressPrefix) { // 'addressPrefix' será 'initialAddress'
+        const cepInput = document.getElementById(addressPrefix + "Cep");
+        const cep = cepInput.value.trim().replace(/\D/g, '');
+
         if (!cep || cep.length !== 8) { alert("Digite um CEP válido."); return; }
         try {
-            const res = await fetch(`/cep/${cep}`);
-            if (!res.ok) throw new Error('Erro na busca do CEP');
-            const data = await res.json();
-            const campos = { street: 'street', district: 'district', city: 'city', state: 'state', country: 'country' };
-            let primeiroCampoVazio = null;
-            for (const prop in campos) {
-                const inputId = campos[prop]; const inputEl = document.getElementById(inputId);
-                const valor = data[prop] || ''; inputEl.value = valor;
-                if (!primeiroCampoVazio && valor === '') { primeiroCampoVazio = inputEl; }
+            // Usar Thymeleaf para construir a URL base corretamente (se este script for inline ou processado pelo Thymeleaf)
+            const url = `[[@{/cep/}]]${cep}`;
+            const res = await fetch(url);
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ message: 'Erro na busca do CEP. Verifique o CEP e tente novamente.' }));
+                alert(errorData.message || `Erro ${res.status}: ${res.statusText}`);
+                return;
             }
-            (primeiroCampoVazio || document.getElementById("number")).focus();
-        } catch (err) { console.error(err); alert("Erro ao buscar o CEP. Verifique se o CEP está correto."); }
+            const data = await res.json();
+            if (data.erro) { // Comum em APIs de CEP brasileiras
+                alert("CEP não encontrado. Por favor, verifique o número digitado.");
+                return;
+            }
+
+            // Mapeamento dos campos usando o prefixo
+            const campos = { street: 'Street', district: 'District', city: 'City', state: 'State', country: 'Country' };
+            let primeiroCampoVazio = null;
+
+            for (const apiProp in campos) {
+                const inputId = addressPrefix + campos[apiProp]; // Ex: initialAddressStreet
+                const inputEl = document.getElementById(inputId);
+                if (inputEl) {
+                    const valor = data[apiProp.toLowerCase()] || (apiProp === 'country' && data.city ? 'Brasil' : ''); // Ajuste para nome da prop da API
+                    inputEl.value = valor;
+                    if (!primeiroCampoVazio && valor === '') {
+                        primeiroCampoVazio = inputEl;
+                    }
+                    handleFieldInput(inputEl, addressPrefix + '.' + apiProp.toLowerCase()); // Limpa erro de validação do servidor
+                }
+            }
+            const numberInputId = addressPrefix + 'Number';
+            (primeiroCampoVazio || document.getElementById(numberInputId)).focus();
+
+        } catch (err) {
+            console.error("Erro ao buscar CEP:", err);
+            alert("Erro ao buscar o CEP. Verifique sua conexão e tente novamente.");
+        }
     }
 
     // Função de validação de CPF (existente)
-    function isValidCPF(cpf) {
-        cpf = cpf.replace(/\D/g, '');
-        if (cpf.length !== 11) return false;
-        if (/^(\d)\1{10}$/.test(cpf)) return false;
-        let sum = 0; for (let i = 0; i < 9; i++) { sum += parseInt(cpf.charAt(i)) * (10 - i); }
-        let remainder = sum % 11; const digit1 = remainder < 2 ? 0 : 11 - remainder;
-        sum = 0; for (let i = 0; i < 10; i++) { sum += parseInt(cpf.charAt(i)) * (11 - i); }
-        remainder = sum % 11; const digit2 = remainder < 2 ? 0 : 11 - remainder;
-        return parseInt(cpf.charAt(9)) === digit1 && parseInt(cpf.charAt(10)) === digit2;
-    }
+    function isValidCPF(cpf) { /* ... sua implementação ... */ return true; } // Mantenha sua implementação
 
-    // Função unificada para validar campo de CPF no onblur (existente, mas adaptada para usar o ID do span)
-    function validateCPF(input, clientErrorSpanId) {
-        const errorElement = document.getElementById(clientErrorSpanId);
-        const cpfValue = input.value.replace(/\D/g, '');
+    function validateCPF(input, clientErrorSpanId) { /* ... sua implementação ... */ } // Mantenha sua implementação
 
-        if (!errorElement) return true; // Não há onde mostrar erro
-
-        if (cpfValue.length === 0 && input.required) { // Se for obrigatório e vazio, deixa oninvalid tratar
-            errorElement.style.display = 'none';
-            // input.classList.remove("field-error"); // oninvalid cuidará disso
-            return true;
-        }
-        if (cpfValue.length === 0 && !input.required) { // Não obrigatório e vazio
-            errorElement.style.display = 'none';
-            input.classList.remove("field-error");
-            return true;
-        }
-
-        if (cpfValue.length < 11 || !isValidCPF(cpfValue)) {
-            errorElement.textContent = 'CPF inválido.';
-            errorElement.style.display = 'block';
-            input.classList.add("field-error");
-            return false;
-        } else {
-            errorElement.style.display = 'none';
-            input.classList.remove("field-error");
-            return true;
-        }
-    }
-
-    // --- NOVAS/REFATORADAS FUNÇÕES DE VALIDAÇÃO DO CLIENTE ---
+    // --- FUNÇÕES DE VALIDAÇÃO DO CLIENTE (EXISTENTES, mas revisadas para consistência) ---
 
     function clearError(fieldName) {
-        const field = document.querySelector(`[name='${fieldName}']`);
-        if (!field) return;
+        // O fieldName aqui deve ser o que o th:field usa (ex: 'fullName', 'initialAddress.cep')
+        const field = document.querySelector(`[name='${fieldName.replace(/\./g, "\\.")}']`); // Escapa pontos para o seletor
+        if (!field) {
+            console.warn("Campo não encontrado para limpar erro:", fieldName);
+            return;
+        }
 
-        // Limpa a validade customizada do navegador
         if (typeof field.setCustomValidity === 'function') {
             field.setCustomValidity('');
         }
-        field.classList.remove('field-error');
+        field.classList.remove('field-error'); // Remove a classe de erro visual
 
-        // Limpa div de erro do Thymeleaf (gerado pelo servidor)
+        // Tenta encontrar o elemento de erro específico do Thymeleaf
         let thymeleafErrorElement = null;
-        let currentElement = field.nextElementSibling;
-        while (currentElement) {
-            if (currentElement.classList.contains('error-message') && !currentElement.classList.contains('client-side-only')) {
+        let currentElement = field;
+        // Procura por um irmão que seja o container de erro do Thymeleaf
+        while ((currentElement = currentElement.nextElementSibling) != null) {
+            if (currentElement.getAttribute('th:errors') === ('*\{' + fieldName + '\}') ||
+                (currentElement.classList && currentElement.classList.contains('error-message') && !currentElement.classList.contains('client-side-only'))) {
                 thymeleafErrorElement = currentElement;
                 break;
             }
-            currentElement = currentElement.nextElementSibling;
         }
         if (thymeleafErrorElement) {
-            thymeleafErrorElement.textContent = '';
+            thymeleafErrorElement.textContent = ''; // Limpa o conteúdo
+            thymeleafErrorElement.style.display = 'none'; // Esconde
         }
 
-        // Limpa div de erro do cliente (gerado por JS)
-        const clientErrorDivId = field.id + 'ClientError'; // Convenção: idDoCampoClientError
+        // Limpa o elemento de erro client-side (se existir)
+        const clientErrorDivId = field.id + 'ClientError';
         const clientErrorDiv = document.getElementById(clientErrorDivId);
         if (clientErrorDiv) {
             clientErrorDiv.textContent = '';
             clientErrorDiv.style.display = 'none';
         }
-
-        // Caso específico do CPF que usa um span diferente para o erro de formato
-        if (field.id === 'cpf') {
-            const cpfFormatErrorSpan = document.getElementById('cpfClientErrorSpan');
-            if (cpfFormatErrorSpan) {
-                cpfFormatErrorSpan.style.display = 'none';
-            }
-            const cpfRequiredErrorDiv = document.getElementById('cpfClientErrorDiv');
-            if(cpfRequiredErrorDiv) {
-                cpfRequiredErrorDiv.style.display = 'none';
-            }
+        if (field.id === 'cpf') { // Caso especial para CPF
+            const cpfSpan = document.getElementById('cpfClientErrorSpan');
+            if (cpfSpan) cpfSpan.style.display = 'none';
+            const cpfDiv = document.getElementById('cpfClientErrorDiv');
+            if (cpfDiv) cpfDiv.style.display = 'none';
         }
     }
 
-    function handleFieldInput(inputElement, fieldName) {
+    function handleFieldInput(inputElement, fieldNameForThymeleaf) {
         if (typeof inputElement.setCustomValidity === 'function') {
             inputElement.setCustomValidity('');
         }
-        // O fieldName aqui deve ser o que o th:field usa (ex: 'fullName', 'billingAddress.cep')
-        clearError(fieldName);
+        clearError(fieldNameForThymeleaf); // Usa o nome do campo como no th:field
     }
 
-    function handleFieldInvalid(inputElement, clientErrorDivId, message) {
-        if (inputElement.validity.valueMissing) { // Verifica se o erro é de campo obrigatório
-            inputElement.setCustomValidity(message);
-        } else if (inputElement.validity.typeMismatch) {
-            inputElement.setCustomValidity("Formato inválido para este campo.");
-        } else if (inputElement.validity.patternMismatch) {
-            inputElement.setCustomValidity("O valor não corresponde ao padrão exigido.");
-        } else {
-            inputElement.setCustomValidity(message); // Mensagem genérica para outros erros
-        }
-
-        const clientErrorDiv = document.getElementById(clientErrorDivId);
-        if (clientErrorDiv) {
-            clientErrorDiv.textContent = inputElement.validationMessage; // Usa a mensagem definida pelo setCustomValidity
-            clientErrorDiv.style.display = 'block';
-        }
-        inputElement.classList.add('field-error');
-    }
-
-    function handleDateInput(inputElement) { // Chamada no oninput do campo de data
-        inputElement.setCustomValidity(''); // Limpa validade customizada
-
-        const clientErrorDiv = document.getElementById('dateBirthClientError');
-        if (clientErrorDiv) {
-            clientErrorDiv.textContent = '';
-            clientErrorDiv.style.display = 'none';
-        }
-        // clearError('dateBirth') será chamado pelo handleFieldInput que é chamado em sequência
-    }
-
-    function handleDateInvalid(inputElement, requiredMessage) { // Chamada no oninvalid do campo de data
+    function handleFieldInvalid(inputElement, clientErrorDivId, defaultRequiredMessage) {
         let message = '';
         if (inputElement.validity.valueMissing) {
-            message = requiredMessage; // Mensagem de "campo obrigatório"
-        } else if (inputElement.validity.badInput) {
-            message = 'Data inválida. Verifique se o dia e o mês existem (ex: 31/02 não é válido).';
-        } else if (inputElement.validity.rangeOverflow) {
-            message = 'A data não pode ser no futuro.';
-        } else if (inputElement.validity.rangeUnderflow) {
-            message = 'A data é muito antiga.';
+            message = defaultRequiredMessage;
+        } else if (inputElement.validity.typeMismatch) {
+            message = `Formato inválido para ${inputElement.labels[0] ? inputElement.labels[0].textContent.toLowerCase() : 'este campo'}.`;
+        } else if (inputElement.validity.patternMismatch) {
+            message = `O valor não corresponde ao padrão exigido para ${inputElement.labels[0] ? inputElement.labels[0].textContent.toLowerCase() : 'este campo'}.`;
         } else {
-            message = 'Por favor, insira uma data válida.'; // Genérico
+            message = inputElement.validationMessage || defaultRequiredMessage; // Pega a mensagem do navegador se houver, senão a padrão
         }
+        inputElement.setCustomValidity(message); // Define a mensagem para a API de validação do navegador
 
-        inputElement.setCustomValidity(message);
-
-        const clientErrorDiv = document.getElementById('dateBirthClientError');
+        const clientErrorDiv = document.getElementById(clientErrorDivId);
         if (clientErrorDiv) {
             clientErrorDiv.textContent = message;
             clientErrorDiv.style.display = 'block';
@@ -409,7 +371,31 @@
         inputElement.classList.add('field-error');
     }
 
-    // Inicialização quando a página carrega (existente, sem mudanças drásticas necessárias aqui)
+    function handleDateInput(inputElement) {
+        inputElement.setCustomValidity('');
+        const clientErrorDiv = document.getElementById('dateBirthClientError');
+        if (clientErrorDiv) {
+            clientErrorDiv.textContent = '';
+            clientErrorDiv.style.display = 'none';
+        }
+        handleFieldInput(inputElement, 'dateBirth');
+    }
+
+    function handleDateInvalid(inputElement, requiredMessage) {
+        let message = '';
+        // ... (sua lógica de mensagens de erro de data - mantenha como estava ou ajuste)
+        if (inputElement.validity.valueMissing) { message = requiredMessage; }
+        else if (inputElement.validity.badInput) { message = 'Data inválida. Verifique se o dia e o mês existem.'; }
+        else if (inputElement.validity.rangeOverflow) { message = 'A data não pode ser no futuro.'; }
+        else if (inputElement.validity.rangeUnderflow) { message = 'A data é muito antiga ou o usuário é menor de 18 anos.'; }
+        else { message = 'Por favor, insira uma data válida.'; }
+
+        inputElement.setCustomValidity(message);
+        const clientErrorDiv = document.getElementById('dateBirthClientError');
+        if (clientErrorDiv) { clientErrorDiv.textContent = message; clientErrorDiv.style.display = 'block'; }
+        inputElement.classList.add('field-error');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const cpfInput = document.getElementById('cpf');
         if (cpfInput) {
@@ -417,10 +403,14 @@
                 validateCPF(this, 'cpfClientErrorSpan');
             });
         }
-        // Outras inicializações como event listeners de submit podem ser mantidas ou ajustadas conforme necessidade.
-        // O formulário com novalidate não vai disparar validação nativa no submit,
-        // então se você quiser validação JS antes do envio, precisaria adicionar um event listener no submit do form.
-        // Por agora, estamos confiando no oninvalid e no envio para o backend.
+        // Adiciona event listeners para limpar erros no input para todos os campos relevantes
+        document.querySelectorAll('input[oninput*="handleFieldInput"], select[oninput*="handleFieldInput"]').forEach(input => {
+            const fieldNameMatch = input.getAttribute('oninput').match(/handleFieldInput\(this, '([^']+)'\)/);
+            if (fieldNameMatch && fieldNameMatch[1]) {
+                const fieldName = fieldNameMatch[1];
+                input.addEventListener('input', () => handleFieldInput(input, fieldName));
+            }
+        });
     });
 </script>
 </body>

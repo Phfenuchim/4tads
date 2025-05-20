@@ -38,8 +38,6 @@ public class Address {
     @Column(nullable = false)
     private AddressType type;
 
-    @Column(name = "is_default")
-    private boolean defaultAddress;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -53,8 +51,7 @@ public class Address {
 
     // Construtor com todos os argumentos
     public Address(UUID id, Client client, String cep, String street, String number, String complement,
-                   String district, String city, String state, String country, AddressType type,
-                   boolean defaultAddress, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                   String district, String city, String state, String country, AddressType type, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.client = client;
         this.cep = cep;
@@ -66,7 +63,6 @@ public class Address {
         this.state = state;
         this.country = country;
         this.type = type;
-        this.defaultAddress = defaultAddress;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -116,9 +112,6 @@ public class Address {
         return type;
     }
 
-    public boolean isDefaultAddress() {
-        return defaultAddress;
-    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -173,10 +166,6 @@ public class Address {
         this.type = type;
     }
 
-    public void setDefaultAddress(boolean defaultAddress) {
-        this.defaultAddress = defaultAddress;
-    }
-
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -209,7 +198,6 @@ public class Address {
                 ", number='" + number + '\'' +
                 ", city='" + city + '\'' +
                 ", state='" + state + '\'' +
-                ", defaultAddress=" + defaultAddress +
                 '}';
     }
 }
