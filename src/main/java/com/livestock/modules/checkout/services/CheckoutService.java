@@ -18,7 +18,6 @@ import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
 import com.livestock.modules.order.repositories.OrderProductRepository;
 import com.livestock.modules.order.repositories.OrderRepository;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +41,6 @@ public class CheckoutService {
     // REMOVIDO: Mapa estático FRETE_POR_ESTADO
     // private static final Map<String, BigDecimal> FRETE_POR_ESTADO = Map.ofEntries(...);
 
-    @Autowired
     public CheckoutService(OrderRepository orderRepository,
                            OrderProductRepository orderProductRepository,
                            ClientRepository clientRepository,

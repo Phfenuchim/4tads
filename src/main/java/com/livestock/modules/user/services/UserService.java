@@ -8,7 +8,6 @@ import com.livestock.modules.user.exceptions.UserNotFoundException;
 import com.livestock.modules.user.repositories.RoleRepository;
 import com.livestock.modules.user.repositories.UserRepository;
 import com.livestock.modules.user.validators.UserValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,14 +19,18 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private RoleRepository roleRepository;
+    // Construtor para injeção de dependências
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
+    }
 
     public User createUser(User user) {
         if (!UserValidator.isValidCPF(user.getCpf())) {
@@ -128,7 +131,5 @@ public class UserService {
         }
 
         return user.get();
-
     }
-
 }

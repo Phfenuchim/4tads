@@ -12,6 +12,7 @@ import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
 import com.livestock.modules.order.repositories.OrderRepository;
 import com.livestock.modules.user.validators.UserValidator;
 import jakarta.validation.Valid;
+import org.springframework.security.core.userdetails.UsernameNotFoundException; // Avisar: Não usado diretamente aqui.
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,7 +90,24 @@ public class ClientService {
             Address billingAddress = new Address();
             mapDtoToAddress(initialAddressData, billingAddress, savedClient, AddressType.FATURAMENTO);
             addresses.add(billingAddress);
+
+            // Avisar: A linha savedClient.setAddress(addresses); pode ser redundante se a relação é
+            // gerenciada pelo Address e CascadeType.ALL/PERSIST não está sendo usado do lado Client
+            // para persistir novos Addresses apenas salvando o Client.
+            // O addressRepository.saveAll(addresses) já persiste os endereços com a FK correta.
+            // Se a entidade Client tem @OneToMany(mappedBy="client", cascade=CascadeType.ALL), então
+            // adicionar à lista e salvar o client também funcionaria para persistir Address, mas
+            // salvar explicitamente os Address é mais claro.
             addressRepository.saveAll(addresses);
+            // Se você quiser que o objeto savedClient retornado tenha a lista de endereços preenchida
+            // e você não está buscando-os novamente do banco antes de retornar, esta linha é útil.
+            // No entanto, se a relação for EAGER fetched ou se você buscar os endereços do cliente
+            // antes de usá-los, esta linha pode não ser estritamente necessária para a persistência dos endereços.
+            // Considerando a sua entidade Client, ela tem @OneToMany(mappedBy = "client", cascade = CascadeType.ALL),
+            // então, neste caso, a linha savedClient.setAddress(addresses) seguida por um (implícito ou explícito)
+            // save do client poderia persistir os endereços, mas como você já faz addressRepository.saveAll,
+            // esta linha serve mais para atualizar o objeto 'savedClient' em memória, se ele for usado posteriormente
+            // na mesma transação com a expectativa de que a lista de endereços esteja populada.
             savedClient.setAddress(addresses);
         }
         return savedClient;
@@ -149,7 +167,17 @@ public class ClientService {
         newAddress.setCountry(dto.getCountry());
         newAddress.setType(AddressType.ENTREGA);
 
+        // Avisar: O try-catch aqui é redundante se o método já é @Transactional.
+        // Se addressRepository.save() lançar uma exceção (ex: DataIntegrityViolationException),
+        // a transação será automaticamente marcada para rollback.
+        // Removendo o try-catch para simplificar, a menos que você tenha um tratamento específico
+        // de exceção que precise ser feito aqui antes de relançar.
+        // try {
         return addressRepository.save(newAddress);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        //     throw e;
+        // }
     }
 
     public List<Order> findOrdersByClient(UUID clientId) {

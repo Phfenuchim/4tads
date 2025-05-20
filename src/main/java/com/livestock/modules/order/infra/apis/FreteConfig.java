@@ -1,8 +1,11 @@
 package com.livestock.modules.order.infra.apis;
 
+import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 import java.util.Map;
 
+@Component
 public class FreteConfig {
 
     private static final Map<String, BigDecimal> FRETE_POR_ESTADO = Map.ofEntries(
@@ -35,7 +38,7 @@ public class FreteConfig {
             Map.entry("TO", BigDecimal.valueOf(350))
     );
 
-    public static BigDecimal getFreteBasePorEstado(String uf) {
+    public BigDecimal getFreteBasePorEstado(String uf) {
         return FRETE_POR_ESTADO.getOrDefault(uf.toUpperCase(), BigDecimal.valueOf(400));
     }
 }

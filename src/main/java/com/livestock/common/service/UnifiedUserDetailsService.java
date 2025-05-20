@@ -5,26 +5,25 @@ import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.repositories.ClientRepository;
 import com.livestock.modules.user.domain.user.User;
 import com.livestock.modules.user.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
+// Removidas importações não utilizadas como SimpleGrantedAuthority, PasswordEncoder, Collectors
 
 @Service
 public class UnifiedUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    // Construtor para injeção de dependências
+    public UnifiedUserDetailsService(ClientRepository clientRepository, UserRepository userRepository) {
+        this.clientRepository = clientRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -44,7 +43,3 @@ public class UnifiedUserDetailsService implements UserDetailsService {
         throw new UsernameNotFoundException("Usuário não encontrado: " + username);
     }
 }
-
-
-
-

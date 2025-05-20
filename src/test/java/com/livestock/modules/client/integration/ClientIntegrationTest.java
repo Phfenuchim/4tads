@@ -3,7 +3,6 @@ package com.livestock.modules.client.integration;
 import com.livestock.modules.client.repositories.ClientRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -16,17 +15,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+@Transactional // Garante que cada teste rode em sua própria transação e seja revertido ao final.
 class ClientIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private final MockMvc mockMvc;
+    private final ClientRepository clientRepository;
 
-    @Autowired
-    private ClientRepository clientRepository;
+    // Construtor para injeção de dependências.
+    // O Spring Test irá injetar os beans MockMvc e ClientRepository aqui.
+    public ClientIntegrationTest(MockMvc mockMvc, ClientRepository clientRepository) {
+        this.mockMvc = mockMvc;
+        this.clientRepository = clientRepository;
+    }
 
     @Test
     void testCreateClientIntegration() throws Exception {
+        // Avisar: Nome da propriedade no JSON é 'billingAddress', mas seu CreateClientDTO agora usa 'initialAddress'.
+        // O JSON payload precisa ser ajustado para refletir o nome correto da propriedade no DTO.
+        // Se CreateClientDTO espera 'initialAddress', o JSON deve ser:
         String jsonPayload = """
         {
             "fullName": "João Gado",
@@ -36,28 +42,32 @@ class ClientIntegrationTest {
             "gender": "M",
             "password": "senha123",
             "dateBirth": "1990-01-01",
-            "billingAddress": {
+            "initialAddress": { 
                 "cep": "29163-688",
                 "street": "Rua João-de-barro",
                 "number": "10",
                 "district": "Cidade Continental-Setor Ásia",
                 "city": "Serra",
                 "state": "ES",
-                "country": "Brasil",
-                "default": true,
-                "type": "FATURAMENTO"
+                "country": "Brasil"
             }
         }
         """;
+        // Avisar: Removidos "default": true e "type": "FATURAMENTO" do JSON do endereço,
+        // pois o AddressDTO dentro de CreateClientDTO.initialAddress não tem esses campos.
+        // A lógica de tipo e se é padrão é tratada no backend.
 
-        mockMvc.perform(post("/api/client/register")
+        mockMvc.perform(post("/api/client/register") // Avisar: Verifique se este endpoint API existe e está correto.
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonPayload))
-                .andExpect(status().isOk())
+                .andExpect(status().isOk()) // Avisar: Se a criação for bem-sucedida, um status 201 Created é mais comum para POSTs que criam recursos.
+                // Se seu controller retorna 200 OK, então está correto.
                 .andExpect(jsonPath("$.email").value("joao@gado.com"));
 
         var client = clientRepository.findByEmail("joao@gado.com");
         assertThat(client).isPresent();
-        assertThat(client.get().getCpf()).isEqualTo("106.919.480-89");
+        // Avisar: Verifique se o CPF é salvo com ou sem a máscara no banco de dados.
+        // Se for salvo sem máscara, a asserção precisa comparar com "10691948089".
+        assertThat(client.get().getCpf()).isEqualTo("106.919.480-89"); // Assumindo que é salvo com máscara.
     }
 }

@@ -1,6 +1,6 @@
 package com.livestock.modules.client.controllers;
 
-import com.livestock.common.GadusUserDetails;
+// Mantive os imports que você já tinha, adicionei/removi o mínimo necessário
 import com.livestock.modules.client.domain.address.Address;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.dto.*;
@@ -10,11 +10,10 @@ import com.livestock.modules.client.services.ClientService;
 import com.livestock.modules.order.domain.order.Order;
 import com.livestock.modules.order.infra.apis.CepResultDTO;
 import com.livestock.modules.order.infra.apis.ConsultaCepAPI;
-import jakarta.transaction.Transactional;
+// Removido: import jakarta.transaction.Transactional; // Não é usado em Controllers
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+// Removido: import org.springframework.security.core.Authentication; // Não usado explicitamente por você
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,23 +24,28 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Optional;
+// Removido: import java.util.Optional; // Não usado explicitamente por você
 import java.util.UUID;
 
 @Controller
 public class ClientController {
 
-    @Autowired
-    private ClientService clientService;
+    // Campos final para as dependências
+    private final ClientService clientService;
+    private final ConsultaCepAPI consultaCepAPI;
+    private final ClientRepository clientRepository;
+    private final AddressRepository addressRepository; // Adicionado ao construtor se for usado pela classe
 
-    @Autowired
-    private ConsultaCepAPI consultaCepAPI;
-
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
+    // Construtor para injeção de dependências
+    public ClientController(ClientService clientService,
+                            ConsultaCepAPI consultaCepAPI,
+                            ClientRepository clientRepository,
+                            AddressRepository addressRepository) { // Adicionada dependência
+        this.clientService = clientService;
+        this.consultaCepAPI = consultaCepAPI;
+        this.clientRepository = clientRepository;
+        this.addressRepository = addressRepository; // Atribuição da dependência
+    }
 
 
     @GetMapping("/register")
@@ -68,9 +72,9 @@ public class ClientController {
             clientService.createClient(createClientDTO);
             redirectAttributes.addFlashAttribute("success", "Cadastro realizado com sucesso! Faça login para continuar.");
             return "redirect:/login";
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) { // Captura as exceções do service
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            redirectAttributes.addFlashAttribute("client", createClientDTO);
+            redirectAttributes.addFlashAttribute("client", createClientDTO); // Devolve o DTO para repopular
             return "redirect:/register";
         }
     }
@@ -78,31 +82,42 @@ public class ClientController {
     @GetMapping("/cep/{cep}")
     @ResponseBody
     public ResponseEntity<AddressResponseDTO> consultaCep(@PathVariable String cep) {
-        CepResultDTO result = consultaCepAPI.consultaCep(cep);
+        // Remove caracteres não numéricos do CEP antes de consultar
+        CepResultDTO result = consultaCepAPI.consultaCep(cep.replaceAll("\\D", ""));
+
+        if (result == null || result.getCep() == null) {
+            // Retorna 400 Bad Request se o CEP for inválido ou não encontrado
+            // Você pode querer personalizar o corpo da resposta de erro.
+            return ResponseEntity.badRequest().build();
+        }
 
         AddressResponseDTO response = new AddressResponseDTO();
         response.setStreet(result.getLogradouro());
-        response.setDistrict(result.getBairro());         // Bairro
-        response.setCity(result.getLocalidade());         // Cidade
-        response.setState(result.getUf());                // Estado (UF)
-        response.setCountry("Brasil");                    // País padrão
+        response.setDistrict(result.getBairro());
+        response.setCity(result.getLocalidade());
+        response.setState(result.getUf());
+        response.setCountry("Brasil");
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/client/profile")
     public String showProfileForm(Model model, Principal principal) {
+        // Verifica se o usuário está logado
+        if (principal == null || principal.getName() == null) {
+            return "redirect:/login";
+        }
         Client client = clientRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado: " + principal.getName()));
 
         EditProfileDTO dto = new EditProfileDTO();
         dto.setFullName(client.getFullName());
         dto.setDateBirth(client.getDate_birth());
         dto.setGender(client.getGender());
 
-        // Converter a data para o formato dd/MM/yyyy
+        // Formata a data para exibição no formato yyyy-MM-dd para o input date
         if (client.getDate_birth() != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             model.addAttribute("displayDateBirth", sdf.format(client.getDate_birth()));
         }
 
@@ -111,20 +126,39 @@ public class ClientController {
     }
 
     @PostMapping("/client/profile")
-    public String updateProfile(@Valid @ModelAttribute EditProfileDTO editProfileDTO,
+    public String updateProfile(@Valid @ModelAttribute("editProfileDTO") EditProfileDTO editProfileDTO, // Adicionado @ModelAttribute
                                 BindingResult result,
                                 Principal principal,
-                                RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes,
+                                Model model) { // Model para repopular a data em caso de erro
+        if (principal == null || principal.getName() == null) {
+            return "redirect:/login";
+        }
         if (result.hasErrors()) {
-            return "client/edit-profile";
+            // Se houver erros, precisa reenviar a data formatada para a view
+            // e o DTO com erros já está no modelo.
+            Client clientCurrent = clientRepository.findByEmail(principal.getName())
+                    .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado: " + principal.getName()));
+            if (clientCurrent.getDate_birth() != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                model.addAttribute("displayDateBirth", sdf.format(clientCurrent.getDate_birth()));
+            }
+            return "client/edit-profile"; // Volta para o formulário com os erros
         }
 
         Client client = clientRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado: " + principal.getName()));
 
-        String[] parts = editProfileDTO.getFullName().trim().split("\\s+");
-        client.setFirstName(parts[0]);
-        client.setLastName(String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length)));
+        // Atualiza os dados do cliente
+        String[] parts = editProfileDTO.getFullName().trim().split("\\s+", 2);
+        if (parts.length > 0) {
+            client.setFirstName(parts[0]);
+            if (parts.length > 1) {
+                client.setLastName(parts[1]);
+            } else {
+                client.setLastName(""); // Ou como você preferir tratar sobrenome único
+            }
+        }
         client.setFullName(editProfileDTO.getFullName());
         client.setDate_birth(editProfileDTO.getDateBirth());
         client.setGender(editProfileDTO.getGender());
@@ -145,20 +179,45 @@ public class ClientController {
                                         BindingResult result,
                                         Principal principal,
                                         RedirectAttributes redirectAttributes) {
+        if (principal == null || principal.getName() == null) {
+            return "redirect:/login";
+        }
         if (result.hasErrors()) {
-            return "client/change-password";
+            return "client/change-password"; // Volta para o formulário com os erros
         }
 
         try {
             clientService.changePassword(principal.getName(), dto);
             redirectAttributes.addFlashAttribute("success", "Senha alterada com sucesso!");
-            return "redirect:/client/change-password";
+            return "redirect:/client/change-password"; // Ou para /client/profile
         } catch (IllegalArgumentException e) {
-            result.rejectValue("currentPassword", null, e.getMessage());
-            return "client/change-password";
+            // Adiciona o erro ao BindingResult para ser exibido (geralmente no topo ou ao lado do campo)
+            // Aqui, estou associando a um campo específico, mas pode ser global
+            result.rejectValue("currentPassword", "error.currentPassword", e.getMessage());
+            return "client/change-password"; // Volta para o formulário com o erro
         }
     }
 
+    @GetMapping("/client/addresses")
+    public String listAddresses(Model model, Principal principal,
+                                @RequestParam(value = "redirectTo", required = false) String redirectTo) {
+        if (principal == null || principal.getName() == null) {
+            return "redirect:/login";
+        }
+        String email = principal.getName();
+        Client client = clientService.findClientByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado: " + email));
+
+        List<Address> addresses = clientService.findAddressesByClientId(client.getId());
+
+        if (!model.containsAttribute("newAddressDTO")) {
+            model.addAttribute("newAddressDTO", new NewAddressDTO());
+        }
+        model.addAttribute("addresses", addresses);
+        model.addAttribute("redirectTo", redirectTo);
+
+        return "client/addresses";
+    }
 
     @PostMapping("/client/addresses")
     public String saveAddress(@Valid @ModelAttribute("newAddressDTO") NewAddressDTO dto,
@@ -167,19 +226,21 @@ public class ClientController {
                               Principal principal,
                               RedirectAttributes redirectAttributes,
                               Model model) {
+        if (principal == null || principal.getName() == null) {
+            return "redirect:/login";
+        }
+        String email = principal.getName();
 
         if (result.hasErrors()) {
-            // ... (lógica para retornar à view com erros, como já discutido)
-            String email = principal.getName();
             Client client = clientService.findClientByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
             model.addAttribute("addresses", clientService.findAddressesByClientId(client.getId()));
             model.addAttribute("redirectTo", redirectTo);
-            return "client/addresses";
+            // O DTO com erros ("newAddressDTO") já está no modelo devido ao @ModelAttribute
+            return "client/addresses"; // Volta para a view com erros
         }
 
         try {
-            // A CHAMADA AO SERVIÇO QUE DEVE SER TRANSACIONAL
             clientService.addNewAddress(principal.getName(), dto);
             redirectAttributes.addFlashAttribute("success", "Novo endereço de entrega adicionado com sucesso!");
 
@@ -189,51 +250,22 @@ public class ClientController {
                 return "redirect:/client/addresses";
             }
         } catch (IllegalArgumentException e) {
-            // ... (tratamento de erro, como já discutido)
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            redirectAttributes.addFlashAttribute("newAddressDTO", dto);
-            // ...
+            redirectAttributes.addFlashAttribute("newAddressDTO", dto); // Devolve o DTO para repopular
+            if (redirectTo != null && !redirectTo.trim().isEmpty()) {
+                redirectAttributes.addAttribute("redirectTo", redirectTo); // Adiciona como param de URL
+            }
             return "redirect:/client/addresses";
         }
     }
 
-
-
-
-
-    @GetMapping("/client/addresses")
-    public String listAddresses(Model model, Principal principal,
-                                @RequestParam(value = "redirectTo", required = false) String redirectTo) {
-        String email = principal.getName();
-        // Usar o método do serviço que você criou para buscar o cliente
-        Client client = clientService.findClientByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado: " + email));
-
-        // Usar o método do serviço para buscar os endereços
-        List<Address> addresses = clientService.findAddressesByClientId(client.getId());
-
-        if (!model.containsAttribute("newAddressDTO")) {
-            model.addAttribute("newAddressDTO", new NewAddressDTO());
-        }
-        model.addAttribute("addresses", addresses);
-        // REMOVIDO: model.addAttribute("mostrarFaturamento", !hasBillingAddress);
-        model.addAttribute("redirectTo", redirectTo);
-
-        return "client/addresses";
-    }
-
-
-
-
-
-
-
-
     @GetMapping("/client/my-orders")
     public String viewMyOrders(Model model, Principal principal) {
+        if (principal == null || principal.getName() == null) {
+            return "redirect:/login";
+        }
         Client client = clientRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado"));
-
+                .orElseThrow(() -> new UsernameNotFoundException("Cliente não encontrado: " + principal.getName()));
         List<Order> orders = clientService.findOrdersByClient(client.getId());
         model.addAttribute("orders", orders);
 
@@ -242,12 +274,19 @@ public class ClientController {
 
     @PostMapping("/api/client/register")
     @ResponseBody
-    public ResponseEntity<Client> registerClientApi(@RequestBody @Valid CreateClientDTO dto) {
-        Client client = clientService.createClient(dto);
-        return ResponseEntity.ok(client);
+    public ResponseEntity<?> registerClientApi(@RequestBody @Valid CreateClientDTO dto, BindingResult result) { // Adicionado BindingResult
+        if (result.hasErrors()) {
+            // Se houver erros de validação do DTO, retorna 400 Bad Request com os erros
+            // Você pode querer formatar os erros de uma maneira específica para a API
+            return ResponseEntity.badRequest().body(result.getAllErrors());
+        }
+        try {
+            Client client = clientService.createClient(dto);
+            return ResponseEntity.ok(client); // Retorna 201 Created seria mais apropriado com a URI do novo recurso
+        } catch (IllegalArgumentException e) {
+            // Por exemplo, se for email/cpf duplicado, 409 Conflict seria bom
+            // return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage()); // Ou 400 com a mensagem de erro
+        }
     }
-
-
-
-
 }

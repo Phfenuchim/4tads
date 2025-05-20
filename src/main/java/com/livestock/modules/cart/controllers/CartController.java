@@ -7,7 +7,6 @@ import com.livestock.modules.product.domain.product.Product;
 import com.livestock.modules.product.domain.product_image.Product_image;
 import com.livestock.modules.product.services.ProductService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,25 +23,23 @@ import java.util.UUID;
 @RequestMapping("/cart")
 public class CartController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    // Adicionei essas anotações para ficar mais claro o fluxo de visualizar o carrinho
+    // Construtor para injeção de dependência
+    public CartController(ProductService productService) {
+        this.productService = productService;
+    }
+
     @GetMapping
     public String viewCart(Model model, HttpSession session) {
         List<CartItem> cart = getCartFromSession(session);
-
-        // Adapter: transforma a lista simples em um Composite
         CartCompositeGroup cartComposite = CartAdapter.toCompositeGroup(cart);
-
-        // Usa o Composite para calcular o total
         BigDecimal total = cartComposite.getTotalPrice();
 
-        model.addAttribute("cart", cart);         // ainda usa CartItem para exibir os itens
-        model.addAttribute("total", total);       // agora o total é do Composite
-        return "view-cart";
+        model.addAttribute("cart", cart);
+        model.addAttribute("total", total);
+        return "view-cart"; // Supondo que o nome da view seja "view-cart.html"
     }
-
 
     @PostMapping("/add")
     public String addToCart(
@@ -53,35 +50,27 @@ public class CartController {
 
         try {
             List<CartItem> cart = getCartFromSession(session);
-            Product product = productService.getProductById(productId);
+            Product product = productService.getProductById(productId); // Lança exceção se não encontrar
 
-            // Verifica se o produto já está no carrinho
             Optional<CartItem> existingItem = cart.stream()
                     .filter(item -> item.getProductId().equals(productId))
                     .findFirst();
 
             if (existingItem.isPresent()) {
-                // Atualiza a quantidade se o produto já estiver no carrinho
                 existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
             } else {
-                // Adiciona novo item ao carrinho
                 CartItem newItem = new CartItem();
                 newItem.setProductId(productId);
-                newItem.setProductName(product.getProductName());
-                newItem.setPrice(product.getPrice());
+                newItem.setProductName(product.getProductName()); // Usar o nome do produto da entidade
+                newItem.setPrice(product.getPrice());             // Usar o preço da entidade
                 newItem.setQuantity(quantity);
 
-                // Obtém a imagem padrão do produto, se existir
-                var productImages = productService.getProductImages(productId);
-
-
-                // Extrai a URL da imagem padrão ou usa um fallback
+                List<Product_image> productImages = productService.getProductImages(productId);
                 String imageUrl = productImages.stream()
                         .filter(img -> Boolean.TRUE.equals(img.getDefaultImage()))
                         .map(Product_image::getPathUrl)
                         .findFirst()
-                        .orElse("logo.png");
-
+                        .orElse("logo.png"); // Imagem padrão se nenhuma for default
                 newItem.setImageUrl(imageUrl);
                 cart.add(newItem);
             }
@@ -90,10 +79,15 @@ public class CartController {
             redirectAttributes.addFlashAttribute("message", "Produto adicionado ao carrinho!");
 
         } catch (Exception e) {
+            // É uma boa prática logar a exceção no servidor
+            // logger.error("Erro ao adicionar produto ao carrinho: {}", productId, e);
             redirectAttributes.addFlashAttribute("error", "Erro ao adicionar produto ao carrinho: " + e.getMessage());
         }
 
-        return "redirect:/products";
+        // Redirecionar para a página anterior ou para uma página específica de produtos
+        // Se você quiser voltar para a página de detalhes do produto, precisará do ID do produto no redirect.
+        // Ou pode ser um redirect fixo, como para a lista de produtos.
+        return "redirect:/products"; // Ajuste conforme necessário
     }
 
     @PostMapping("/remove")
@@ -110,7 +104,9 @@ public class CartController {
         return "redirect:/cart";
     }
 
+    // Este método é público e pode ser chamado por outros serviços, como CheckoutService
     public List<CartItem> getCartFromSession(HttpSession session) {
+        @SuppressWarnings("unchecked") // Suprime o warning de cast não verificado
         List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
         if (cart == null) {
             cart = new ArrayList<>();
@@ -122,12 +118,10 @@ public class CartController {
     @PostMapping("/increase")
     public String increaseQuantity(@RequestParam UUID productId, HttpSession session) {
         List<CartItem> cart = getCartFromSession(session);
-
         cart.stream()
                 .filter(item -> item.getProductId().equals(productId))
                 .findFirst()
                 .ifPresent(item -> item.setQuantity(item.getQuantity() + 1));
-
         session.setAttribute("cart", cart);
         return "redirect:/cart";
     }
@@ -135,7 +129,6 @@ public class CartController {
     @PostMapping("/decrease")
     public String decreaseQuantity(@RequestParam UUID productId, HttpSession session) {
         List<CartItem> cart = getCartFromSession(session);
-
         cart.stream()
                 .filter(item -> item.getProductId().equals(productId))
                 .findFirst()
@@ -143,22 +136,23 @@ public class CartController {
                     if (item.getQuantity() > 1) {
                         item.setQuantity(item.getQuantity() - 1);
                     }
+                    // Se quiser remover o item se a quantidade for 0, adicione a lógica aqui
+                    // else { cart.remove(item); } // Cuidado com ConcurrentModificationException se não iterar corretamente
                 });
-
+        // Se a quantidade for 1 e o usuário diminuir, o item deve ser removido?
+        // Se sim, a lógica acima precisaria de ajuste ou um novo botão "remover item".
+        // Para evitar ConcurrentModificationException ao remover durante a iteração, use removeIf
+        // Ex: cart.removeIf(item -> item.getProductId().equals(productId) && item.getQuantity() <= 0);
         session.setAttribute("cart", cart);
         return "redirect:/cart";
     }
 
-
     @GetMapping("/verify-checkout")
     public String verifyCheckout(Principal principal, HttpSession session) {
         if (principal == null) {
-            // Usuário não está logado
-            session.setAttribute("redirectAfterLogin", "/cart");
+            session.setAttribute("redirectAfterLogin", "/cart"); // Redireciona para o carrinho após login
             return "redirect:/login";
         }
-        // Usuário está logado
         return "redirect:/checkout";
     }
-
 }
