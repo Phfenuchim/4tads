@@ -116,23 +116,10 @@ public class CheckoutService {
         } else if ("boleto".equalsIgnoreCase(paymentMethodCodeFromSession)) {
             paymentMethodIdDatabase = 2; // ID para 'Boleto'
         }
-        // Adicione mais 'else if' para outros métodos (ex: "pix" -> 3)
+        // Adicionar mais 'else if' para outros métodos (ex: "pix" -> 3)
 
         if (paymentMethodIdDatabase != null) {
-            // **ESCOLHA UMA DAS OPÇÕES ABAIXO (A ou B) COM BASE EM COMO VOCÊ MAPEOU Order.paymentMethodId**
-
-            // **Opção A: Se Order.java tem 'private Short paymentMethodId;'**
             order.setPaymentMethodId(paymentMethodIdDatabase);
-
-            // **Opção B: Se Order.java tem '@ManyToOne private PaymentMethod paymentMethod;'**
-            /*
-            if (paymentMethodRepository == null) { // Checagem para evitar NPE se não injetado
-                throw new IllegalStateException("PaymentMethodRepository não foi injetado no CheckoutService.");
-            }
-            PaymentMethod pmEntity = paymentMethodRepository.findById(paymentMethodIdDatabase)
-                    .orElseThrow(() -> new IllegalArgumentException("Método de pagamento com ID " + paymentMethodIdDatabase + " não encontrado no banco de dados."));
-            order.setPaymentMethod(pmEntity);
-            */
 
         } else {
             // Lançar exceção ou logar, pois o método de pagamento da sessão não foi reconhecido
@@ -155,20 +142,13 @@ public class CheckoutService {
             orderProduct.setOrderId(savedOrder.getId()); // Usar o ID do pedido salvo
             orderProduct.setProductId(item.getProductId());
             orderProduct.setQuantity(item.getQuantity());
-            // Você também pode querer salvar o preço unitário do produto no momento da compra aqui
-            // orderProduct.setUnitPrice(item.getPrice());
             orderProductRepository.save(orderProduct);
         }
-
-        // Limpar o carrinho da sessão após o pedido ser criado com sucesso
-        // cartController.clearCart(session); // Se você tiver este método
-
         return savedOrder;
     }
 
     // Método auxiliar para gerar número sequencial do pedido
     private Long generateOrderNumber() {
-        // Versão simplificada - em produção considere usar uma sequência do banco de dados
         return 100000 + (long) (Math.random() * 900000);
     }
 
