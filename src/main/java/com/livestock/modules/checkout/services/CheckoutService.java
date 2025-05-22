@@ -122,6 +122,18 @@ public class CheckoutService {
             orderProduct.setOrderId(savedOrder.getId());
             orderProduct.setProductId(item.getProductId());
             orderProduct.setQuantity(item.getQuantity());
+
+            // IMPORTANTE: Definir o preço unitário do produto NO MOMENTO DA COMPRA
+            // Assumindo que CartItem tem um getPrice() que retorna BigDecimal
+            orderProduct.setUnitPrice(item.getPrice()); // <<----- ADICIONE ESTA LINHA
+
+            // Se você também quiser manter a referência ao Product (para nome, imagem, etc.),
+            // você pode buscar o produto aqui ou confiar que o `item.getProductId()`
+            // será usado para popular a relação `Product product` em OrderProduct.
+            // Mas para o preço, o `unitPrice` acima é crucial.
+            // Product productEntity = productRepository.findById(item.getProductId()).orElse(null);
+            // orderProduct.setProduct(productEntity); // Opcional, mas pode ser útil
+
             orderProductRepository.save(orderProduct);
         }
         return savedOrder;

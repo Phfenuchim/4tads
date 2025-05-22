@@ -3,6 +3,7 @@ package com.livestock.modules.order.domain.order_product;
 import com.livestock.modules.order.domain.order.Order;
 import com.livestock.modules.product.domain.product.Product;
 import jakarta.persistence.*;
+import java.math.BigDecimal; // IMPORTAR
 import java.util.Objects;
 import java.util.UUID;
 
@@ -22,11 +23,15 @@ public class OrderProduct {
     @Column(nullable = false)
     private int quantity;
 
-    @ManyToOne
+    // NOVO CAMPO para armazenar o preço unitário no momento da compra
+    @Column(name = "unit_price", nullable = false, precision = 10, scale = 2) // Ajuste precision e scale conforme necessário
+    private BigDecimal unitPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY) // É bom ter LAZY aqui
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // É bom ter LAZY aqui
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     private Product product;
 
@@ -34,11 +39,12 @@ public class OrderProduct {
     public OrderProduct() {
     }
 
-    // Construtor com todos os argumentos
-    public OrderProduct(UUID productId, UUID orderId, int quantity, Order order, Product product) {
+    // Construtor com todos os argumentos (incluindo unitPrice)
+    public OrderProduct(UUID productId, UUID orderId, int quantity, BigDecimal unitPrice, Order order, Product product) {
         this.productId = productId;
         this.orderId = orderId;
         this.quantity = quantity;
+        this.unitPrice = unitPrice; // Adicionar aqui
         this.order = order;
         this.product = product;
     }
@@ -54,6 +60,10 @@ public class OrderProduct {
 
     public int getQuantity() {
         return quantity;
+    }
+
+    public BigDecimal getUnitPrice() { // GETTER PARA unitPrice
+        return unitPrice;
     }
 
     public Order getOrder() {
@@ -77,6 +87,10 @@ public class OrderProduct {
         this.quantity = quantity;
     }
 
+    public void setUnitPrice(BigDecimal unitPrice) { // SETTER PARA unitPrice
+        this.unitPrice = unitPrice;
+    }
+
     public void setOrder(Order order) {
         this.order = order;
     }
@@ -85,7 +99,7 @@ public class OrderProduct {
         this.product = product;
     }
 
-    // Equals e HashCode baseados na chave composta (productId e orderId)
+    // Equals e HashCode (mantidos)
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -100,13 +114,14 @@ public class OrderProduct {
         return Objects.hash(productId, orderId);
     }
 
-    // ToString para facilitar depuração
+    // ToString (pode adicionar unitPrice se quiser)
     @Override
     public String toString() {
         return "OrderProduct{" +
                 "productId=" + productId +
                 ", orderId=" + orderId +
                 ", quantity=" + quantity +
+                ", unitPrice=" + unitPrice + // Adicionado para debug
                 '}';
     }
 }

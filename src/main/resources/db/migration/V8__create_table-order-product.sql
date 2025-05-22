@@ -3,6 +3,8 @@ CREATE TABLE TB_ORDER_PRODUCT
     product_id UUID     NOT NULL,
     order_id   UUID     NOT NULL,
     quantity   SMALLINT NOT NULL,
+    unit_price DECIMAL(10, 2) NOT NULL, -- NOVO CAMPO ADICIONADO AQUI
+
 
     CONSTRAINT pk_order_product PRIMARY KEY (product_id, order_id),
 

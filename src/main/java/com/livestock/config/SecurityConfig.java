@@ -37,43 +37,52 @@ public class SecurityConfig {
         this.successHandler = successHandler;
     }
 
+// Dentro de SecurityConfig.java
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> authz
-                        // Permissões públicas
+                        // Permissões públicas (mantenha as suas)
                         .requestMatchers("/", "/home", "/login", "/register", "/cep/**").permitAll()
                         .requestMatchers("/products/**", "/cart/**", "/fragments/**").permitAll()
-                        .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/fonts/**", "/uploads/images/produtos/**").permitAll() // Adicionado /uploads/images/produtos/** para consistência
+                        .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/fonts/**", "/uploads/images/produtos/**").permitAll()
                         .requestMatchers("/frete/calcular").permitAll()
-                        .requestMatchers("/api/**").permitAll() // APIs públicas
-                        // Permissões baseadas em roles
-                        .requestMatchers("/admin/products/**").hasAnyRole("ADMIN", "ESTOQUISTA") // Produtos admin/estoquista
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // Outras rotas admin
-                        .requestMatchers("/client/**").access(this::isClient) // Acesso específico para clientes
-                        .requestMatchers("/checkout/**").authenticated() // Checkout requer autenticação
-                        .anyRequest().authenticated() // Qualquer outra requisição requer autenticação
+                        .requestMatchers("/api/**").permitAll()
+
+                        // Permissões baseadas em roles (AJUSTE AQUI)
+                        .requestMatchers("/admin/products/**").hasAnyRole("ADMIN", "ESTOQUISTA") // Estoquista pode gerenciar produtos
+                        .requestMatchers("/admin/orders/**").hasAnyRole("ADMIN", "ESTOQUISTA") // <<-- ADICIONE ESTA LINHA ou ajuste a existente
+                        // Outras rotas /admin que SÃO apenas para ADMIN devem vir DEPOIS
+                        .requestMatchers("/admin/users/**").hasRole("ADMIN") // Ex: Gerenciamento de usuários SÓ para ADMIN
+                        .requestMatchers("/admin/create-user").hasRole("ADMIN") // Ex: Criar usuário SÓ para ADMIN
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // Regra geral para /admin (cuidado, esta deve ser menos específica que as acima)
+
+                        // Outras regras (mantenha as suas)
+                        .requestMatchers("/client/**").access(this::isClient)
+                        .requestMatchers("/checkout/**").authenticated()
+                        .anyRequest().authenticated()
                 )
+                // ... resto da sua configuração (formLogin, logout, etc.) ...
                 .formLogin(form -> form
-                        .loginPage("/login") // Página de login customizada
-                        .successHandler(successHandler) // Handler para sucesso no login
-                        .permitAll() // Permitir acesso à página de login
+                        .loginPage("/login")
+                        .successHandler(successHandler)
+                        .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // URL para fazer logout
-                        .logoutSuccessUrl("/home") // Redireciona para home após logout
-                        .invalidateHttpSession(true) // Invalida a sessão
-                        .deleteCookies("JSESSIONID") // Remove o cookie de sessão
-                        .permitAll() // Permitir acesso à funcionalidade de logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/home")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
                 );
 
-        // Define o provedor de autenticação customizado.
         http.authenticationProvider(authenticationProvider());
-        // Desabilita CSRF para rotas /api/** (comum para APIs stateless).
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/cart/**")); // Adicionado /cart/** se as operações de carrinho são via API/AJAX
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/cart/**"));
 
         return http.build();
     }
+
 
     /**
      * Regra de autorização customizada para verificar se o usuário autenticado é um cliente.

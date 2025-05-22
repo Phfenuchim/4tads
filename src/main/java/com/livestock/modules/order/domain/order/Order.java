@@ -2,11 +2,14 @@ package com.livestock.modules.order.domain.order;
 
 import com.livestock.modules.checkout.payment.PaymentMethod;
 import com.livestock.modules.client.domain.client.Client;
+import com.livestock.modules.order.domain.order_product.OrderProduct; // IMPORTAR
 import com.livestock.modules.order.domain.order_status.OrderStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList; // IMPORTAR
+import java.util.List;      // IMPORTAR
 import java.util.Objects;
 import java.util.UUID;
 
@@ -37,21 +40,19 @@ public class Order {
     @Column(name = "address_number", nullable = false)
     private String addressNumber;
 
-    @Column(nullable = false)
+    @Column(nullable = false) // Você tinha nullable = false, se pode ser nulo, mude para true
     private String complement;
 
     @Column(nullable = false)
     private double shipping;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // FetchType.LAZY é geralmente uma boa prática aqui
     @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
-    private Client client;
-
+    private Client client; // Relação com o Cliente
 
     @Column(name = "payment_method_id")
-    private Short paymentMethodId; // Deve corresponder ao tipo da PK em PaymentMethod (SMALLINT -> Short)
+    private Short paymentMethodId;
 
-    // Adicione à entidade Order
     @Column(name = "order_number", nullable = false, unique = true)
     private Long orderNumber;
 
@@ -59,7 +60,124 @@ public class Order {
     @Column(name = "status", nullable = false)
     private OrderStatus status;
 
-    // Getters e Setters para os novos campos
+    // NOVA RELAÇÃO @OneToMany com OrderProduct
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OrderProduct> orderProducts = new ArrayList<>();
+
+
+    // Construtor vazio
+    public Order() {
+    }
+
+    // Construtor com argumentos (ajuste conforme necessário)
+    // ... seu construtor existente ...
+    public Order(UUID id, UUID userId, double totalPrice, LocalDateTime createdAt,
+                 String cep, String address, String addressNumber, String complement,
+                 double shipping, Short paymentMethodId, Long orderNumber, OrderStatus status) { // Adicionado orderNumber e status
+        this.id = id;
+        this.userId = userId;
+        this.totalPrice = totalPrice;
+        this.createdAt = createdAt;
+        this.cep = cep;
+        this.address = address;
+        this.addressNumber = addressNumber;
+        this.complement = complement;
+        this.shipping = shipping;
+        this.paymentMethodId = paymentMethodId;
+        this.orderNumber = orderNumber;
+        this.status = status;
+    }
+
+    // Getters e Setters (incluindo para orderProducts)
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getCep() {
+        return cep;
+    }
+
+    public void setCep(String cep) {
+        this.cep = cep;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getAddressNumber() {
+        return addressNumber;
+    }
+
+    public void setAddressNumber(String addressNumber) {
+        this.addressNumber = addressNumber;
+    }
+
+    public String getComplement() {
+        return complement;
+    }
+
+    public void setComplement(String complement) {
+        this.complement = complement;
+    }
+
+    public double getShipping() {
+        return shipping;
+    }
+
+    public void setShipping(double shipping) {
+        this.shipping = shipping;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public Short getPaymentMethodId() {
+        return paymentMethodId;
+    }
+
+    public void setPaymentMethodId(Short paymentMethodId) {
+        this.paymentMethodId = paymentMethodId;
+    }
+
     public Long getOrderNumber() {
         return orderNumber;
     }
@@ -76,111 +194,28 @@ public class Order {
         this.status = status;
     }
 
-
-    // Construtor vazio
-    public Order() {
+    // Getter e Setter para orderProducts
+    public List<OrderProduct> getOrderProducts() {
+        return orderProducts;
     }
 
-    // Construtor com todos os argumentos
-    public Order(UUID id, UUID userId, double totalPrice, LocalDateTime createdAt,
-                 String cep, String address, String addressNumber, String complement,
-                 double shipping, Short paymentMethodId) {
-        this.id = id;
-        this.userId = userId;
-        this.totalPrice = totalPrice;
-        this.createdAt = createdAt;
-        this.cep = cep;
-        this.address = address;
-        this.addressNumber = addressNumber;
-        this.complement = complement;
-        this.shipping = shipping;
-        this.paymentMethodId = paymentMethodId;
+    public void setOrderProducts(List<OrderProduct> orderProducts) {
+        this.orderProducts = orderProducts;
     }
 
-    // Getters
-    public UUID getId() {
-        return id;
+    // Métodos Helper (opcional, mas boa prática para gerenciar a relação bidirecional)
+    public void addOrderProduct(OrderProduct orderProduct) {
+        this.orderProducts.add(orderProduct);
+        orderProduct.setOrder(this); // Mantém a consistência da relação bidirecional
     }
 
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public String getCep() {
-        return cep;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public String getAddressNumber() {
-        return addressNumber;
-    }
-
-    public String getComplement() {
-        return complement;
-    }
-
-    public double getShipping() {
-        return shipping;
+    public void removeOrderProduct(OrderProduct orderProduct) {
+        this.orderProducts.remove(orderProduct);
+        orderProduct.setOrder(null); // Mantém a consistência
     }
 
 
-    // Setters
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setCep(String cep) {
-        this.cep = cep;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public void setAddressNumber(String addressNumber) {
-        this.addressNumber = addressNumber;
-    }
-
-    public void setComplement(String complement) {
-        this.complement = complement;
-    }
-
-    public void setShipping(double shipping) {
-        this.shipping = shipping;
-    }
-
-    public Short getPaymentMethodId() {
-        return paymentMethodId;
-    }
-
-    public void setPaymentMethodId(Short paymentMethodId) {
-        this.paymentMethodId = paymentMethodId;
-    }
-
-    // Equals e HashCode baseados no ID
+    // Equals e HashCode baseados no ID (como você já tinha)
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -194,7 +229,7 @@ public class Order {
         return Objects.hash(id);
     }
 
-    // ToString para facilitar depuração
+    // ToString (como você já tinha, pode querer adicionar orderProducts se for útil para debug)
     @Override
     public String toString() {
         return "Order{" +
@@ -202,8 +237,7 @@ public class Order {
                 ", userId=" + userId +
                 ", totalPrice=" + totalPrice +
                 ", createdAt=" + createdAt +
-                ", cep='" + cep + '\'' +
-                ", shipping=" + shipping +
+                // ... outros campos ...
                 '}';
     }
 }
