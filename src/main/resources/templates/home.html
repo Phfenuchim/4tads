@@ -20,6 +20,7 @@
 
 <main>
     <br/><br/>
+    <!-- Dentro da div sec:authorize para ADMIN e ESTOQUISTA -->
     <div sec:authorize="hasAnyRole('ADMIN', 'ESTOQUISTA')">
         <div class="container my-4">
             <div class="row justify-content-center">
@@ -33,23 +34,26 @@
 
                             <div class="row g-4">
                                 <div class="col-12 col-md-6" sec:authorize="hasRole('ADMIN')">
-                                      <a th:href="@{/admin/create-user}" class="btn btn-outline-primary w-100">Criar
-                                        Usuários</a>
+                                    <a th:href="@{/admin/create-user}" class="btn btn-outline-primary w-100">Criar Usuários</a>
                                 </div>
                                 <div class="col-12 col-md-6" sec:authorize="hasRole('ADMIN')">
-                                    <a th:href="@{/admin/users}" class="btn btn-outline-primary w-100">Listar
-                                        Usuários</a>
+                                    <a th:href="@{/admin/users}" class="btn btn-outline-primary w-100">Listar Usuários</a>
                                 </div>
                             </div>
-                            <div class="row g-3">
 
+                            <div class="row g-3 mt-3">
                                 <div class="col-12 col-md-6" sec:authorize="hasRole('ADMIN')">
-                                    <a th:href="@{/admin/create-product}" class="btn btn-outline-success w-100">Criar
-                                        Produtos</a>
+                                    <a th:href="@{/admin/create-product}" class="btn btn-outline-success w-100">Criar Produtos</a>
                                 </div>
                                 <div class="col-12 col-md-6" sec:authorize="hasAnyRole('ADMIN','ESTOQUISTA')">
-                                    <a th:href="@{/admin/products}" class="btn btn-outline-success w-100">Listar
-                                        Produtos</a>
+                                    <a th:href="@{/admin/products}" class="btn btn-outline-success w-100">Listar Produtos</a>
+                                </div>
+                            </div>
+
+                            <!-- NOVO BLOCO: Botão "Ver Pedidos" -->
+                            <div class="row g-3 mt-3">
+                                <div class="col-12 col-md-6" sec:authorize="hasAnyRole('ADMIN','ESTOQUISTA')">
+                                    <a th:href="@{/admin/orders}" class="btn btn-outline-warning w-100">Ver Pedidos</a>
                                 </div>
                             </div>
 
@@ -59,6 +63,7 @@
             </div>
         </div>
     </div>
+
 
 
     <div sec:authorize="!hasAnyRole('ADMIN', 'ESTOQUISTA')">

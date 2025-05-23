@@ -1,0 +1,116 @@
+/* admin/list-orders.css */
+
+/* Fontes e Reset */
+@font-face {
+    font-family: 'Quicksand';
+    src: url('../../fonts/Quicksand-Regular.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* Layout base para fixar o footer no fim da tela */
+html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Quicksand', Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+/* Títulos e textos */
+h2 {
+    font-weight: bold;
+    color: #0d6efd;
+    margin-bottom: 1.5rem;
+}
+
+h2, p, .form-control, .btn-primary, .menu a, .brand-name {
+    font-family: 'Quicksand', Arial, sans-serif;
+}
+
+/* Tabela */
+.table thead th {
+    background-color: #f1f1f1;
+    color: #333;
+    font-weight: 600;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+/* Badges de status */
+.badge.bg-success {
+    background-color: #198754 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.badge.bg-primary {
+    background-color: #0d6efd !important;
+}
+
+.badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* Formulário de status */
+.status-form select {
+    min-width: 180px;
+    border-radius: 0.3rem;
+    border: 1px solid #ced4da;
+}
+
+.status-form button {
+    white-space: nowrap;
+}
+
+/* Mensagens */
+.alert {
+    font-size: 0.95rem;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.4rem;
+}
+
+/* Card */
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+/* Textos */
+.text-center {
+    text-align: center;
+}
+
+.fst-italic {
+    font-style: italic;
+}
