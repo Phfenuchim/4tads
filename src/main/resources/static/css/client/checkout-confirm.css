@@ -38,6 +38,14 @@ h2 {
     text-shadow: 0 1px 1px rgba(0,0,0,0.05);
 }
 
+h2 span {
+    font-size: inherit;      /* Garante que o tamanho da fonte seja o mesmo do h2 */
+    font-weight: inherit;    /* Garante que o peso da fonte (ex: negrito) seja o mesmo do h2 */
+    color: inherit;          /* Garante que a cor seja a mesma do h2 */
+    letter-spacing: inherit; /* Garante que o espaçamento entre letras seja o mesmo */
+    /* vertical-align: baseline;  Pode ajudar em alinhamentos sutis, mas geralmente não é necessário para font-size */
+}
+
 h5 {
     color: #343a40;
     margin-bottom: 0.5rem;

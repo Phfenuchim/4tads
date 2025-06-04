@@ -5,6 +5,7 @@ import com.livestock.modules.cart.dto.CartItem;
 import com.livestock.modules.checkout.domain.Freight;
 import com.livestock.modules.checkout.services.CheckoutService;
 import com.livestock.modules.client.domain.address.Address;
+import com.livestock.modules.client.domain.address.AddressType;
 import com.livestock.modules.client.domain.client.Client;
 import com.livestock.modules.client.repositories.AddressRepository;
 import com.livestock.modules.client.repositories.ClientRepository;
@@ -24,6 +25,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class CheckoutController {
@@ -56,11 +58,13 @@ public class CheckoutController {
         }
         Client client = clientOpt.get();
 
-        List<Address> addresses = addressRepository.findByClientId(client.getId());
+        // 1. Buscar todos os endereços do cliente
+        List<Address> allClientAddresses = addressRepository.findByClientId(client.getId());
 
-        if (addresses.isEmpty()) {
-            return "redirect:/client/addresses?redirectTo=/checkout";
-        }
+        // 2. Filtrar para manter apenas os endereços de ENTREGA
+        List<Address> deliveryAddresses = allClientAddresses.stream()
+                .filter(address -> AddressType.ENTREGA.equals(address.getType())) // Filtra pelo tipo ENTREGA
+                .collect(Collectors.toList());
 
         List<CartItem> items = cartController.getCartFromSession(session);
         if (items == null || items.isEmpty()) {
@@ -72,12 +76,13 @@ public class CheckoutController {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         model.addAttribute("userFirstName", client.getFirstName());
-        model.addAttribute("addresses", addresses);
+        model.addAttribute("addresses", deliveryAddresses); // Passar a lista filtrada para o modelo
         model.addAttribute("items", items);
         model.addAttribute("subtotal", total);
 
         return "checkout/initial-checkout";
     }
+
 
     @PostMapping("/checkout/select-address")
     public String selectAddress(@RequestParam("addressId") UUID addressId, HttpSession session) {
